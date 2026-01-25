@@ -16,92 +16,84 @@ interface AmbientAudioConfig {
   // Modulation
   lfoFrequency: number;
   lfoDepth: number;
-  // Reverb
-  reverbMix: number;
 }
 
 const DISTRICT_AUDIO_CONFIGS: Record<District, AmbientAudioConfig> = {
   cross: {
-    // Neon hum - buzzy 60Hz electrical hum with harmonics
+    // Neon hum - soft 60Hz electrical hum
     baseFrequency: 60,
-    oscillatorType: 'sawtooth',
-    gainLevel: 0.04,
+    oscillatorType: 'sine',
+    gainLevel: 0.015,
     secondaryFrequency: 120,
-    secondaryGain: 0.02,
+    secondaryGain: 0.008,
     noiseType: 'pink',
-    noiseGain: 0.015,
-    noiseFilterFreq: 400,
-    lfoFrequency: 0.5,
-    lfoDepth: 0.3,
-    reverbMix: 0.2,
+    noiseGain: 0.012,
+    noiseFilterFreq: 300,
+    lfoFrequency: 0.2,
+    lfoDepth: 0.15,
   },
   oxford: {
     // Similar neon hum but slightly different character
     baseFrequency: 55,
-    oscillatorType: 'square',
-    gainLevel: 0.03,
+    oscillatorType: 'sine',
+    gainLevel: 0.012,
     secondaryFrequency: 110,
-    secondaryGain: 0.015,
+    secondaryGain: 0.006,
     noiseType: 'pink',
-    noiseGain: 0.02,
-    noiseFilterFreq: 600,
-    lfoFrequency: 0.3,
-    lfoDepth: 0.25,
-    reverbMix: 0.25,
+    noiseGain: 0.015,
+    noiseFilterFreq: 400,
+    lfoFrequency: 0.15,
+    lfoDepth: 0.1,
   },
   cbd: {
-    // HVAC hum - low rumble with filtered white noise
+    // HVAC hum - low rumble
+    baseFrequency: 45,
+    oscillatorType: 'sine',
+    gainLevel: 0.02,
+    secondaryFrequency: 90,
+    secondaryGain: 0.01,
+    noiseType: 'brown',
+    noiseGain: 0.025,
+    noiseFilterFreq: 150,
+    lfoFrequency: 0.08,
+    lfoDepth: 0.1,
+  },
+  chinatown: {
+    // Busy ambient - slightly higher frequency activity
+    baseFrequency: 120,
+    oscillatorType: 'sine',
+    gainLevel: 0.008,
+    secondaryFrequency: 240,
+    secondaryGain: 0.004,
+    noiseType: 'pink',
+    noiseGain: 0.018,
+    noiseFilterFreq: 800,
+    lfoFrequency: 0.8,
+    lfoDepth: 0.25,
+  },
+  central: {
+    // Station rumble - deep drone
     baseFrequency: 40,
     oscillatorType: 'sine',
-    gainLevel: 0.05,
+    gainLevel: 0.018,
     secondaryFrequency: 80,
-    secondaryGain: 0.02,
+    secondaryGain: 0.01,
     noiseType: 'brown',
     noiseGain: 0.03,
     noiseFilterFreq: 200,
-    lfoFrequency: 0.1,
-    lfoDepth: 0.15,
-    reverbMix: 0.4,
-  },
-  chinatown: {
-    // Kitchen clatter - metallic overtones with percussive noise
-    baseFrequency: 180,
-    oscillatorType: 'triangle',
-    gainLevel: 0.02,
-    secondaryFrequency: 360,
-    secondaryGain: 0.015,
-    noiseType: 'white',
-    noiseGain: 0.025,
-    noiseFilterFreq: 2000,
-    lfoFrequency: 2.5,
-    lfoDepth: 0.6,
-    reverbMix: 0.15,
-  },
-  central: {
-    // Station reverb - deep rumble with echo
-    baseFrequency: 35,
-    oscillatorType: 'sine',
-    gainLevel: 0.04,
-    secondaryFrequency: 70,
-    secondaryGain: 0.025,
-    noiseType: 'brown',
-    noiseGain: 0.035,
-    noiseFilterFreq: 300,
-    lfoFrequency: 0.08,
-    lfoDepth: 0.2,
-    reverbMix: 0.6,
+    lfoFrequency: 0.05,
+    lfoDepth: 0.12,
   },
   redfern: {
-    // Distant dogs - sparse, eerie with occasional howls simulated by LFO
-    baseFrequency: 25,
+    // Sparse, eerie ambient
+    baseFrequency: 30,
     oscillatorType: 'sine',
-    gainLevel: 0.03,
+    gainLevel: 0.015,
     noiseType: 'brown',
-    noiseGain: 0.04,
-    noiseFilterFreq: 150,
-    lfoFrequency: 0.05,
-    lfoDepth: 0.4,
-    reverbMix: 0.5,
+    noiseGain: 0.035,
+    noiseFilterFreq: 100,
+    lfoFrequency: 0.03,
+    lfoDepth: 0.2,
   },
 };
 
@@ -123,15 +115,17 @@ export function useAmbientAudio(
   const isInitializedRef = useRef(false);
   const currentDistrictRef = useRef<District>(currentDistrict);
 
-  // Create noise buffer
+  // Create smooth noise buffer with crossfade for seamless looping
   const createNoiseBuffer = useCallback((ctx: AudioContext, type: 'pink' | 'brown' | 'white') => {
-    const bufferSize = ctx.sampleRate * 2;
+    const duration = 4; // Longer buffer for smoother looping
+    const bufferSize = ctx.sampleRate * duration;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
+    const fadeLength = ctx.sampleRate * 0.1; // 100ms crossfade
     
     if (type === 'white') {
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
+        data[i] = (Math.random() * 2 - 1) * 0.5;
       }
     } else if (type === 'pink') {
       let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
@@ -143,30 +137,40 @@ export function useAmbientAudio(
         b3 = 0.86650 * b3 + white * 0.3104856;
         b4 = 0.55000 * b4 + white * 0.5329522;
         b5 = -0.7616 * b5 - white * 0.0168980;
-        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.08;
         b6 = white * 0.115926;
       }
-    } else { // brown
+    } else { // brown - very smooth
       let lastOut = 0;
       for (let i = 0; i < bufferSize; i++) {
         const white = Math.random() * 2 - 1;
         data[i] = (lastOut + (0.02 * white)) / 1.02;
         lastOut = data[i];
-        data[i] *= 3.5;
+        data[i] *= 2.5;
       }
+    }
+    
+    // Apply crossfade at loop point for seamless looping
+    for (let i = 0; i < fadeLength; i++) {
+      const fadeIn = i / fadeLength;
+      const fadeOut = 1 - fadeIn;
+      const endIdx = bufferSize - fadeLength + i;
+      const blended = data[i] * fadeIn + data[endIdx] * fadeOut;
+      data[i] = blended;
+      data[endIdx] = blended;
     }
     
     return buffer;
   }, []);
 
-  // Initialize audio context on first user interaction
+  // Initialize audio context
   const initAudio = useCallback(() => {
     if (isInitializedRef.current) return;
     
     try {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       masterGainRef.current = audioContextRef.current.createGain();
-      masterGainRef.current.gain.value = 0.15; // Master volume
+      masterGainRef.current.gain.value = 0.3;
       masterGainRef.current.connect(audioContextRef.current.destination);
       isInitializedRef.current = true;
     } catch (e) {
@@ -183,78 +187,83 @@ export function useAmbientAudio(
     const config = DISTRICT_AUDIO_CONFIGS[district];
     const now = ctx.currentTime;
 
-    // Clean up existing nodes
-    if (oscillatorRef.current) {
-      try { oscillatorRef.current.stop(); } catch {}
-    }
-    if (secondaryOscRef.current) {
-      try { secondaryOscRef.current.stop(); } catch {}
-    }
-    if (noiseSourceRef.current) {
-      try { noiseSourceRef.current.stop(); } catch {}
-    }
-    if (lfoRef.current) {
-      try { lfoRef.current.stop(); } catch {}
-    }
+    // Clean up existing nodes with fade out
+    const cleanupNode = (node: OscillatorNode | AudioBufferSourceNode | null) => {
+      if (node) {
+        try { node.stop(now + 0.1); } catch {}
+      }
+    };
+    
+    cleanupNode(oscillatorRef.current);
+    cleanupNode(secondaryOscRef.current);
+    cleanupNode(noiseSourceRef.current);
+    cleanupNode(lfoRef.current);
 
-    // Create main oscillator
-    oscillatorRef.current = ctx.createOscillator();
-    oscillatorRef.current.type = config.oscillatorType;
-    oscillatorRef.current.frequency.value = config.baseFrequency;
-    
-    const oscGain = ctx.createGain();
-    oscGain.gain.value = config.gainLevel;
-    
-    // LFO for modulation
-    lfoRef.current = ctx.createOscillator();
-    lfoRef.current.type = 'sine';
-    lfoRef.current.frequency.value = config.lfoFrequency;
-    
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = config.lfoDepth * config.gainLevel;
-    
-    lfoRef.current.connect(lfoGain);
-    lfoGain.connect(oscGain.gain);
-    
-    oscillatorRef.current.connect(oscGain);
-    oscGain.connect(masterGain);
-    
-    oscillatorRef.current.start(now);
-    lfoRef.current.start(now);
+    // Small delay for cleanup
+    setTimeout(() => {
+      if (!ctx || ctx.state === 'closed') return;
+      
+      // Create main oscillator
+      oscillatorRef.current = ctx.createOscillator();
+      oscillatorRef.current.type = config.oscillatorType;
+      oscillatorRef.current.frequency.value = config.baseFrequency;
+      
+      const oscGain = ctx.createGain();
+      oscGain.gain.value = config.gainLevel;
+      
+      // Gentle LFO modulation
+      lfoRef.current = ctx.createOscillator();
+      lfoRef.current.type = 'sine';
+      lfoRef.current.frequency.value = config.lfoFrequency;
+      
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = config.lfoDepth * config.gainLevel;
+      
+      lfoRef.current.connect(lfoGain);
+      lfoGain.connect(oscGain.gain);
+      
+      oscillatorRef.current.connect(oscGain);
+      oscGain.connect(masterGain);
+      
+      oscillatorRef.current.start();
+      lfoRef.current.start();
 
-    // Secondary oscillator (harmonic)
-    if (config.secondaryFrequency) {
-      secondaryOscRef.current = ctx.createOscillator();
-      secondaryOscRef.current.type = config.oscillatorType;
-      secondaryOscRef.current.frequency.value = config.secondaryFrequency;
-      
-      const secGain = ctx.createGain();
-      secGain.gain.value = config.secondaryGain || 0.01;
-      
-      secondaryOscRef.current.connect(secGain);
-      secGain.connect(masterGain);
-      secondaryOscRef.current.start(now);
-    }
+      // Secondary oscillator (harmonic)
+      if (config.secondaryFrequency) {
+        secondaryOscRef.current = ctx.createOscillator();
+        secondaryOscRef.current.type = config.oscillatorType;
+        secondaryOscRef.current.frequency.value = config.secondaryFrequency;
+        
+        const secGain = ctx.createGain();
+        secGain.gain.value = config.secondaryGain || 0.005;
+        
+        secondaryOscRef.current.connect(secGain);
+        secGain.connect(masterGain);
+        secondaryOscRef.current.start();
+      }
 
-    // Noise layer
-    if (config.noiseType !== 'none') {
-      const noiseBuffer = createNoiseBuffer(ctx, config.noiseType);
-      noiseSourceRef.current = ctx.createBufferSource();
-      noiseSourceRef.current.buffer = noiseBuffer;
-      noiseSourceRef.current.loop = true;
-      
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.value = config.noiseGain;
-      
-      const noiseFilter = ctx.createBiquadFilter();
-      noiseFilter.type = 'lowpass';
-      noiseFilter.frequency.value = config.noiseFilterFreq;
-      
-      noiseSourceRef.current.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(masterGain);
-      noiseSourceRef.current.start(now);
-    }
+      // Noise layer with smooth filter
+      if (config.noiseType !== 'none') {
+        const noiseBuffer = createNoiseBuffer(ctx, config.noiseType);
+        noiseSourceRef.current = ctx.createBufferSource();
+        noiseSourceRef.current.buffer = noiseBuffer;
+        noiseSourceRef.current.loop = true;
+        
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.value = config.noiseGain;
+        
+        // Smoother filter with lower Q
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'lowpass';
+        noiseFilter.frequency.value = config.noiseFilterFreq;
+        noiseFilter.Q.value = 0.5;
+        
+        noiseSourceRef.current.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(masterGain);
+        noiseSourceRef.current.start();
+      }
+    }, 150);
   }, [createNoiseBuffer]);
 
   // Rain sound
@@ -275,12 +284,13 @@ export function useAmbientAudio(
       rainNoiseRef.current.loop = true;
       
       const rainGain = ctx.createGain();
-      rainGain.gain.value = 0.08;
+      rainGain.gain.value = 0.05;
       
+      // Gentle rain filter
       const rainFilter = ctx.createBiquadFilter();
       rainFilter.type = 'bandpass';
-      rainFilter.frequency.value = 1500;
-      rainFilter.Q.value = 0.5;
+      rainFilter.frequency.value = 1200;
+      rainFilter.Q.value = 0.3;
       
       rainNoiseRef.current.connect(rainFilter);
       rainFilter.connect(rainGain);
@@ -293,23 +303,18 @@ export function useAmbientAudio(
   useEffect(() => {
     if (!masterGainRef.current) return;
     
-    const baseVolume = 0.12;
-    const nightBoost = timeOfDay === 'night' ? 1.3 : timeOfDay === 'dusk' ? 1.15 : 1.0;
-    masterGainRef.current.gain.value = baseVolume * nightBoost;
+    const baseVolume = 0.25;
+    const nightBoost = timeOfDay === 'night' ? 1.2 : timeOfDay === 'dusk' ? 1.1 : 1.0;
+    masterGainRef.current.gain.setTargetAtTime(baseVolume * nightBoost, audioContextRef.current?.currentTime || 0, 0.3);
   }, [timeOfDay]);
 
   // Handle pause/game over/mute
   useEffect(() => {
-    if (!masterGainRef.current) return;
+    if (!masterGainRef.current || !audioContextRef.current) return;
     
-    if (isPaused || isGameOver || isMuted) {
-      masterGainRef.current.gain.value = 0;
-    } else {
-      const baseVolume = 0.12;
-      const nightBoost = timeOfDay === 'night' ? 1.3 : timeOfDay === 'dusk' ? 1.15 : 1.0;
-      masterGainRef.current.gain.value = baseVolume * nightBoost;
-    }
-  }, [isPaused, isGameOver, isMuted, timeOfDay]);
+    const targetGain = (isPaused || isGameOver || isMuted) ? 0 : 0.25;
+    masterGainRef.current.gain.setTargetAtTime(targetGain, audioContextRef.current.currentTime, 0.2);
+  }, [isPaused, isGameOver, isMuted]);
 
   // Handle district change
   useEffect(() => {
@@ -326,9 +331,9 @@ export function useAmbientAudio(
     }
   }, [isRaining, updateRainSound]);
 
-  // Initialize on click
+  // Initialize on user interaction
   useEffect(() => {
-    const handleClick = () => {
+    const handleInteraction = () => {
       if (!isInitializedRef.current) {
         initAudio();
         if (audioContextRef.current) {
@@ -340,12 +345,14 @@ export function useAmbientAudio(
       }
     };
 
-    window.addEventListener('click', handleClick);
-    window.addEventListener('touchstart', handleClick);
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    window.addEventListener('keydown', handleInteraction);
     
     return () => {
-      window.removeEventListener('click', handleClick);
-      window.removeEventListener('touchstart', handleClick);
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
     };
   }, [initAudio, updateDistrictAudio, updateRainSound, currentDistrict, isRaining]);
 
