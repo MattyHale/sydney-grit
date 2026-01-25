@@ -162,9 +162,23 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
   const renderCityBlocks = () => {
     const blockTypes = getBlocksForDistrict();
     const blockWidth = 70;
+    const totalWidth = blockWidth * blockTypes.length;
+    
+    // Normalize parallax offset to always be positive for consistent wrapping
+    const normalizedOffset = ((parallaxOffset % totalWidth) + totalWidth) % totalWidth;
     
     return blockTypes.map((type, i) => {
-      const xPos = (i * blockWidth) - (parallaxOffset % (blockWidth * blockTypes.length));
+      // Calculate base position and wrap around the total width
+      let xPos = (i * blockWidth) - normalizedOffset;
+      
+      // Wrap blocks that go off-screen left to the right side
+      if (xPos < -blockWidth) {
+        xPos += totalWidth;
+      }
+      // Wrap blocks that are too far right to the left
+      if (xPos > totalWidth) {
+        xPos -= totalWidth;
+      }
       
       return (
         <div
@@ -2265,10 +2279,23 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
   const renderClutter = () => {
     const items = [];
     const clutterTypes = currentConfig.clutterTypes;
+    const itemWidth = 55;
+    const totalWidth = itemWidth * 18;
+    
+    // Normalize offset for consistent wrapping
+    const normalizedOffset = ((midParallaxOffset % totalWidth) + totalWidth) % totalWidth;
     
     for (let i = 0; i < 18; i++) {
       const type = clutterTypes[i % clutterTypes.length];
-      const xPos = (i * 55) - (midParallaxOffset % 900) + 10;
+      let xPos = (i * itemWidth) - normalizedOffset + 10;
+      
+      // Wrap items to stay visible
+      if (xPos < -itemWidth) {
+        xPos += totalWidth;
+      }
+      if (xPos > totalWidth) {
+        xPos -= totalWidth;
+      }
       
       items.push(
         <div
