@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import { DesperationAction, PedestrianAction } from '@/types/game';
+import { ResolvedButtons } from '@/types/game';
 
 interface ControlsProps {
   onLeft: () => void;
@@ -10,11 +10,7 @@ interface ControlsProps {
   onButtonA: () => void;
   onButtonB: () => void;
   onButtonC: () => void;
-  desperationActions: DesperationAction[];
-  carEncounterActive?: boolean;
-  stealWindowActive?: boolean;
-  pedestrianActions?: PedestrianAction[];
-  dealerNearby?: boolean;
+  resolvedButtons: ResolvedButtons;
 }
 
 export function Controls({
@@ -26,11 +22,7 @@ export function Controls({
   onButtonA,
   onButtonB,
   onButtonC,
-  desperationActions,
-  carEncounterActive,
-  stealWindowActive,
-  pedestrianActions = [],
-  dealerNearby = false,
+  resolvedButtons,
 }: ControlsProps) {
   const moveIntervalRef = useRef<number | null>(null);
 
@@ -51,51 +43,91 @@ export function Controls({
     onStopMove();
   }, [onStopMove]);
 
-  const getButtonLabel = (button: 'A' | 'B' | 'C'): string => {
-    // Dealer nearby - A button is BUY
-    if (dealerNearby && button === 'A') {
-      return '💊';
+  // Determine which hint to show based on resolved button states
+  const getActiveHint = () => {
+    const { A, B, C } = resolvedButtons;
+    
+    // Car encounter takes priority
+    if (A.type === 'car-encounter') {
+      return {
+        show: true,
+        icon: '🚗',
+        title: 'Car stopped nearby',
+        hint: 'A: approach | ▼: ignore',
+        borderClass: 'border-gb-light',
+        pulse: true,
+      };
     }
     
-    // Pedestrian actions take priority
-    if (pedestrianActions.length > 0 && !dealerNearby) {
-      if (button === 'A' && pedestrianActions.includes('steal')) return '🤏';
-      if (button === 'B' && pedestrianActions.includes('pitch')) return '📢';
-      if (button === 'C') {
-        if (pedestrianActions.includes('trade')) return '💋';
-        if (pedestrianActions.includes('hit')) return '👊';
-      }
+    // Dealer nearby
+    if (A.type === 'dealer') {
+      return {
+        show: true,
+        icon: '💊',
+        title: 'Dealer nearby',
+        hint: 'A: buy drugs',
+        borderClass: 'border-[#44ff44]',
+        pulse: true,
+      };
     }
     
-    const index = button === 'A' ? 0 : button === 'B' ? 1 : 2;
-    if (desperationActions[index]) {
-      switch (desperationActions[index]) {
-        case 'theft': return '💰';
-        case 'car': return '🚗';
-        case 'sell': return '📦';
-        case 'dog-sacrifice': return '🐕';
-        case 'buy-coke': return '❄️';
-        case 'purse-steal': return '👛';
-      }
+    // LSD available
+    if (A.type === 'lsd') {
+      return {
+        show: true,
+        icon: '🌈',
+        title: 'LSD available',
+        hint: 'A: take acid',
+        borderClass: 'border-[#ff44ff]',
+        pulse: true,
+      };
     }
-    return button;
+    
+    // Pedestrian actions
+    if (A.type === 'pedestrian' || B.type === 'pedestrian' || C.type === 'pedestrian') {
+      const actions: string[] = [];
+      if (A.type === 'pedestrian') actions.push(`A:${A.action}`);
+      if (B.type === 'pedestrian') actions.push(`B:${B.action}`);
+      if (C.type === 'pedestrian') actions.push(`C:${C.action}`);
+      return {
+        show: true,
+        icon: '👤',
+        title: 'Target nearby',
+        hint: actions.join(' '),
+        borderClass: 'border-gb-light',
+        pulse: false,
+      };
+    }
+    
+    // Steal window
+    if (B.type === 'steal' || C.type === 'steal') {
+      return {
+        show: true,
+        icon: '👛',
+        title: 'Steal opportunity',
+        hint: 'B or C: grab purse',
+        borderClass: 'border-[#ff6666]',
+        pulse: true,
+      };
+    }
+    
+    // Desperation actions
+    if (A.type === 'desperation' || B.type === 'desperation' || C.type === 'desperation') {
+      return {
+        show: true,
+        type: 'desperation',
+        actions: [
+          A.type === 'desperation' ? { key: 'A', action: A.action } : null,
+          B.type === 'desperation' ? { key: 'B', action: B.action } : null,
+          C.type === 'desperation' ? { key: 'C', action: C.action } : null,
+        ].filter(Boolean) as { key: string; action: string }[],
+      };
+    }
+    
+    return { show: false };
   };
 
-  // Get action text hints for display
-  const getActionHints = (): string[] => {
-    const hints: string[] = [];
-    if (pedestrianActions.length > 0) {
-      if (pedestrianActions.includes('steal')) hints.push('A:STEAL');
-      if (pedestrianActions.includes('pitch')) hints.push('B:PITCH');
-      if (pedestrianActions.includes('trade')) hints.push('C:TRADE');
-      else if (pedestrianActions.includes('hit')) hints.push('C:HIT');
-    }
-    desperationActions.forEach((action, i) => {
-      const btn = ['A', 'B', 'C'][i];
-      if (action === 'buy-coke') hints.push(`${btn}:COKE`);
-    });
-    return hints;
-  };
+  const hint = getActiveHint();
 
   return (
     <div className="bg-gb-darkest border-t-2 border-gb-dark px-3 sm:px-4 py-4 sm:py-3 flex justify-between items-center min-h-[140px] sm:min-h-[120px]">
@@ -150,44 +182,20 @@ export function Controls({
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 sm:w-8 sm:h-8 bg-gb-darkest rounded" />
       </div>
 
-      {/* Car encounter hint - shows prominently when car is stopped nearby */}
-      {carEncounterActive && (
-        <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-gb-light animate-pulse">
-          <span>🚗 Car stopped nearby</span>
-          <span>A: approach | ▼: ignore</span>
-        </div>
-      )}
-
-      {/* Dealer hint */}
-      {dealerNearby && !carEncounterActive && (
-        <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-[#44ff44] animate-pulse">
-          <span>💊 Dealer nearby</span>
-          <span>A: buy drugs</span>
-        </div>
-      )}
-
-      {/* Pedestrian action hints */}
-      {pedestrianActions.length > 0 && !carEncounterActive && !dealerNearby && (
-        <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-gb-light">
-          <span>👤 Target nearby</span>
-          <span>A:steal B:pitch C:trade/hit</span>
-        </div>
-      )}
-
-      {/* Steal hint - only if no pedestrian actions */}
-      {stealWindowActive && !carEncounterActive && pedestrianActions.length === 0 && (
-        <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-[#ff6666] animate-pulse">
-          <span>👛 Steal opportunity</span>
-          <span>B or C: grab purse</span>
+      {/* Contextual hints */}
+      {hint.show && hint.type !== 'desperation' && (
+        <div className={`absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border ${hint.borderClass} ${hint.pulse ? 'animate-pulse' : ''}`}>
+          <span>{hint.icon} {hint.title}</span>
+          <span>{hint.hint}</span>
         </div>
       )}
 
       {/* Desperation hints */}
-      {desperationActions.length > 0 && !carEncounterActive && !stealWindowActive && pedestrianActions.length === 0 && (
+      {hint.show && hint.type === 'desperation' && (
         <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex gap-2 text-[9px] sm:text-[8px] text-gb-lightest">
-          {desperationActions.map((action, i) => (
-            <span key={action} className="bg-gb-dark px-2 py-1 animate-pulse rounded">
-              {['A', 'B', 'C'][i]}: {action}
+          {hint.actions?.map(({ key, action }) => (
+            <span key={key} className="bg-gb-dark px-2 py-1 animate-pulse rounded">
+              {key}: {action}
             </span>
           ))}
         </div>
@@ -200,21 +208,27 @@ export function Controls({
           onTouchStart={(e) => { e.preventDefault(); onButtonC(); }}
           onMouseDown={onButtonC}
         >
-          <span className="text-gb-lightest text-base sm:text-sm font-bold">{getButtonLabel('C')}</span>
+          <span className="text-gb-lightest text-base sm:text-sm font-bold">
+            {resolvedButtons.C.label || 'C'}
+          </span>
         </button>
         <button
           className="w-14 h-14 sm:w-12 sm:h-12 bg-gb-dark active:bg-gb-light rounded-full flex items-center justify-center border-3 sm:border-2 border-gb-light touch-none select-none shadow-lg"
           onTouchStart={(e) => { e.preventDefault(); onButtonB(); }}
           onMouseDown={onButtonB}
         >
-          <span className="text-gb-lightest text-base sm:text-sm font-bold">{getButtonLabel('B')}</span>
+          <span className="text-gb-lightest text-base sm:text-sm font-bold">
+            {resolvedButtons.B.label || 'B'}
+          </span>
         </button>
         <button
           className="w-14 h-14 sm:w-12 sm:h-12 bg-gb-dark active:bg-gb-light rounded-full flex items-center justify-center border-3 sm:border-2 border-gb-light touch-none select-none shadow-lg"
           onTouchStart={(e) => { e.preventDefault(); onButtonA(); }}
           onMouseDown={onButtonA}
         >
-          <span className="text-gb-lightest text-base sm:text-sm font-bold">{getButtonLabel('A')}</span>
+          <span className="text-gb-lightest text-base sm:text-sm font-bold">
+            {resolvedButtons.A.label || 'A'}
+          </span>
         </button>
       </div>
     </div>
