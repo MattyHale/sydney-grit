@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useMemo } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useControls } from '@/hooks/useControls';
 import { useAmbientAudio } from '@/hooks/useAmbientAudio';
@@ -6,6 +6,7 @@ import { HUD } from '@/components/game/HUD';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { Controls } from '@/components/game/Controls';
 import { TitleScreen } from '@/components/game/TitleScreen';
+import { resolveButtonActions } from '@/utils/resolveButtonActions';
 
 const Index = () => {
   const [isMuted, setIsMuted] = useState(false);
@@ -28,6 +29,10 @@ const Index = () => {
     takeLSD,
     tick,
   } = useGameState();
+
+  // Resolve button actions ONCE based on current state
+  // This is the single source of truth for what each button does
+  const resolvedButtons = useMemo(() => resolveButtonActions(state), [state]);
 
   // Ambient audio per district
   useAmbientAudio(
@@ -60,48 +65,67 @@ const Index = () => {
     setDucking(ducking);
   }, [state.carEncounterActive, ignoreCarEncounter, setDucking]);
 
-  // Button handlers for desperation actions and pedestrian actions
+  // Button handlers use the resolved actions for consistency
   const handleButtonA = useCallback(() => {
-    if (state.carEncounterActive) {
-      handleCarEncounter();
-    } else if (state.stealTarget?.archetype === 'dealer') {
-      // Buy from dealer when near one
-      buyFromDealer();
-    } else if (state.stats.lsd > 0 && !state.lsdTripActive && state.currentZone === 'alley') {
-      // Take LSD in alleys
-      takeLSD();
-    } else if (state.pedestrianActionAvailable.includes('steal')) {
-      performPedestrianAction('steal');
-    } else if (state.desperationAvailable[0]) {
-      performDesperationAction(state.desperationAvailable[0]);
-    } else if (state.currentZone) {
-      performAction(state.currentZone);
+    const action = resolvedButtons.A;
+    switch (action.type) {
+      case 'car-encounter':
+        handleCarEncounter();
+        break;
+      case 'dealer':
+        buyFromDealer();
+        break;
+      case 'lsd':
+        takeLSD();
+        break;
+      case 'pedestrian':
+        if (action.action === 'steal') performPedestrianAction('steal');
+        break;
+      case 'desperation':
+        if (action.action) performDesperationAction(action.action as any);
+        break;
+      case 'zone':
+        if (action.action) performAction(action.action as any);
+        break;
+      default:
+        break;
     }
-  }, [state.desperationAvailable, state.currentZone, state.carEncounterActive, state.pedestrianActionAvailable, state.stats.lsd, state.lsdTripActive, state.stealTarget, performAction, performDesperationAction, performPedestrianAction, handleCarEncounter, takeLSD, buyFromDealer]);
+  }, [resolvedButtons.A, handleCarEncounter, buyFromDealer, takeLSD, performPedestrianAction, performDesperationAction, performAction]);
 
   const handleButtonB = useCallback(() => {
-    // B button for pitch or steal
-    if (state.pedestrianActionAvailable.includes('pitch')) {
-      performPedestrianAction('pitch');
-    } else if (state.stealWindowActive) {
-      attemptPurseSteal();
-    } else if (state.desperationAvailable[1]) {
-      performDesperationAction(state.desperationAvailable[1]);
+    const action = resolvedButtons.B;
+    switch (action.type) {
+      case 'pedestrian':
+        if (action.action === 'pitch') performPedestrianAction('pitch');
+        break;
+      case 'steal':
+        attemptPurseSteal();
+        break;
+      case 'desperation':
+        if (action.action) performDesperationAction(action.action as any);
+        break;
+      default:
+        break;
     }
-  }, [state.stealWindowActive, state.desperationAvailable, state.pedestrianActionAvailable, attemptPurseSteal, performDesperationAction, performPedestrianAction]);
+  }, [resolvedButtons.B, performPedestrianAction, attemptPurseSteal, performDesperationAction]);
 
   const handleButtonC = useCallback(() => {
-    // C button for trade/hit or purse steal
-    if (state.pedestrianActionAvailable.includes('trade')) {
-      performPedestrianAction('trade');
-    } else if (state.pedestrianActionAvailable.includes('hit')) {
-      performPedestrianAction('hit');
-    } else if (state.stealWindowActive) {
-      attemptPurseSteal();
-    } else if (state.desperationAvailable[2]) {
-      performDesperationAction(state.desperationAvailable[2]);
+    const action = resolvedButtons.C;
+    switch (action.type) {
+      case 'pedestrian':
+        if (action.action === 'trade') performPedestrianAction('trade');
+        else if (action.action === 'hit') performPedestrianAction('hit');
+        break;
+      case 'steal':
+        attemptPurseSteal();
+        break;
+      case 'desperation':
+        if (action.action) performDesperationAction(action.action as any);
+        break;
+      default:
+        break;
     }
-  }, [state.stealWindowActive, state.desperationAvailable, state.pedestrianActionAvailable, attemptPurseSteal, performDesperationAction, performPedestrianAction]);
+  }, [resolvedButtons.C, performPedestrianAction, attemptPurseSteal, performDesperationAction]);
 
   // Set up keyboard controls
   useControls({
@@ -161,11 +185,7 @@ const Index = () => {
         onButtonA={handleButtonA}
         onButtonB={handleButtonB}
         onButtonC={handleButtonC}
-        desperationActions={state.desperationAvailable}
-        carEncounterActive={state.carEncounterActive}
-        stealWindowActive={state.stealWindowActive}
-        pedestrianActions={state.pedestrianActionAvailable}
-        dealerNearby={state.stealTarget?.archetype === 'dealer'}
+        resolvedButtons={resolvedButtons}
       />
     </div>
   );

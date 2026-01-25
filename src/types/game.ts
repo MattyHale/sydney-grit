@@ -178,6 +178,21 @@ export const ARCHETYPE_ACTION_BIAS: Record<PedestrianArchetype, {
   dealer: { pitchSuccess: 0.0, tradeWilling: 1.0, fightBack: 0.8 }, // Dealers trade drugs, dangerous
 };
 
+// Button action resolution types
+export type ButtonActionType = 'car-encounter' | 'dealer' | 'lsd' | 'pedestrian' | 'steal' | 'desperation' | 'zone' | 'none';
+
+export interface ButtonAction {
+  type: ButtonActionType;
+  action?: string;
+  label: string;
+}
+
+export interface ResolvedButtons {
+  A: ButtonAction;
+  B: ButtonAction;
+  C: ButtonAction;
+}
+
 export const INITIAL_STATE: GameState = {
   screen: 'title',
   stats: { ...INITIAL_STATS },
