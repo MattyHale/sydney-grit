@@ -124,198 +124,293 @@ export function useGameState() {
     setState({ ...INITIAL_STATE, screen: 'playing' });
   }, []);
 
+  // Enter shop - opens shop interior
+  const enterShop = useCallback((zone: HotspotZone) => {
+    setState(s => {
+      if (s.isGameOver || s.isPaused) return s;
+      return { ...s, inShop: true, currentShop: zone };
+    });
+  }, []);
+
+  // Exit shop
+  const exitShop = useCallback(() => {
+    setState(s => ({ ...s, inShop: false, currentShop: null }));
+  }, []);
+
+  // Handle shop action
+  const handleShopAction = useCallback((shopType: HotspotZone, actionId: string) => {
+    setState(s => {
+      if (s.isGameOver) return s;
+      
+      const newState = { ...s, stats: { ...s.stats }, inShop: false, currentShop: null };
+      
+      // VC Firm actions
+      if (shopType === 'vc-firm') {
+        if (actionId === 'pitch-seed') {
+          // 50/50 - Win $500K or lose hope
+          if (Math.random() < 0.5) {
+            newState.stats.money += 500000;
+            newState.stats.hope = Math.min(100, newState.stats.hope + 25);
+            showEvent('SEED ROUND CLOSED! $500K in the bank!');
+            showTransaction('money', '+$500K');
+          } else {
+            newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+            showEvent('"We\'ll pass. Not a fit for our portfolio."');
+            showTransaction('fail', 'Rejected');
+          }
+        } else if (actionId === 'pitch-series-a' && s.stats.money >= 50) {
+          newState.stats.money -= 50;
+          if (Math.random() < 0.35) {
+            newState.stats.money += 2000000;
+            newState.stats.hope = Math.min(100, newState.stats.hope + 40);
+            showEvent('SERIES A! $2M! You made it!');
+            showTransaction('money', '+$2M');
+          } else {
+            newState.stats.hope = Math.max(0, newState.stats.hope - 35);
+            showEvent('"Your metrics aren\'t there yet. Come back with more traction."');
+            showTransaction('fail', 'Crushed');
+          }
+        } else if (actionId === 'network' && s.stats.money >= 20) {
+          newState.stats.money -= 20;
+          newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+          showEvent('Met some founders. Exchanged cards. Feeling connected.');
+          showTransaction('hope', '+10');
+        }
+      }
+      
+      // Strip club actions
+      if (shopType === 'strip-club') {
+        if (actionId === 'drinks' && s.stats.money >= 100) {
+          newState.stats.money -= 100;
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+          showEvent('Champagne with clients. Looking like a baller.');
+          showTransaction('money', '-$100');
+        } else if (actionId === 'massage' && s.stats.money >= 200) {
+          newState.stats.money -= 200;
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 30);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 20);
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
+          showEvent('VIP massage. Stress melting away...');
+          showTransaction('hope', '+20');
+        } else if (actionId === 'private' && s.stats.money >= 500) {
+          newState.stats.money -= 500;
+          newState.stats.warmth = 100;
+          newState.stats.hope = Math.min(100, newState.stats.hope + 30);
+          showEvent('Private room. Complete relaxation. Ready to hustle again.');
+          showTransaction('hope', '+30');
+        }
+      }
+      
+      // Bar actions  
+      if (shopType === 'bar') {
+        if (actionId === 'beer' && s.stats.money >= 12) {
+          newState.stats.money -= 12;
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 5);
+          showEvent('A cold schooner. The simple pleasures.');
+        } else if (actionId === 'whiskey' && s.stats.money >= 25) {
+          newState.stats.money -= 25;
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+          showEvent('Liquid courage. You can pitch anyone now.');
+        } else if (actionId === 'round' && s.stats.money >= 80) {
+          newState.stats.money -= 80;
+          newState.stats.hope = Math.min(100, newState.stats.hope + 15);
+          // Small chance of meeting someone useful
+          if (Math.random() < 0.3) {
+            newState.stats.money += Math.floor(Math.random() * 200) + 50;
+            showEvent('Bought a round. Met an angel investor. Got a check!');
+            showTransaction('money', '+$$$');
+          } else {
+            showEvent('Bought a round. Made some friends. Good vibes.');
+          }
+        }
+      }
+      
+      // Pawn shop actions
+      if (shopType === 'pawn') {
+        if (actionId === 'sell-watch' && s.stats.hasWatch) {
+          newState.stats.hasWatch = false;
+          newState.stats.money += 300;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+          showEvent('Sold your Rolex. $300 cash. It was just a thing.');
+          showTransaction('money', '+$300');
+        } else if (actionId === 'sell-laptop' && s.stats.hasLaptop) {
+          newState.stats.hasLaptop = false;
+          newState.stats.money += 800;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+          newState.stats.burnRate = Math.max(100, newState.stats.burnRate - 200);
+          showEvent('Sold your MacBook. $800. Can\'t code for a while.');
+          showTransaction('money', '+$800');
+        } else if (actionId === 'sell-phone' && s.stats.hasPhone) {
+          newState.stats.hasPhone = false;
+          newState.stats.money += 400;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 15);
+          showEvent('Sold your iPhone. $400. Might miss some calls.');
+          showTransaction('money', '+$400');
+        }
+      }
+      
+      // Cafe actions
+      if (shopType === 'cafe') {
+        if (actionId === 'coffee' && s.stats.money >= 6) {
+          newState.stats.money -= 6;
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 5);
+          showEvent('Flat white. The fuel of founders.');
+        } else if (actionId === 'meeting' && s.stats.money >= 15) {
+          newState.stats.money -= 15;
+          if (Math.random() < 0.4) {
+            const lead = Math.floor(Math.random() * 100) + 20;
+            newState.stats.money += lead;
+            showEvent(`Coffee meeting went well. Got a $${lead} intro.`);
+            showTransaction('money', `+$${lead}`);
+          } else {
+            newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+            showEvent('Coffee meeting. Good chat, no deal. Yet.');
+          }
+        } else if (actionId === 'cowork' && s.stats.money >= 35) {
+          newState.stats.money -= 35;
+          newState.stats.hope = Math.min(100, newState.stats.hope + 15);
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 15);
+          showEvent('Coworking all day. Productive. Feeling legit.');
+        }
+      }
+      
+      // Alley (dealer) actions
+      if (shopType === 'alley') {
+        if (actionId === 'buy-coke' && s.stats.money >= 150) {
+          newState.stats.money -= 150;
+          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 50);
+          showEvent('High-grade. Feels like you can do anything.');
+          showTransaction('drugs', '+50 COC');
+        } else if (actionId === 'buy-party' && s.stats.money >= 400) {
+          newState.stats.money -= 400;
+          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 80);
+          newState.stats.lsd = Math.min(5, newState.stats.lsd + 2);
+          showEvent('Party pack acquired. Client entertainment sorted.');
+          showTransaction('drugs', '+PARTY');
+        } else if (actionId === 'deal') {
+          // Risky business deal
+          if (Math.random() < 0.4) {
+            const profit = Math.floor(Math.random() * 500) + 200;
+            newState.stats.money += profit;
+            showEvent(`Shady deal paid off. +$${profit} cash.`);
+            showTransaction('money', `+$${profit}`);
+          } else {
+            newState.stats.money = Math.max(0, newState.stats.money - 200);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 15);
+            showEvent('Deal went south. Lost money. Stressed.');
+            showTransaction('fail', 'Bad Deal');
+          }
+        }
+      }
+      
+      // Food/dining actions
+      if (shopType === 'food-vendor') {
+        if (actionId === 'takeaway' && s.stats.money >= 25) {
+          newState.stats.money -= 25;
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 30);
+          showEvent('UberEats. Quick fuel. Back to the grind.');
+        } else if (actionId === 'lunch' && s.stats.money >= 85) {
+          newState.stats.money -= 85;
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 50);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+          // Networking chance
+          if (Math.random() < 0.25) {
+            newState.stats.money += Math.floor(Math.random() * 300) + 100;
+            showEvent('Business lunch. Client loved it. Got a contract!');
+            showTransaction('money', '+$$$');
+          } else {
+            showEvent('Business lunch at Rockpool. Feeling successful.');
+          }
+        } else if (actionId === 'dinner' && s.stats.money >= 250) {
+          newState.stats.money -= 250;
+          newState.stats.hunger = 100;
+          newState.stats.hope = Math.min(100, newState.stats.hope + 20);
+          if (Math.random() < 0.5) {
+            const deal = Math.floor(Math.random() * 1000) + 500;
+            newState.stats.money += deal;
+            showEvent(`Client dinner at Tetsuya's. Closed a $${deal} deal!`);
+            showTransaction('money', `+$${deal}`);
+          } else {
+            showEvent('Fancy dinner. Great for relationships. No deal yet.');
+          }
+        }
+      }
+      
+      // Services (startup hub) actions
+      if (shopType === 'services') {
+        if (actionId === 'mentor') {
+          newState.stats.hope = Math.min(100, newState.stats.hope + 15);
+          showEvent('Mentor session. "Iterate faster. Talk to customers."');
+          showTransaction('hope', '+15');
+        } else if (actionId === 'workshop' && s.stats.money >= 50) {
+          newState.stats.money -= 50;
+          newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+          // Pitch improvement - future pitches work better
+          showEvent('Pitch workshop. Learning to tell your story better.');
+        } else if (actionId === 'apply') {
+          if (Math.random() < 0.15) {
+            newState.stats.money += 100000;
+            newState.stats.hope = Math.min(100, newState.stats.hope + 30);
+            showEvent('ACCEPTED! $100K accelerator investment!');
+            showTransaction('money', '+$100K');
+          } else {
+            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+            showEvent('Application submitted. Waiting to hear back...');
+          }
+        }
+      }
+      
+      // Shelter (hotel) - rest
+      if (shopType === 'shelter') {
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 40);
+        newState.stats.hunger = Math.min(100, newState.stats.hunger + 20);
+        newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+        showEvent('Hotel for the night. Actually slept.');
+      }
+      
+      return newState;
+    });
+  }, [showEvent, showTransaction]);
+
   const performAction = useCallback((zone: HotspotZone) => {
     setState(s => {
       if (s.isGameOver || s.isPaused) return s;
       
+      // Most zones now open shop interiors
+      const shopZones: HotspotZone[] = ['vc-firm', 'strip-club', 'bar', 'pawn', 'cafe', 'services', 'alley', 'food-vendor', 'shelter'];
+      if (shopZones.includes(zone)) {
+        return { ...s, inShop: true, currentShop: zone };
+      }
+      
       const newState = { ...s, stats: { ...s.stats } };
-      const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
       
       switch (zone) {
-        case 'ask-help': {
-          // Slightly better odds, better payoffs
-          const kindnessChance = 0.35 * districtConfig.kindnessMultiplier;
-          const roll = Math.random();
-          if (roll < kindnessChance) {
-            const money = Math.floor(Math.random() * 3 * districtConfig.kindnessMultiplier) + 1;
-            newState.stats.money += money;
-            newState.stats.hope = Math.min(100, newState.stats.hope + 5);
-            const messages = [
-              `Someone pressed $${money} into your hand.`,
-              'A stranger stopped. They saw you.',
-              `"Here." $${money}. No eye contact.`,
-            ];
-            showEvent(messages[Math.floor(Math.random() * messages.length)]);
-            showTransaction('money', `+$${money}`);
-          } else if (roll < kindnessChance + 0.25) {
-            newState.stats.hope = Math.min(100, newState.stats.hope + 3);
-            const messages = [
-              'A nod. Just a nod. It was something.',
-              'Someone smiled. Brief, but real.',
-              '"Hang in there." They kept walking.',
-            ];
-            showEvent(messages[Math.floor(Math.random() * messages.length)]);
-            showTransaction('hope', '+3');
-          } else {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 2);
-            const messages = [
-              'Eyes forward. They all looked away.',
-              'Invisible. You\'re invisible.',
-              'The crowd parted around you.',
-            ];
-            showEvent(messages[Math.floor(Math.random() * messages.length)]);
-            showTransaction('fail', 'Ignored');
-          }
-          break;
-        }
-        case 'bins': {
-          if (s.ibis.isActive && s.ibis.hasEaten) {
-            showEvent('A bin chicken got there first. Nothing left.');
-            newState.stats.hope = Math.max(0, newState.stats.hope - 4);
-            break;
-          }
-          
-          if (s.binsRestocked) {
-            const roll = Math.random();
-            if (s.ibis.isActive && roll < 0.25) {
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + 8);
-              showEvent('You fought an ibis for scraps. Won some.');
-            } else if (roll < 0.5) {
-              // Better food finds
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + 20);
-              showEvent('Bread. Stale but edible.');
-            } else if (roll < 0.8) {
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + 12);
-              showEvent('Half a meat pie. Cold. It\'ll do.');
-            } else {
-              showEvent('Empty. All of them.');
-              newState.stats.hope = Math.max(0, newState.stats.hope - 2);
-            }
-            newState.binsRestocked = false;
-          } else {
-            showEvent('Already checked. Nothing new.');
-          }
-          break;
-        }
-        case 'services': {
-          // Better service payoffs when open
-          const servicesChance = 0.5 * districtConfig.servicesMultiplier;
-          if (s.servicesOpen) {
-            const roll = Math.random();
-            if (roll < servicesChance) {
-              const hungerBoost = Math.floor(30 * districtConfig.foodMultiplier);
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + hungerBoost);
-              newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
-              newState.stats.hope = Math.min(100, newState.stats.hope + 12);
-              showEvent('Services gave you a hot meal and some advice.');
-            } else if (roll < servicesChance + 0.3) {
-              newState.stats.warmth = Math.min(100, newState.stats.warmth + 20);
-              newState.stats.hope = Math.min(100, newState.stats.hope + 5);
-              showEvent('You waited in the warm lobby for a while.');
-            } else {
-              newState.stats.hope = Math.max(0, newState.stats.hope - 4);
-              showEvent('They told you to come back another day.');
-            }
-          } else {
-            showEvent('Services are closed. Try during the day.');
-          }
-          break;
-        }
-        case 'shelter': {
-          // Shelter is a big win when it works
-          const shelterChance = 0.55 * districtConfig.servicesMultiplier;
-          if (s.shelterOpen) {
-            const roll = Math.random();
-            if (roll < shelterChance) {
-              newState.stats.warmth = Math.min(100, newState.stats.warmth + 40);
-              newState.stats.hope = Math.min(100, newState.stats.hope + 12);
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
-              showEvent('You got a bed in the shelter tonight.');
-            } else {
-              newState.stats.hope = Math.max(0, newState.stats.hope - 6);
-              showEvent('The shelter is full. No beds left.');
-            }
-          } else {
-            showEvent('The shelter only opens in the evening.');
-          }
-          break;
-        }
         case 'sleep': {
-          // Sleeping is risky but restores some hope
-          newState.stats.warmth = Math.max(0, newState.stats.warmth - 12);
-          newState.stats.hunger = Math.max(0, newState.stats.hunger - 8);
-          newState.stats.hope = Math.min(100, newState.stats.hope + 8);
-          if (s.timeOfDay === 'night') {
-            newState.stats.warmth = Math.max(0, newState.stats.warmth - 8);
-          }
-          // Cocaine withdrawal hits hard when resting
-          if (s.stats.cocaine > 30) {
-            newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 15);
-            newState.stats.hope = Math.max(0, newState.stats.hope - 8);
-            showEvent('You tried to rest. The comedown was brutal.');
-          } else {
-            showEvent('You rested in the doorway. The cold seeped in.');
-          }
-          break;
-        }
-        case 'food-vendor': {
-          // Sell dog to food vendor for money and food
-          if (s.hasDog) {
-            newState.hasDog = false;
-            newState.dogHealth = 0;
-            newState.stats.money += 25;
-            newState.stats.hunger = Math.min(100, newState.stats.hunger + 50);
-            newState.stats.hope = Math.max(0, newState.stats.hope - 45);
-            newState.permanentHopeLoss += 20;
-            newState.isPaused = true;
-            const messages = [
-              'The cook took your dog without questions. You got paid. You got fed.',
-              'They handed you cash and a bowl of something hot. You didn\'t ask what.',
-              'Your companion is gone. The money feels heavy in your pocket.',
-            ];
-            showEvent(messages[Math.floor(Math.random() * messages.length)]);
-            setTimeout(() => {
-              setState(prev => ({ ...prev, isPaused: false }));
-            }, 3000);
-          } else {
-            // Regular food purchase
-            if (s.stats.money >= 5) {
-              newState.stats.money -= 5;
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + 30);
-              showEvent('You bought some cheap food. It was hot.');
+          // Office/coworking - work on the startup
+          newState.stats.hunger = Math.max(0, newState.stats.hunger - 10);
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 5);
+          if (s.stats.hasLaptop) {
+            newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+            // Burn rate generates some revenue if you work
+            if (Math.random() < 0.3) {
+              const revenue = Math.floor(Math.random() * 200) + 50;
+              newState.stats.money += revenue;
+              showEvent(`Grinding in the office. Made $${revenue} in revenue.`);
+              showTransaction('money', `+$${revenue}`);
             } else {
-              showEvent('You can\'t afford anything here.');
+              showEvent('Working late. Building the dream.');
             }
-          }
-          break;
-        }
-        case 'alley': {
-          // Entering alley - check for dealer
-          const districtDealerChance = districtConfig.dealerFrequency;
-          const hasDealerHere = Math.random() < districtDealerChance;
-          
-          newState.inAlley = true;
-          
-          if (hasDealerHere) {
-            newState.dealerNearby = true;
-            const dealerMessages = [
-              'A figure in the shadows beckons. They\'re holding.',
-              'Someone whispers: "You need something?"',
-              'A dealer steps from the dark. Product available.',
-            ];
-            showEvent(dealerMessages[Math.floor(Math.random() * dealerMessages.length)]);
-            showTransaction('drugs', 'DEALER');
           } else {
-            newState.dealerNearby = false;
-            const emptyMessages = [
-              'The alley is quiet. Empty.',
-              'Just trash and shadows.',
-              'No one here. The usual smell of piss.',
-            ];
-            showEvent(emptyMessages[Math.floor(Math.random() * emptyMessages.length)]);
+            showEvent('No laptop. Can\'t really work. Just sitting here.');
           }
           break;
         }
+        default:
+          // Unknown zone - do nothing
+          break;
       }
       
       return newState;
@@ -1478,5 +1573,8 @@ export function useGameState() {
     clearTransaction,
     takeLSD,
     tick,
+    enterShop,
+    exitShop,
+    handleShopAction,
   };
 }

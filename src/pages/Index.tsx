@@ -6,6 +6,7 @@ import { HUD } from '@/components/game/HUD';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { Controls } from '@/components/game/Controls';
 import { TitleScreen } from '@/components/game/TitleScreen';
+import { HotspotZone } from '@/types/game';
 
 const Index = () => {
   const [isMuted, setIsMuted] = useState(false);
@@ -26,6 +27,8 @@ const Index = () => {
     sellDrugs,
     clearTransaction,
     tick,
+    exitShop,
+    handleShopAction,
   } = useGameState();
 
   // Ambient audio per district
@@ -143,6 +146,8 @@ const Index = () => {
         onPause={togglePause}
         onRestart={restartGame}
         onClearTransaction={clearTransaction}
+        onShopAction={(shopType: HotspotZone, actionId: string) => handleShopAction(shopType, actionId)}
+        onExitShop={exitShop}
       />
       
       {/* Controls - D-pad and action buttons */}
