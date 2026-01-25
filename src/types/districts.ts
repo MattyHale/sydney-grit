@@ -1,8 +1,19 @@
 // District types for Sydney 1991
-export type District = 'cross' | 'oxford' | 'cbd' | 'chinatown' | 'central' | 'redfern';
+export type District = 'cross' | 'oxford' | 'cbd' | 'chinatown' | 'central' | 'redfern' | 'cabramatta';
 
 // District sequence for belt looping
-export const DISTRICT_SEQUENCE: District[] = ['cross', 'oxford', 'cbd', 'chinatown', 'central', 'redfern'];
+export const DISTRICT_SEQUENCE: District[] = ['cross', 'oxford', 'cbd', 'chinatown', 'central', 'redfern', 'cabramatta'];
+
+// Human-readable district names
+export const DISTRICT_NAMES: Record<District, string> = {
+  cross: "Kings Cross",
+  oxford: "Oxford St",
+  cbd: "Sydney City",
+  chinatown: "Chinatown",
+  central: "Central",
+  redfern: "Redfern",
+  cabramatta: "Cabramatta",
+};
 
 // Visual and economy properties per district
 export interface DistrictConfig {
@@ -255,6 +266,41 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     dominantBlocks: ['bins', 'pawn', 'tab', 'boarded', 'alley', 'bottleo'],
     clutterTypes: ['trash', 'bottles', 'crates', 'bins', 'puddles', 'posters', 'dumpster', 'smoke'],
     signage: ['TAB', 'PAWN', 'CASH', 'BOTTLE-O', 'LOANS', 'BLOCK'],
+  },
+  cabramatta: {
+    neonIntensity: 0.4,
+    warmth: 0.85,
+    brightness: 0.45,
+    pedestrianDensity: 0.7,
+    archetypeWeights: {
+      businessman: 0.03,
+      clubber: 0.02,
+      tourist: 0.05,
+      pensioner: 0.15,
+      backpacker: 0.03,
+      junkie: 0.35, // Heavy heroin presence in 1991
+      sexworker: 0.05,
+      student: 0.12,
+      cop: 0.08,
+      punk: 0.12,
+    },
+    sexEconomyMultiplier: 0.3,
+    foodMultiplier: 1.8,  // Great Vietnamese food
+    servicesMultiplier: 0.4,
+    theftMultiplier: 1.2,
+    kindnessMultiplier: 0.5,
+    dangerMultiplier: 1.5, // Highest danger - heroin wars
+    dealerFrequency: 1.0,  // Dealers everywhere
+    pitchMultiplier: 0.1,
+    tradeMultiplier: 0.4,
+    violenceMultiplier: 1.5, // High violence
+    lsdFrequency: 0.2,
+    policeFrequency: 1.2, // Heavy police presence
+    dogFrequency: 0.5,
+    ibisFrequency: 0.3,
+    dominantBlocks: ['pho', 'goldshop', 'pawn', 'alley', 'boarded', 'market', 'arcade'],
+    clutterTypes: ['crates', 'bins', 'steam', 'trash', 'bottles', 'dumpster', 'puddles'],
+    signage: ['PHỞ', 'VÀNG', 'GOLD', 'NOODLE', 'BÁNH MÌ', 'TIỆM', 'ARCADE', 'MARKET'],
   },
 };
 

@@ -95,6 +95,19 @@ const DISTRICT_AUDIO_CONFIGS: Record<District, AmbientAudioConfig> = {
     lfoFrequency: 0.03,
     lfoDepth: 0.2,
   },
+  cabramatta: {
+    // Busy market vibe with Southeast Asian character - woks, chatter
+    baseFrequency: 100,
+    oscillatorType: 'sine',
+    gainLevel: 0.01,
+    secondaryFrequency: 200,
+    secondaryGain: 0.005,
+    noiseType: 'pink',
+    noiseGain: 0.022,
+    noiseFilterFreq: 600,
+    lfoFrequency: 0.6,
+    lfoDepth: 0.2,
+  },
 };
 
 export function useAmbientAudio(
