@@ -632,6 +632,43 @@ export function useGameState() {
     });
   }, [showEvent]);
 
+  // Buy from dealer action
+  const buyFromDealer = useCallback(() => {
+    setState(s => {
+      if (!s.stealWindowActive || !s.stealTarget || s.isGameOver || s.isPaused) return s;
+      if (s.stealTarget.archetype !== 'dealer') return s;
+      
+      const newState = { ...s, stats: { ...s.stats } };
+      const cost = 15 + Math.floor(Math.random() * 10); // $15-25
+      
+      if (newState.stats.money < cost) {
+        showEvent('Not enough cash. The dealer waves you off.');
+        return s;
+      }
+      
+      // Random product
+      const product = Math.random();
+      newState.stats.money -= cost;
+      
+      if (product < 0.6) {
+        // Cocaine
+        newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 40);
+        showEvent(`Paid $${cost}. White powder in a tiny bag.`);
+      } else {
+        // LSD
+        newState.stats.lsd = Math.min(5, newState.stats.lsd + 1);
+        showEvent(`Paid $${cost}. A tiny square on your tongue.`);
+      }
+      
+      // Dealer disappears after transaction
+      newState.pedestrians = s.pedestrians.filter(p => p.id !== s.stealTarget!.id);
+      newState.stealWindowActive = false;
+      newState.stealTarget = null;
+      
+      return newState;
+    });
+  }, [showEvent]);
+
   // Take LSD action
   const takeLSD = useCallback(() => {
     setState(s => {
@@ -889,6 +926,26 @@ export function useGameState() {
           };
           updatedPeds.push(newPed);
         }
+      }
+      
+      // === DEALER SPAWN SYSTEM ===
+      // Dealers spawn in alleys (zone 36-44) in Cross and Redfern only
+      const isDealerDistrict = s.currentDistrict === 'cross' || s.currentDistrict === 'redfern';
+      const dealerSpawnChance = districtConfig.dealerFrequency * 0.08;
+      const hasDealer = updatedPeds.some(p => p.archetype === 'dealer');
+      
+      if (isDealerDistrict && !hasDealer && Math.random() < dealerSpawnChance) {
+        // Spawn dealer in alley zone (stationary, lurking)
+        const alleyX = 36 + Math.random() * 8; // Alley hotspot area
+        const newDealer: PedestrianState = {
+          id: pedIdRef.current++,
+          x: alleyX,
+          speed: 0.05, // Nearly stationary - lurking
+          direction: Math.random() < 0.5 ? 'left' : 'right',
+          archetype: 'dealer',
+          canBeStolen: true,
+        };
+        updatedPeds.push(newDealer);
       }
       
       // Check for steal window
@@ -1177,6 +1234,7 @@ export function useGameState() {
     handleCarEncounter,
     ignoreCarEncounter,
     attemptPurseSteal,
+    buyFromDealer,
     takeLSD,
     tick,
   };

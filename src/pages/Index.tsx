@@ -19,6 +19,7 @@ const Index = () => {
     handleCarEncounter,
     ignoreCarEncounter,
     attemptPurseSteal,
+    buyFromDealer,
     takeLSD,
     tick,
   } = useGameState();
@@ -44,6 +45,9 @@ const Index = () => {
   const handleButtonA = useCallback(() => {
     if (state.carEncounterActive) {
       handleCarEncounter();
+    } else if (state.stealTarget?.archetype === 'dealer') {
+      // Buy from dealer when near one
+      buyFromDealer();
     } else if (state.stats.lsd > 0 && !state.lsdTripActive && state.currentZone === 'alley') {
       // Take LSD in alleys
       takeLSD();
@@ -54,7 +58,7 @@ const Index = () => {
     } else if (state.currentZone) {
       performAction(state.currentZone);
     }
-  }, [state.desperationAvailable, state.currentZone, state.carEncounterActive, state.pedestrianActionAvailable, state.stats.lsd, state.lsdTripActive, performAction, performDesperationAction, performPedestrianAction, handleCarEncounter, takeLSD]);
+  }, [state.desperationAvailable, state.currentZone, state.carEncounterActive, state.pedestrianActionAvailable, state.stats.lsd, state.lsdTripActive, state.stealTarget, performAction, performDesperationAction, performPedestrianAction, handleCarEncounter, takeLSD, buyFromDealer]);
 
   const handleButtonB = useCallback(() => {
     // B button for pitch or steal
@@ -135,6 +139,7 @@ const Index = () => {
         carEncounterActive={state.carEncounterActive}
         stealWindowActive={state.stealWindowActive}
         pedestrianActions={state.pedestrianActionAvailable}
+        dealerNearby={state.stealTarget?.archetype === 'dealer'}
       />
     </div>
   );

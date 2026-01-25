@@ -14,6 +14,7 @@ interface ControlsProps {
   carEncounterActive?: boolean;
   stealWindowActive?: boolean;
   pedestrianActions?: PedestrianAction[];
+  dealerNearby?: boolean;
 }
 
 export function Controls({
@@ -29,6 +30,7 @@ export function Controls({
   carEncounterActive,
   stealWindowActive,
   pedestrianActions = [],
+  dealerNearby = false,
 }: ControlsProps) {
   const moveIntervalRef = useRef<number | null>(null);
 
@@ -50,8 +52,13 @@ export function Controls({
   }, [onStopMove]);
 
   const getButtonLabel = (button: 'A' | 'B' | 'C'): string => {
+    // Dealer nearby - A button is BUY
+    if (dealerNearby && button === 'A') {
+      return '💊';
+    }
+    
     // Pedestrian actions take priority
-    if (pedestrianActions.length > 0) {
+    if (pedestrianActions.length > 0 && !dealerNearby) {
       if (button === 'A' && pedestrianActions.includes('steal')) return '🤏';
       if (button === 'B' && pedestrianActions.includes('pitch')) return '📢';
       if (button === 'C') {
@@ -151,8 +158,16 @@ export function Controls({
         </div>
       )}
 
+      {/* Dealer hint */}
+      {dealerNearby && !carEncounterActive && (
+        <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-[#44ff44] animate-pulse">
+          <span>💊 Dealer nearby</span>
+          <span>A: buy drugs</span>
+        </div>
+      )}
+
       {/* Pedestrian action hints */}
-      {pedestrianActions.length > 0 && !carEncounterActive && (
+      {pedestrianActions.length > 0 && !carEncounterActive && !dealerNearby && (
         <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-gb-light">
           <span>👤 Target nearby</span>
           <span>A:steal B:pitch C:trade/hit</span>

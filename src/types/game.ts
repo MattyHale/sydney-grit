@@ -23,7 +23,8 @@ export type PedestrianArchetype =
   | 'sexworker' 
   | 'student'
   | 'cop'
-  | 'punk';
+  | 'punk'
+  | 'dealer';
 
 export interface PedestrianState {
   id: number;
@@ -127,6 +128,7 @@ export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
   'student',
   'cop',
   'punk',
+  'dealer',
 ];
 
 // Outcome biases per archetype
@@ -140,7 +142,8 @@ export const ARCHETYPE_STEAL_BIAS: Record<PedestrianArchetype, { moneyRange: [nu
   sexworker: { moneyRange: [5, 15], shoutChance: 0.1, kindnessChance: 0.08 },
   student: { moneyRange: [2, 8], shoutChance: 0.25, kindnessChance: 0.2 },
   cop: { moneyRange: [0, 0], shoutChance: 0.95, kindnessChance: 0.0 },
-  punk: { moneyRange: [1, 6], shoutChance: 0.05, kindnessChance: 0.15 }, // Punks are chill but broke
+  punk: { moneyRange: [1, 6], shoutChance: 0.05, kindnessChance: 0.15 },
+  dealer: { moneyRange: [15, 40], shoutChance: 0.7, kindnessChance: 0.0 }, // Dealers fight back hard
 };
 
 export const INITIAL_STATS: GameStats = {
@@ -168,7 +171,8 @@ export const ARCHETYPE_ACTION_BIAS: Record<PedestrianArchetype, {
   sexworker: { pitchSuccess: 0.1, tradeWilling: 0.6, fightBack: 0.3 },
   student: { pitchSuccess: 0.35, tradeWilling: 0.15, fightBack: 0.2 },
   cop: { pitchSuccess: 0.0, tradeWilling: 0.0, fightBack: 0.95 },
-  punk: { pitchSuccess: 0.15, tradeWilling: 0.35, fightBack: 0.6 }, // Punks trade drugs, fight back hard
+  punk: { pitchSuccess: 0.15, tradeWilling: 0.35, fightBack: 0.6 },
+  dealer: { pitchSuccess: 0.0, tradeWilling: 1.0, fightBack: 0.8 }, // Dealers trade drugs, dangerous
 };
 
 export const INITIAL_STATE: GameState = {
