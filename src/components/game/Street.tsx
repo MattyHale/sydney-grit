@@ -155,7 +155,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
 
   const renderCityBlocks = () => {
     const venues = getVenuesForDistrict();
-    const blockWidth = 70;
+    const blockWidth = 100;  // WIDER buildings
     const totalWidth = blockWidth * venues.length;
     
     // Normalize parallax offset to always be positive for consistent wrapping
@@ -196,357 +196,256 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
     const buildingColor = isEven ? pal.building : pal.buildingAlt;
     const signageClass = isTripping ? 'signage-glitch' : '';
     
+    // BIG SIGNAGE helper - prominent, readable signs at TOP of buildings
+    const renderBigSign = (bgColor: string, textColor: string, glowColor?: string, emoji?: string) => (
+      <div 
+        className={`absolute top-0 left-0 right-0 h-16 flex items-center justify-center px-1 font-bold ${signageClass}`}
+        style={{ 
+          background: bgColor,
+          color: textColor,
+          border: `3px solid ${textColor}88`,
+          textShadow: isNight && glowColor ? `0 0 12px ${glowColor}, 0 0 24px ${glowColor}` : 'none',
+          boxShadow: isNight && glowColor ? `0 0 20px ${glowColor}66, inset 0 0 10px ${glowColor}22` : 'none',
+          fontSize: '11px',
+          letterSpacing: '1px',
+          lineHeight: '1.1',
+          textAlign: 'center',
+        }}
+      >
+        {emoji && <span className="mr-1">{emoji}</span>}
+        {scrambleText(venueName)}
+      </div>
+    );
+    
     switch (type) {
       case 'hub':
-        // Startup hub / accelerator - modern office look
         return (
-          <div className="relative w-full h-full">
-            {/* Modern grey building */}
-            <div className="absolute inset-0" style={{ background: '#1a1e22' }} />
-            {/* Glass windows - open plan */}
-            <div className="absolute top-2 left-1 right-1 h-12" style={{ background: '#0c1015', border: '1px solid #2a3545' }}>
-              {/* Rows of lit windows */}
-              <div className="absolute top-1 left-1 w-2 h-2" style={{ background: '#88cc8833' }} />
-              <div className="absolute top-1 left-4 w-2 h-2" style={{ background: '#88cc8844' }} />
-              <div className="absolute top-4 left-1 w-2 h-2" style={{ background: '#88cc8822' }} />
-              <div className="absolute top-4 left-4 w-2 h-2" style={{ background: '#88cc8855' }} />
-              <div className="absolute top-7 left-1 w-2 h-2" style={{ background: '#88cc8833' }} />
-              <div className="absolute top-7 left-4 w-2 h-2" style={{ background: '#88cc8844' }} />
-              {/* People working inside */}
-              <div className="absolute bottom-1 left-2 w-1 h-1.5 rounded-t" style={{ background: '#3a4a4a' }} />
-              <div className="absolute bottom-1 right-2 w-1 h-2 rounded-t" style={{ background: '#3a4a4a' }} />
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#0a1a12', '#44ff88', '#44ff88', '🚀')}
+            <div className="flex-1 relative" style={{ background: '#1a1e22' }}>
+              <div className="absolute top-2 left-2 right-2 bottom-10" style={{ background: '#0c1015', border: '2px solid #2a3545' }}>
+                <div className="absolute top-2 left-2 w-4 h-3" style={{ background: '#88cc8833' }} />
+                <div className="absolute top-2 right-2 w-4 h-3" style={{ background: '#88cc8844' }} />
+                <div className="absolute bottom-2 left-3 w-2 h-3 rounded-t" style={{ background: '#3a4a4a' }} />
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-9" style={{ background: '#0a0f12', border: '3px solid #3a4a5a' }} />
             </div>
-            {/* Glass door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8" style={{ background: '#0a0f12', border: '2px solid #3a4a5a' }}>
-              <div className="absolute inset-1" style={{ background: '#88cc8811' }} />
-            </div>
-            {/* SIGNAGE - prominent green tech hub sign */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#1a3a2a', color: '#66dd88', border: '1px solid #3a6a4a', letterSpacing: '0.5px' }}>
-              {scrambleText(venueName)}
-            </div>
-            {isNight && <div className="absolute top-0 left-0 right-0 h-5" style={{ boxShadow: '0 0 10px #44aa6644' }} />}
           </div>
         );
       
       case 'vc':
-        // VC office - sleek corporate tower
         return (
-          <div className="relative w-full h-full">
-            {/* Dark blue corporate building */}
-            <div className="absolute inset-0" style={{ background: '#141820' }} />
-            {/* Tall glass facade */}
-            <div className="absolute top-2 left-1 right-1 h-14" style={{ background: '#0a0e14', border: '1px solid #2a3a50' }}>
-              {/* Corporate window grid */}
-              <div className="absolute top-1 left-0.5 w-2.5 h-2" style={{ background: '#4488cc22' }} />
-              <div className="absolute top-1 right-0.5 w-2.5 h-2" style={{ background: '#4488cc33' }} />
-              <div className="absolute top-4 left-0.5 w-2.5 h-2" style={{ background: '#4488cc44' }} />
-              <div className="absolute top-4 right-0.5 w-2.5 h-2" style={{ background: '#4488cc22' }} />
-              <div className="absolute top-7 left-0.5 w-2.5 h-2" style={{ background: '#4488cc33' }} />
-              <div className="absolute top-7 right-0.5 w-2.5 h-2" style={{ background: '#4488cc55' }} />
-              <div className="absolute top-10 left-0.5 w-2.5 h-2" style={{ background: '#4488cc22' }} />
-              <div className="absolute top-10 right-0.5 w-2.5 h-2" style={{ background: '#4488cc44' }} />
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#0a1420', '#66aaff', '#4488ff', '💼')}
+            <div className="flex-1 relative" style={{ background: '#141820' }}>
+              <div className="absolute top-2 left-2 right-2 bottom-8" style={{ background: '#0a0e14', border: '2px solid #2a3a50' }}>
+                <div className="absolute top-2 left-1 w-4 h-3" style={{ background: '#4488cc33' }} />
+                <div className="absolute top-2 right-1 w-4 h-3" style={{ background: '#4488cc44' }} />
+                <div className="absolute top-6 left-1 w-4 h-3" style={{ background: '#4488cc22' }} />
+                <div className="absolute top-6 right-1 w-4 h-3" style={{ background: '#4488cc55' }} />
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-7" style={{ background: '#0a0f15', border: '3px solid #3a4a5a' }}>
+                <div className="absolute inset-2 rounded-full border-2" style={{ borderColor: '#4a5a6a' }} />
+              </div>
             </div>
-            {/* Revolving door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-6" style={{ background: '#0a0f15', border: '2px solid #3a4a5a' }}>
-              <div className="absolute inset-1 rounded-full border" style={{ borderColor: '#4a5a6a' }} />
-            </div>
-            {/* SIGNAGE - blue corporate sign at top */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[3px] font-bold ${signageClass}`} style={{ background: '#1a2a3a', color: '#88aadd', border: '1px solid #3a5a7a', letterSpacing: '0.3px' }}>
-              {scrambleText(venueName)}
-            </div>
-            {isNight && <div className="absolute top-0 left-0 right-0 h-5" style={{ boxShadow: '0 0 12px #4488cc44' }} />}
           </div>
         );
       
       case 'shelter':
-        // Shelter/services building
         return (
-          <div className="relative w-full h-full">
-            <div className="absolute inset-0" style={{ background: '#1a1f1a' }} />
-            {/* Simple institutional building */}
-            <div className="absolute top-4 left-1 right-1 h-10" style={{ background: '#151a15', border: '1px solid #2a352a' }}>
-              <div className="absolute top-2 left-2 w-2 h-3" style={{ background: shelterOpen ? '#9bbc0f44' : '#0a0f0a' }} />
-              <div className="absolute top-2 right-2 w-2 h-3" style={{ background: shelterOpen ? '#9bbc0f33' : '#0a0f0a' }} />
-            </div>
-            {/* Wide entrance */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-8 border-2" style={{ background: shelterOpen ? '#9bbc0f22' : '#0f1a0f', borderColor: '#4a6a4a' }}>
-              {shelterOpen && <div className="absolute inset-1 animate-pulse" style={{ background: '#9bbc0f', opacity: 0.4 }} />}
-              {/* Cross/help symbol */}
-              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-3">
-                <div className="absolute top-0 left-1 w-1 h-3" style={{ background: '#6a8a6a' }} />
-                <div className="absolute top-1 left-0 w-3 h-1" style={{ background: '#6a8a6a' }} />
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#0a1a10', '#88cc66', shelterOpen ? '#88cc66' : undefined, '🏠')}
+            <div className="flex-1 relative" style={{ background: '#1a1f1a' }}>
+              <div className="absolute top-2 left-2 right-2 bottom-8" style={{ background: '#151a15', border: '2px solid #2a352a' }}>
+                <div className="absolute top-2 left-2 w-4 h-4" style={{ background: shelterOpen ? '#9bbc0f44' : '#0a0f0a' }} />
+                <div className="absolute top-2 right-2 w-4 h-4" style={{ background: shelterOpen ? '#9bbc0f33' : '#0a0f0a' }} />
               </div>
-            </div>
-            {/* SIGNAGE */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#1a2a1a', color: '#8bac0f', border: '1px solid #4a6a4a' }}>
-              {scrambleText(venueName)}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-7 border-3" style={{ background: shelterOpen ? '#9bbc0f22' : '#0f1a0f', borderColor: '#4a6a4a' }}>
+                {shelterOpen && <div className="absolute inset-1 animate-pulse" style={{ background: '#9bbc0f', opacity: 0.4 }} />}
+              </div>
             </div>
           </div>
         );
       
       case 'club':
-        // Nightclub - dark with neon
         return (
-          <div className="relative w-full h-full">
-            {/* Dark purple/black building */}
-            <div className="absolute inset-0" style={{ background: '#120810' }} />
-            {/* Blacked out windows with neon trim */}
-            <div className="absolute top-4 left-1 right-1 h-10" style={{ background: '#0a0508', border: isNight ? '1px solid #ff66aa44' : '1px solid #2a1a2a' }}>
-              {isNight && (
-                <>
-                  <div className="absolute top-0 left-0 w-0.5 h-full neon-flicker-fast" style={{ background: '#ff66aa', boxShadow: '0 0 8px #ff66aa' }} />
-                  <div className="absolute top-0 right-0 w-0.5 h-full neon-buzz" style={{ background: '#ff66aa', boxShadow: '0 0 8px #ff66aa' }} />
-                </>
-              )}
+          <div className="relative w-full h-full flex flex-col">
+            <div 
+              className={`absolute top-0 left-0 right-0 h-16 flex items-center justify-center px-1 font-bold ${isNight ? 'neon-buzz' : ''} ${signageClass}`}
+              style={{ 
+                background: '#1a0515',
+                color: '#ff66cc',
+                border: '3px solid #ff66aa88',
+                textShadow: isNight ? '0 0 12px #ff66aa, 0 0 24px #ff66aa' : 'none',
+                boxShadow: isNight ? '0 0 20px #ff66aa66' : 'none',
+                fontSize: '11px',
+                letterSpacing: '2px',
+              }}
+            >
+              💃 {scrambleText(venueName)}
             </div>
-            {/* Entrance with curtain */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8" style={{ background: '#0f0508', border: '2px solid #3a1a2a' }}>
-              <div className="absolute inset-0.5" style={{ background: 'repeating-linear-gradient(90deg, #2a0a1a 0px, #3a1a2a 3px)' }} />
-              {isNight && <div className="absolute inset-0 animate-pulse opacity-30" style={{ background: 'linear-gradient(90deg, transparent, #ff66aa33, transparent)' }} />}
-            </div>
-            {/* Bouncer */}
-            <div className="absolute bottom-1 right-1 w-3 h-5 rounded-t" style={{ background: '#0a0505' }}>
-              <div className="w-2 h-2 rounded-full mx-auto mt-0.5" style={{ background: '#151010' }} />
-              {isNight && <div className="absolute bottom-2 -right-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />}
-            </div>
-            {/* SIGNAGE - neon at night, plain by day */}
-            {isNight ? (
-              <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] neon-buzz font-bold ${signageClass}`} style={{ background: '#1a0a15', color: '#ff66aa', textShadow: '0 0 10px #ff66aa', letterSpacing: '1px' }}>
-                {scrambleText(venueName)}
+            <div className="flex-1 relative mt-16" style={{ background: '#120810' }}>
+              <div className="absolute top-2 left-2 right-2 bottom-8" style={{ background: '#0a0508', border: isNight ? '2px solid #ff66aa44' : '2px solid #2a1a2a' }}>
+                {isNight && (
+                  <>
+                    <div className="absolute top-0 left-0 w-1 h-full neon-flicker-fast" style={{ background: '#ff66aa', boxShadow: '0 0 10px #ff66aa' }} />
+                    <div className="absolute top-0 right-0 w-1 h-full neon-buzz" style={{ background: '#ff66aa', boxShadow: '0 0 10px #ff66aa' }} />
+                  </>
+                )}
               </div>
-            ) : (
-              <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#2a1a2a', color: '#886677' }}>
-                {scrambleText(venueName)}
-              </div>
-            )}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-7" style={{ background: '#0f0508', border: '3px solid #3a1a2a' }} />
+              <div className="absolute bottom-1 right-2 w-4 h-6 rounded-t" style={{ background: '#0a0505' }} />
+            </div>
           </div>
         );
 
       case 'bar':
-        // Pub/Bar - warm wood tones
         return (
-          <div className="relative w-full h-full">
-            {/* Warm brown building */}
-            <div className="absolute inset-0" style={{ background: '#1a1510' }} />
-            {/* Pub windows with warm glow */}
-            <div className="absolute top-3 left-1 w-2.5 h-5" style={{ background: '#0a0805', border: '1px solid #3a2a1a' }}>
-              <div className="absolute inset-0.5" style={{ background: isNight ? '#ffaa4433' : '#ffaa4411' }} />
-              {/* Patron silhouette */}
-              <div className="absolute bottom-0.5 left-0.5 w-1 h-2 rounded-t" style={{ background: '#151010' }} />
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#1a1008', '#ffcc66', isNight ? '#ffaa44' : undefined, '🍺')}
+            <div className="flex-1 relative" style={{ background: '#1a1510' }}>
+              <div className="absolute top-2 left-2 w-5 h-6" style={{ background: '#0a0805', border: '2px solid #3a2a1a' }}>
+                <div className="absolute inset-1" style={{ background: isNight ? '#ffaa4433' : '#ffaa4411' }} />
+                <div className="absolute bottom-1 left-1 w-2 h-3 rounded-t" style={{ background: '#151010' }} />
+              </div>
+              <div className="absolute top-2 right-2 w-5 h-6" style={{ background: '#0a0805', border: '2px solid #3a2a1a' }}>
+                <div className="absolute inset-1" style={{ background: isNight ? '#ffaa4422' : '#ffaa4411' }} />
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-10" style={{ background: '#0f0a05', border: '3px solid #4a3a2a' }}>
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-5 h-4" style={{ background: isNight ? '#ffaa4433' : '#ffaa4411' }} />
+              </div>
             </div>
-            <div className="absolute top-3 right-1 w-2.5 h-5" style={{ background: '#0a0805', border: '1px solid #3a2a1a' }}>
-              <div className="absolute inset-0.5" style={{ background: isNight ? '#ffaa4422' : '#ffaa4411' }} />
-              <div className="absolute bottom-0.5 right-0.5 w-1 h-1.5 rounded-t" style={{ background: '#151010' }} />
-            </div>
-            {/* Pub door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-9" style={{ background: '#0f0a05', border: '2px solid #4a3a2a' }}>
-              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-3" style={{ background: isNight ? '#ffaa4433' : '#ffaa4411' }} />
-              {/* Door handle */}
-              <div className="absolute bottom-3 right-1 w-0.5 h-2" style={{ background: '#aa8844' }} />
-            </div>
-            {/* Smoker outside */}
-            <div className="absolute bottom-1 left-0.5 w-2 h-3 rounded-t" style={{ background: '#151510' }}>
-              {isNight && <div className="absolute top-1 -right-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />}
-            </div>
-            {/* SIGNAGE - warm pub sign */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#2a1a10', color: isNight ? '#ffcc66' : '#aa8844', textShadow: isNight ? '0 0 6px #ffaa4466' : 'none', border: '1px solid #4a3a20' }}>
-              {scrambleText(venueName)}
-            </div>
-            {isNight && <div className="absolute bottom-0 left-0 right-0 h-3 opacity-20" style={{ background: 'linear-gradient(0deg, #ffaa44 0%, transparent 100%)' }} />}
+            {isNight && <div className="absolute bottom-0 left-0 right-0 h-4 opacity-20" style={{ background: 'linear-gradient(0deg, #ffaa44 0%, transparent 100%)' }} />}
           </div>
         );
       
       case 'food':
-        // Restaurant - warm with kitchen steam
         return (
-          <div className="relative w-full h-full">
-            {/* Warm restaurant building */}
-            <div className="absolute inset-0" style={{ background: '#1a1512' }} />
-            {/* Large front window */}
-            <div className="absolute top-3 left-1 right-1 h-8" style={{ background: '#0a0805', border: '1px solid #3a2a18' }}>
-              <div className="absolute inset-0.5" style={{ background: isNight ? '#ff884433' : '#ff884411' }} />
-              {/* Diners inside */}
-              <div className="absolute bottom-1 left-1 w-1 h-2 rounded-t" style={{ background: '#2a2015' }} />
-              <div className="absolute bottom-1 left-3 w-1 h-1.5 rounded-t" style={{ background: '#2a2015' }} />
-              <div className="absolute bottom-1 right-1 w-1 h-2 rounded-t" style={{ background: '#2a2015' }} />
-              {/* Table */}
-              <div className="absolute bottom-0.5 left-2 w-3 h-0.5" style={{ background: '#4a3a2a' }} />
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#1a1008', '#ffaa66', isNight ? '#ff8844' : undefined, '🍴')}
+            <div className="flex-1 relative" style={{ background: '#1a1512' }}>
+              <div className="absolute top-2 left-2 right-2 bottom-8" style={{ background: '#0a0805', border: '2px solid #3a2a18' }}>
+                <div className="absolute inset-1" style={{ background: isNight ? '#ff884433' : '#ff884411' }} />
+                <div className="absolute bottom-2 left-2 w-2 h-3 rounded-t" style={{ background: '#2a2015' }} />
+                <div className="absolute bottom-2 right-2 w-2 h-3 rounded-t" style={{ background: '#2a2015' }} />
+              </div>
+              {isNight && (
+                <div className="absolute top-2 right-3 w-4 h-5 opacity-25 animate-pulse" style={{ background: 'linear-gradient(0deg, #aaaaaa 0%, transparent 100%)' }} />
+              )}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-7" style={{ background: '#1a1008', border: '3px solid #4a3520' }} />
             </div>
-            {/* Steam from kitchen */}
-            {isNight && (
-              <div className="absolute top-1 right-2 w-3 h-4 opacity-25 animate-pulse" style={{ background: 'linear-gradient(0deg, #aaaaaa 0%, transparent 100%)' }} />
-            )}
-            {/* Restaurant door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-8" style={{ background: '#1a1008', border: '2px solid #4a3520' }}>
-              <div className="absolute inset-1" style={{ background: '#ff884411' }} />
-              {/* Menu board */}
-              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-2" style={{ background: '#e8e0d0', opacity: 0.3 }} />
-            </div>
-            {/* SIGNAGE - food/restaurant sign with warm glow */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[3px] font-bold ${signageClass}`} style={{ background: '#2a1810', color: '#ffaa66', textShadow: isNight ? '0 0 6px #ff884466' : 'none', border: '1px solid #5a3a20', letterSpacing: '0.3px' }}>
-              🍴 {scrambleText(venueName)}
-            </div>
-            {isNight && <div className="absolute top-0 left-0 right-0 h-5" style={{ boxShadow: '0 0 8px #ff884433' }} />}
           </div>
         );
       
       case 'cafe':
-        // Cafe - cozy with coffee
         return (
-          <div className="relative w-full h-full">
-            {/* Cream/brown cafe building */}
-            <div className="absolute inset-0" style={{ background: '#1a1815' }} />
-            {/* Cafe window */}
-            <div className="absolute top-4 left-1 right-1 h-7" style={{ background: '#0a0908', border: '1px solid #3a3025' }}>
-              <div className="absolute inset-0.5" style={{ background: '#aa886622' }} />
-              {/* Coffee machine shape */}
-              <div className="absolute bottom-1 right-1 w-2 h-3" style={{ background: '#3a3530' }} />
-              {/* Customer at counter */}
-              <div className="absolute bottom-0.5 left-1 w-1 h-2 rounded-t" style={{ background: '#2a2520' }} />
-            </div>
-            {/* Cafe door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#151210', border: '2px solid #4a3a30' }}>
-              <div className="absolute inset-1" style={{ background: '#aa884411' }} />
-            </div>
-            {/* Outdoor table */}
-            <div className="absolute bottom-1 left-0.5 w-3 h-2 rounded-sm" style={{ background: '#3a3530', border: '1px solid #4a4540' }} />
-            {/* SIGNAGE - cafe sign */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#2a2520', color: '#ccaa77', border: '1px solid #4a4030' }}>
-              ☕ {scrambleText(venueName)}
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#1a1510', '#cc9966', isNight ? '#aa8844' : undefined, '☕')}
+            <div className="flex-1 relative" style={{ background: '#1a1815' }}>
+              <div className="absolute top-2 left-2 right-2 bottom-6" style={{ background: '#0a0908', border: '2px solid #3a3025' }}>
+                <div className="absolute inset-1" style={{ background: '#aa886622' }} />
+                <div className="absolute bottom-2 right-2 w-3 h-4" style={{ background: '#3a3530' }} />
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5" style={{ background: '#151210', border: '3px solid #4a3a30' }} />
             </div>
           </div>
         );
       
       case 'hostel':
-        // Hostel - multi-floor with lit windows
         return (
-          <div className="relative w-full h-full">
-            <div className="absolute inset-0" style={{ background: '#181a18' }} />
-            {/* Multiple floors of windows */}
-            <div className="absolute top-3 left-0.5 w-2.5 h-3" style={{ background: pal.windowGlow, opacity: 0.25 }} />
-            <div className="absolute top-3 right-0.5 w-2.5 h-3" style={{ background: pal.windowGlow, opacity: 0.15 }} />
-            <div className="absolute top-7 left-0.5 w-2.5 h-3" style={{ background: pal.windowGlow, opacity: 0.35 }} />
-            <div className="absolute top-7 right-0.5 w-2.5 h-3" style={{ background: '#0a0a08' }} />
-            <div className="absolute top-11 left-0.5 w-2.5 h-3" style={{ background: '#0a0a08' }} />
-            <div className="absolute top-11 right-0.5 w-2.5 h-3" style={{ background: pal.windowGlow, opacity: 0.2 }} />
-            {/* Hostel door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#2a3a2a', border: '1px solid #4a5a4a' }}>
-              {/* Noticeboard */}
-              <div className="absolute top-1 left-0.5 w-2 h-2" style={{ background: '#5a5a4a' }}>
-                <div className="w-1.5 h-0.5 mt-0.5 mx-auto" style={{ background: '#e8e8d0' }} />
-              </div>
-            </div>
-            {/* Backpackers outside */}
-            <div className="absolute bottom-1 left-0.5 flex gap-0.5">
-              <div className="w-1.5 h-3 rounded-t" style={{ background: '#1a2a1a' }}>
-                <div className="w-1 h-1.5 -mt-0.5 mx-auto rounded" style={{ background: '#4a5a3a' }} />
-              </div>
-            </div>
-            {/* SIGNAGE */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#1a2a1a', color: '#8a9a6a', border: '1px solid #3a4a3a' }}>
-              {scrambleText(venueName)}
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#0a1a10', '#88aa66', isNight ? '#88aa66' : undefined, '🛏️')}
+            <div className="flex-1 relative" style={{ background: '#181a18' }}>
+              <div className="absolute top-2 left-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.25 }} />
+              <div className="absolute top-2 right-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.15 }} />
+              <div className="absolute top-7 left-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.35 }} />
+              <div className="absolute top-7 right-1 w-4 h-4" style={{ background: '#0a0a08' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-6" style={{ background: '#2a3a2a', border: '2px solid #4a5a4a' }} />
             </div>
           </div>
         );
       
       case 'pawn':
-        // Pawn shop - gold/yellow theme
         return (
-          <div className="relative w-full h-full">
-            <div className="absolute inset-0" style={{ background: '#1a1815' }} />
-            {/* Display window with gold items */}
-            <div className="absolute top-3 left-1 right-1 h-8" style={{ background: '#0a0a05', border: '1px solid #4a4020' }}>
-              {/* Gold items display */}
-              <div className="absolute top-1 left-1 w-2 h-2 rounded-sm" style={{ background: '#aa8822' }} />
-              <div className="absolute top-1 right-1 w-1.5 h-3" style={{ background: '#888866' }} />
-              <div className="absolute bottom-1 left-2 w-3 h-1.5 rounded-sm" style={{ background: '#997722' }} />
-            </div>
-            {/* Pawn door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#151510', border: '2px solid #4a4025' }} />
-            {/* Three balls pawn sign */}
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 flex gap-0.5">
-              <div className="w-2 h-2 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 4px #ddaa22' : 'none' }} />
-              <div className="w-2 h-2 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 4px #ddaa22' : 'none' }} />
-              <div className="w-2 h-2 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 4px #ddaa22' : 'none' }} />
-            </div>
-            {/* SIGNAGE */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#2a2515', color: '#ddaa44', border: '1px solid #5a4a20' }}>
-              💰 {scrambleText(venueName)}
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#1a1508', '#ffcc44', isNight ? '#ddaa22' : undefined, '💰')}
+            <div className="flex-1 relative" style={{ background: '#1a1815' }}>
+              <div className="absolute top-2 left-2 right-2 bottom-6" style={{ background: '#0a0a05', border: '2px solid #4a4020' }}>
+                <div className="absolute top-2 left-2 w-3 h-3 rounded-sm" style={{ background: '#aa8822' }} />
+                <div className="absolute top-2 right-2 w-2 h-4" style={{ background: '#888866' }} />
+                <div className="absolute bottom-2 left-3 w-5 h-2 rounded-sm" style={{ background: '#997722' }} />
+              </div>
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
+                <div className="w-3 h-3 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 6px #ddaa22' : 'none' }} />
+                <div className="w-3 h-3 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 6px #ddaa22' : 'none' }} />
+                <div className="w-3 h-3 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 6px #ddaa22' : 'none' }} />
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5" style={{ background: '#151510', border: '3px solid #4a4025' }} />
             </div>
           </div>
         );
       
       case 'alley':
-        // Dark alley - no sign, just darkness
         return (
-          <div className="relative w-full h-full">
-            <div className="absolute inset-0" style={{ background: '#050505' }} />
-            {/* Dark gap between buildings */}
+          <div className="relative w-full h-full" style={{ background: '#050505' }}>
             <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, #101010 0%, #030303 50%, #101010 100%)' }}>
-              {/* Dumpster */}
-              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-6 h-4" style={{ background: '#1a2a1a', border: '1px solid #0a1a0a' }} />
-              {/* Steam/smoke */}
-              {isNight && <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-2 h-5 opacity-15 animate-pulse" style={{ background: 'linear-gradient(0deg, #666666 0%, transparent 100%)' }} />}
-              {/* Dealer in shadows */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 h-12 flex items-center justify-center text-[10px] font-bold" style={{ color: '#333333' }}>
+                ALLEY
+              </div>
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-10 h-6" style={{ background: '#1a2a1a', border: '2px solid #0a1a0a' }} />
+              {isNight && <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-3 h-8 opacity-15 animate-pulse" style={{ background: 'linear-gradient(0deg, #666666 0%, transparent 100%)' }} />}
               {isNight && (
-                <div className="absolute bottom-1 right-2 w-2 h-4 rounded-t" style={{ background: '#080808' }}>
-                  <div className="absolute top-1 left-0 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />
+                <div className="absolute bottom-2 right-4 w-3 h-6 rounded-t" style={{ background: '#080808' }}>
+                  <div className="absolute top-2 left-0 w-1 h-1 rounded-full ember-glow" style={{ background: '#ff4400' }} />
                 </div>
               )}
             </div>
-            {/* NO SIGNAGE - alleys are unmarked */}
           </div>
         );
       
       case 'derelict':
-        // Abandoned building
         return (
-          <div className="relative w-full h-full">
-            <div className="absolute inset-0" style={{ background: '#121210' }} />
-            {/* Boarded up windows */}
-            <div className="absolute top-3 left-1 w-3 h-4" style={{ background: '#3a3020', border: '1px solid #2a2015' }}>
-              <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(45deg, #4a3a20 0px, #4a3a20 2px, transparent 2px, transparent 5px)' }} />
-            </div>
-            <div className="absolute top-3 right-1 w-3 h-4" style={{ background: '#3a3020', border: '1px solid #2a2015' }}>
-              <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(-45deg, #4a3a20 0px, #4a3a20 2px, transparent 2px, transparent 5px)' }} />
-            </div>
-            {/* Broken door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-7" style={{ background: '#1a1510', border: '1px solid #2a2520' }}>
-              {/* Broken boards */}
-              <div className="absolute top-2 left-0 w-full h-0.5 rotate-6" style={{ background: '#3a3020' }} />
-            </div>
-            {/* Graffiti */}
-            <div className="absolute top-9 left-1 text-[4px] rotate-3" style={{ color: '#5a4a3a', opacity: 0.6 }}>NME</div>
-            {/* Faded signage */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#1a1815', color: '#4a4a40', opacity: 0.7 }}>
+          <div className="relative w-full h-full flex flex-col">
+            <div 
+              className={`absolute top-0 left-0 right-0 h-16 flex items-center justify-center px-1 font-bold opacity-50 ${signageClass}`}
+              style={{ 
+                background: '#1a1815',
+                color: '#4a4a40',
+                border: '3px solid #2a2a2a',
+                fontSize: '10px',
+              }}
+            >
               {scrambleText(venueName)}
+            </div>
+            <div className="flex-1 relative mt-16" style={{ background: '#121210' }}>
+              <div className="absolute top-2 left-2 w-5 h-6" style={{ background: '#3a3020', border: '2px solid #2a2015' }}>
+                <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(45deg, #4a3a20 0px, #4a3a20 3px, transparent 3px, transparent 7px)' }} />
+              </div>
+              <div className="absolute top-2 right-2 w-5 h-6" style={{ background: '#3a3020', border: '2px solid #2a2015' }}>
+                <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(-45deg, #4a3a20 0px, #4a3a20 3px, transparent 3px, transparent 7px)' }} />
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8" style={{ background: '#1a1510', border: '2px solid #2a2520' }}>
+                <div className="absolute top-3 left-0 w-full h-1 rotate-6" style={{ background: '#3a3020' }} />
+              </div>
+              <div className="absolute bottom-10 left-2 text-[6px] rotate-3" style={{ color: '#5a4a3a', opacity: 0.6 }}>NME</div>
             </div>
           </div>
         );
 
       case 'shop':
       default:
-        // Generic shop - colorful awning
         const awningColors = ['#8a4a4a', '#4a8a4a', '#4a4a8a', '#8a7a4a'];
         const awningColor = awningColors[index % awningColors.length];
         return (
-          <div className="relative w-full h-full">
-            <div className="absolute inset-0" style={{ background: buildingColor }} />
-            {/* Shop window */}
-            <div className="absolute top-4 left-1 right-1 h-8" style={{ background: '#1a2020', border: '1px solid #3a4040' }}>
-              <div className="absolute inset-1" style={{ background: pal.windowGlow, opacity: 0.1 }} />
-              {/* Mannequin/display */}
-              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-2 h-4 rounded-t" style={{ background: '#3a3a3a' }} />
-            </div>
-            {/* Shop door */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7 border-2" style={{ background: '#151a1a', borderColor: '#3a4545' }}>
-              <div className="absolute inset-1" style={{ background: pal.windowGlow, opacity: 0.05 }} />
-            </div>
-            {/* Awning */}
-            <div className="absolute top-2 left-0 right-0 h-3" style={{ background: awningColor, borderBottom: `2px solid ${awningColor}88` }} />
-            {/* SIGNAGE */}
-            <div className={`absolute top-0 left-0 right-0 h-5 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#2a2a2a', color: '#9bbc0f', border: '1px solid #4a4a4a' }}>
-              {scrambleText(venueName)}
+          <div className="relative w-full h-full flex flex-col">
+            {renderBigSign('#1a1a1a', '#9bbc0f', isNight ? '#9bbc0f' : undefined, '🏪')}
+            <div className="flex-1 relative" style={{ background: buildingColor }}>
+              <div className="absolute top-0 left-0 right-0 h-4" style={{ background: awningColor, borderBottom: `2px solid ${awningColor}88` }} />
+              <div className="absolute top-5 left-2 right-2 bottom-6" style={{ background: '#1a2020', border: '2px solid #3a4040' }}>
+                <div className="absolute inset-2" style={{ background: pal.windowGlow, opacity: 0.1 }} />
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-5 rounded-t" style={{ background: '#3a3a3a' }} />
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5 border-3" style={{ background: '#151a1a', borderColor: '#3a4545' }} />
             </div>
           </div>
         );
