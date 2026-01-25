@@ -163,6 +163,33 @@ const ARCHETYPE_STYLES: Record<string, {
     walkSpeed: 280,
     accessory: 'hood',
   },
+  vc: {
+    // Venture Capitalist - fancy Patagonia vest
+    skinColor: '#ffcdb8',
+    skinBorder: '#e8a888',
+    bodyColor: '#2a4a5a',
+    bodyBorder: '#1a3a4a',
+    hairColor: '#5a5a5a',
+    hairStyle: 'slick',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#ff999955',
+    walkSpeed: 200,
+    accessory: 'coffee',
+    hasGlasses: true,
+  },
+  founder: {
+    // Fellow startup founder - hoodie
+    skinColor: '#ffd8c8',
+    skinBorder: '#e8b8a8',
+    bodyColor: '#3a3a4a',
+    bodyBorder: '#2a2a3a',
+    hairColor: '#3a2a2a',
+    hairStyle: 'curly',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#ff886655',
+    walkSpeed: 150,
+    accessory: 'laptop',
+  },
 };
 
 export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: PedestrianProps) {

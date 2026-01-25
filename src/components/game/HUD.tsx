@@ -45,6 +45,16 @@ function StatBar({ label, value, max = 100, danger = false, glow = false, trippy
   );
 }
 
+// Format money for display
+function formatMoney(amount: number): string {
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(1)}M`;
+  } else if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(0)}K`;
+  }
+  return `$${amount}`;
+}
+
 export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMuted, onToggleMute, currentDistrict }: HUDProps) {
   const isHigh = stats.cocaine > 30;
   const districtName = DISTRICT_NAMES[currentDistrict];
@@ -64,8 +74,8 @@ export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMute
         )}
       </button>
       <div className="flex flex-wrap gap-2 sm:gap-3">
-        <StatBar label="HGR" value={stats.hunger} danger={stats.hunger < 25} />
-        <StatBar label="WRM" value={stats.warmth} danger={stats.warmth < 25} />
+        <StatBar label="NRG" value={stats.hunger} danger={stats.hunger < 25} />
+        <StatBar label="CNF" value={stats.warmth} danger={stats.warmth < 25} />
         <StatBar label="HPE" value={stats.hope} danger={stats.hope < 25} trippy={lsdTripActive} />
         <StatBar label="COC" value={stats.cocaine} danger={stats.cocaine > 75} glow={isHigh} />
         {stats.lsd > 0 && (
@@ -79,33 +89,40 @@ export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMute
       </div>
       
       <div className="flex items-center gap-3 sm:gap-4">
+        {/* Assets indicator */}
+        <div className="flex gap-1 text-[10px]">
+          {stats.hasWatch && <span title="Watch">⌚</span>}
+          {stats.hasLaptop && <span title="MacBook">💻</span>}
+          {stats.hasPhone && <span title="iPhone">📱</span>}
+        </div>
+        
         {/* District name indicator */}
         <div className="flex flex-col items-center">
-          <span className="text-gb-lightest text-[7px] sm:text-[8px] uppercase opacity-60">District</span>
+          <span className="text-gb-lightest text-[7px] sm:text-[8px] uppercase opacity-60">Location</span>
           <span className={`text-[9px] sm:text-[10px] font-bold text-gb-light ${lsdTripActive ? 'animate-pulse' : ''}`}>
             {districtName}
           </span>
         </div>
         
         <div className="flex flex-col items-end">
-          <span className="text-gb-lightest text-[8px] sm:text-[10px] uppercase">Money</span>
+          <span className="text-gb-lightest text-[8px] sm:text-[10px] uppercase">Runway</span>
           <span className={`text-xs sm:text-sm font-bold ${
-            stats.money < 0 ? 'text-gb-lightest animate-pulse' : 'text-gb-light'
+            stats.money < 1000 ? 'text-gb-lightest animate-pulse' : 'text-green-400'
           }`}>
-            ${stats.money}
+            {formatMoney(stats.money)}
           </span>
         </div>
         
         <div className="flex flex-col items-end">
-          <span className="text-gb-lightest text-[8px] sm:text-[10px] uppercase">Time</span>
+          <span className="text-gb-lightest text-[8px] sm:text-[10px] uppercase">Months</span>
           <span className="text-gb-light text-xs sm:text-sm font-bold">
-            {stats.survivalTime}s
+            {stats.survivalTime}
           </span>
         </div>
         
         <div className="flex flex-col items-center">
           <span className={`text-[10px] sm:text-xs text-gb-light capitalize ${lsdTripActive ? 'text-gb-lightest' : ''}`}>
-            {lsdTripActive ? '✦ TRIP ✦' : timeOfDay}
+            {lsdTripActive ? '✦ HIGH ✦' : timeOfDay}
           </span>
           {isRaining && !lsdTripActive && (
             <span className="text-[8px] text-gb-lightest">🌧</span>

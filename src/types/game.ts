@@ -1,13 +1,18 @@
 import { District } from './districts';
 
 export interface GameStats {
-  hunger: number;
-  warmth: number;
-  hope: number;
+  hunger: number;      // Energy/burnout
+  warmth: number;      // Confidence/composure  
+  hope: number;        // Investor confidence / mental state
   cocaine: number;
   lsd: number;
-  money: number;
+  money: number;       // Cash on hand (thousands)
   survivalTime: number;
+  // Startup founder specific
+  hasWatch: boolean;
+  hasLaptop: boolean;
+  hasPhone: boolean;
+  burnRate: number;    // Monthly burn rate
 }
 
 // Pedestrian action types
@@ -24,7 +29,9 @@ export type PedestrianArchetype =
   | 'student'
   | 'cop'
   | 'punk'
-  | 'dealer';
+  | 'dealer'
+  | 'vc'           // Venture capitalist
+  | 'founder';     // Fellow founder
 
 export interface PedestrianState {
   id: number;
@@ -112,9 +119,12 @@ export interface GameState {
   dealerNearby: boolean;
   // Transaction feedback
   lastTransaction: TransactionFeedback | null;
+  // Shop interior state
+  inShop: boolean;
+  currentShop: HotspotZone | null;
 }
 
-export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley' | 'food-vendor';
+export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley' | 'food-vendor' | 'vc-firm' | 'strip-club' | 'bar' | 'pawn' | 'cafe';
 
 export type DesperationAction = 'theft' | 'car' | 'sell' | 'dog-sacrifice' | 'purse-steal' | 'buy-coke';
 
@@ -126,13 +136,16 @@ export interface Hotspot {
 }
 
 export const HOTSPOTS: Hotspot[] = [
-  { zone: 'ask-help', x: 10, width: 12, label: 'Street' },
-  { zone: 'bins', x: 25, width: 10, label: 'Bins' },
-  { zone: 'alley', x: 36, width: 8, label: 'Alley' },
-  { zone: 'food-vendor', x: 45, width: 10, label: 'Food' },
-  { zone: 'services', x: 58, width: 12, label: 'Services' },
-  { zone: 'shelter', x: 72, width: 10, label: 'Shelter' },
-  { zone: 'sleep', x: 84, width: 10, label: 'Doorway' },
+  { zone: 'vc-firm', x: 5, width: 8, label: 'VC' },
+  { zone: 'cafe', x: 14, width: 7, label: 'Cafe' },
+  { zone: 'bar', x: 22, width: 8, label: 'Bar' },
+  { zone: 'alley', x: 31, width: 6, label: 'Alley' },
+  { zone: 'strip-club', x: 38, width: 9, label: 'Club' },
+  { zone: 'food-vendor', x: 48, width: 8, label: 'Dining' },
+  { zone: 'services', x: 57, width: 10, label: 'Hub' },
+  { zone: 'pawn', x: 68, width: 8, label: 'Pawn' },
+  { zone: 'shelter', x: 77, width: 8, label: 'Hotel' },
+  { zone: 'sleep', x: 86, width: 8, label: 'Office' },
 ];
 
 export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
@@ -147,31 +160,39 @@ export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
   'cop',
   'punk',
   'dealer',
+  'vc',
+  'founder',
 ];
 
 // Outcome biases per archetype
 export const ARCHETYPE_STEAL_BIAS: Record<PedestrianArchetype, { moneyRange: [number, number]; shoutChance: number; kindnessChance: number }> = {
-  businessman: { moneyRange: [10, 25], shoutChance: 0.3, kindnessChance: 0.05 },
-  clubber: { moneyRange: [5, 15], shoutChance: 0.15, kindnessChance: 0.1 },
-  tourist: { moneyRange: [8, 20], shoutChance: 0.4, kindnessChance: 0.08 },
-  pensioner: { moneyRange: [3, 8], shoutChance: 0.5, kindnessChance: 0.15 },
-  backpacker: { moneyRange: [2, 10], shoutChance: 0.2, kindnessChance: 0.12 },
-  junkie: { moneyRange: [0, 3], shoutChance: 0.1, kindnessChance: 0.02 },
-  sexworker: { moneyRange: [5, 15], shoutChance: 0.1, kindnessChance: 0.08 },
-  student: { moneyRange: [2, 8], shoutChance: 0.25, kindnessChance: 0.2 },
+  businessman: { moneyRange: [50, 200], shoutChance: 0.4, kindnessChance: 0.05 },
+  clubber: { moneyRange: [20, 80], shoutChance: 0.15, kindnessChance: 0.1 },
+  tourist: { moneyRange: [100, 300], shoutChance: 0.5, kindnessChance: 0.08 },
+  pensioner: { moneyRange: [10, 50], shoutChance: 0.6, kindnessChance: 0.15 },
+  backpacker: { moneyRange: [20, 60], shoutChance: 0.2, kindnessChance: 0.12 },
+  junkie: { moneyRange: [0, 20], shoutChance: 0.1, kindnessChance: 0.02 },
+  sexworker: { moneyRange: [30, 100], shoutChance: 0.1, kindnessChance: 0.08 },
+  student: { moneyRange: [10, 40], shoutChance: 0.25, kindnessChance: 0.2 },
   cop: { moneyRange: [0, 0], shoutChance: 0.95, kindnessChance: 0.0 },
-  punk: { moneyRange: [1, 6], shoutChance: 0.05, kindnessChance: 0.15 },
-  dealer: { moneyRange: [15, 40], shoutChance: 0.7, kindnessChance: 0.0 }, // Dealers fight back hard
+  punk: { moneyRange: [5, 30], shoutChance: 0.05, kindnessChance: 0.15 },
+  dealer: { moneyRange: [200, 500], shoutChance: 0.8, kindnessChance: 0.0 },
+  vc: { moneyRange: [500, 2000], shoutChance: 0.6, kindnessChance: 0.1 }, // VCs carry lots of cash
+  founder: { moneyRange: [20, 100], shoutChance: 0.2, kindnessChance: 0.3 }, // Founders are sympathetic
 };
 
 export const INITIAL_STATS: GameStats = {
-  hunger: 55,      // Lower start - creates urgency early
-  warmth: 60,      // Moderate start
-  hope: 50,        // Lower start - hope is precious
+  hunger: 70,        // Energy level
+  warmth: 80,        // Confidence
+  hope: 60,          // Investor confidence
   cocaine: 0,
   lsd: 0,
-  money: 8,        // Slightly more starting cash for first action
+  money: 5000,       // Starting runway (in dollars, displayed as $5K)
   survivalTime: 0,
+  hasWatch: true,
+  hasLaptop: true,
+  hasPhone: true,
+  burnRate: 500,     // Losing $500/tick (monthly burn)
 };
 
 // Archetype response to pedestrian actions
@@ -190,7 +211,9 @@ export const ARCHETYPE_ACTION_BIAS: Record<PedestrianArchetype, {
   student: { pitchSuccess: 0.35, tradeWilling: 0.15, fightBack: 0.2 },
   cop: { pitchSuccess: 0.0, tradeWilling: 0.0, fightBack: 0.95 },
   punk: { pitchSuccess: 0.15, tradeWilling: 0.35, fightBack: 0.6 },
-  dealer: { pitchSuccess: 0.0, tradeWilling: 1.0, fightBack: 0.8 }, // Dealers trade drugs, dangerous
+  dealer: { pitchSuccess: 0.0, tradeWilling: 1.0, fightBack: 0.8 },
+  vc: { pitchSuccess: 0.5, tradeWilling: 0.0, fightBack: 0.1 },      // VCs love pitches
+  founder: { pitchSuccess: 0.3, tradeWilling: 0.4, fightBack: 0.15 }, // Founders network
 };
 
 // Button action resolution types
@@ -251,4 +274,6 @@ export const INITIAL_STATE: GameState = {
   inAlley: false,
   dealerNearby: false,
   lastTransaction: null,
+  inShop: false,
+  currentShop: null,
 };

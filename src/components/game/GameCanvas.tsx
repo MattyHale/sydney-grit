@@ -1,4 +1,4 @@
-import { GameState } from '@/types/game';
+import { GameState, HotspotZone } from '@/types/game';
 import { Street } from './Street';
 import { Player } from './Player';
 import { Dog } from './Dog';
@@ -11,19 +11,43 @@ import { PauseButton } from './PauseButton';
 import { PauseOverlay } from './PauseOverlay';
 import { GameOverOverlay } from './GameOverOverlay';
 import { TransactionIndicator } from './TransactionIndicator';
+import { ShopInterior } from './ShopInterior';
 
 interface GameCanvasProps {
   state: GameState;
   onPause: () => void;
   onRestart: () => void;
   onClearTransaction: () => void;
+  onShopAction?: (shopType: HotspotZone, actionId: string) => void;
+  onExitShop?: () => void;
 }
 
-export function GameCanvas({ state, onPause, onRestart, onClearTransaction }: GameCanvasProps) {
+export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onShopAction, onExitShop }: GameCanvasProps) {
   const isHigh = state.stats.cocaine > 30;
   const highIntensity = Math.min(1, (state.stats.cocaine - 30) / 70);
   const isTripping = state.lsdTripActive;
   const isDogSacrifice = state.isPaused && !state.hasDog && state.dogHealth === 0;
+  
+  // Handle shop action
+  const handleShopAction = (actionId: string) => {
+    if (onShopAction && state.currentShop) {
+      onShopAction(state.currentShop, actionId);
+    }
+  };
+  
+  // Show shop interior if in a shop
+  if (state.inShop && state.currentShop) {
+    return (
+      <div className="relative flex-1 overflow-hidden bg-gb-dark">
+        <ShopInterior 
+          shopType={state.currentShop}
+          money={state.stats.money}
+          onAction={handleShopAction}
+          onExit={onExitShop || (() => {})}
+        />
+      </div>
+    );
+  }
   
   return (
     <div className="relative flex-1 overflow-hidden bg-gb-dark">
@@ -180,10 +204,12 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction }: Ga
         onClear={onClearTransaction}
       />
       
-      {/* Steal window indicator */}
+      {/* Target indicator */}
       {state.stealWindowActive && state.stealTarget && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-gb-darkest text-gb-lightest text-[9px] animate-pulse border border-gb-light rounded">
-          B/C: Steal from {state.stealTarget.archetype}
+          {state.stealTarget.archetype === 'vc' ? '📊 Pitch to VC' : 
+           state.stealTarget.archetype === 'founder' ? '🤝 Network with Founder' :
+           `Target: ${state.stealTarget.archetype}`}
         </div>
       )}
       
