@@ -60,11 +60,6 @@ export function Controls({
   const getZoneHint = () => {
     if (!currentZone) return null;
     
-    // Special case: Sell Dog at food vendors
-    if (currentZone === 'food-vendor' && hasDog) {
-      return '🐕 Sell Dog';
-    }
-    
     const labels: Record<string, string> = {
       'ask-help': 'Talk',
       'bins': 'Search',

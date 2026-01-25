@@ -14,6 +14,7 @@ export interface GameStats {
   hasWatch: boolean;
   hasLaptop: boolean;
   hasPhone: boolean;
+  hasValuableTech: boolean;  // Found tech in bins - helps with pitches
   burnRate: number;    // Monthly burn rate
   fundingStage: FundingStage;  // Current funding stage
 }
@@ -197,6 +198,7 @@ export const INITIAL_STATS: GameStats = {
   hasWatch: true,
   hasLaptop: true,
   hasPhone: true,
+  hasValuableTech: false,  // Must find in bins
   burnRate: 50,      // Low burn at bootstrap
   fundingStage: 'bootstrap',
 };

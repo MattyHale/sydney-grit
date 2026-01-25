@@ -16,6 +16,8 @@ interface ShopInteriorProps {
   money: number;
   energy: number;
   fundingStage: FundingStage;
+  hasDog: boolean;
+  hasValuableTech: boolean;
   onAction: (actionId: string) => void;
   onExit: () => void;
 }
@@ -154,6 +156,7 @@ const SHOP_CONFIGS: Record<string, {
       { id: 'lunch', label: 'Business Lunch', icon: '🍽️', cost: 85, description: 'Impress a client (+energy)' },
       { id: 'dinner', label: 'Client Dinner', icon: '🥂', cost: 250, description: 'Close a deal over dinner' },
       { id: 'takeaway', label: 'UberEats', icon: '🥡', cost: 25, description: 'Quick food (+30 energy)' },
+      // eat-dog option added dynamically if hasDog
     ],
   },
   'bins': {
@@ -165,23 +168,55 @@ const SHOP_CONFIGS: Record<string, {
       { id: 'dig-shallow', label: 'Quick Dig', icon: '🗑️', energyCost: 5, description: 'Fast search. Maybe find $20-50.' },
       { id: 'dig-deep', label: 'Deep Dive', icon: '🔍', energyCost: 15, description: 'Thorough search. Find $50-150 or items.' },
       { id: 'scavenge', label: 'Scavenge Parts', icon: '🔧', energyCost: 10, description: 'Look for tech parts to sell.' },
+      // find-tech option added dynamically if !hasValuableTech
     ],
   },
 };
 
-export function ShopInterior({ shopType, money, energy, fundingStage, onAction, onExit }: ShopInteriorProps) {
+export function ShopInterior({ shopType, money, energy, fundingStage, hasDog, hasValuableTech, onAction, onExit }: ShopInteriorProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   
   // Get config - VC firm is dynamic based on stage
   const isVCFirm = shopType === 'vc-firm';
   const vcOptions = isVCFirm ? getVCOptions(fundingStage) : [];
+  
+  // Build dynamic options for certain shops
+  const getDynamicOptions = () => {
+    const baseConfig = SHOP_CONFIGS[shopType] || SHOP_CONFIGS['bar'];
+    let options = [...baseConfig.options];
+    
+    // Add eat-dog option to food vendors if player has dog
+    if (shopType === 'food-vendor' && hasDog) {
+      options.push({ 
+        id: 'eat-dog', 
+        label: 'Sell Dog to Kitchen', 
+        icon: '🐕', 
+        cost: 0, 
+        description: 'Desperate times. $50 + hunger. Lose your companion forever.' 
+      });
+    }
+    
+    // Add find-tech option to bins if player doesn't have valuable tech
+    if (shopType === 'bins' && !hasValuableTech) {
+      options.push({ 
+        id: 'find-tech', 
+        label: 'Hunt for Prototype', 
+        icon: '💡', 
+        energyCost: 20, 
+        description: 'Search for discarded tech. Could help your pitch!' 
+      });
+    }
+    
+    return options;
+  };
+  
   const config = isVCFirm ? {
     title: AU_VC_NAMES[fundingStage].toUpperCase(),
     subtitle: fundingStage === 'ipo' ? 'Australian Stock Exchange' : `Pitch for ${fundingStage.toUpperCase()} Round`,
     bgColor: '#1a1a2a',
     accentColor: '#4488ff',
     options: vcOptions,
-  } : (SHOP_CONFIGS[shopType] || SHOP_CONFIGS['bar']);
+  } : { ...(SHOP_CONFIGS[shopType] || SHOP_CONFIGS['bar']), options: getDynamicOptions() };
   
   const handleSelect = (option: ShopOption) => {
     const canAffordMoney = !option.cost || option.cost <= money;

@@ -45,6 +45,8 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
           money={state.stats.money}
           energy={state.stats.hunger}
           fundingStage={state.stats.fundingStage}
+          hasDog={state.hasDog}
+          hasValuableTech={state.stats.hasValuableTech}
           onAction={handleShopAction}
           onExit={onExitShop || (() => {})}
         />
