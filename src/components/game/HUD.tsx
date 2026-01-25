@@ -1,6 +1,16 @@
-import { GameStats } from '@/types/game';
+import { GameStats, FundingStage } from '@/types/game';
 import { District, DISTRICT_NAMES } from '@/types/districts';
 import { Volume2, VolumeX } from 'lucide-react';
+
+const STAGE_LABELS: Record<FundingStage, string> = {
+  'bootstrap': '🥾 Bootstrap',
+  'seed': '🌱 Seed',
+  'series-a': '🚀 Series A',
+  'series-b': '📈 Series B',
+  'series-c': '🏢 Series C',
+  'series-d': '🏦 Series D',
+  'ipo': '🔔 IPO!',
+};
 
 interface HUDProps {
   stats: GameStats;
@@ -94,6 +104,14 @@ export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMute
           {stats.hasWatch && <span title="Watch">⌚</span>}
           {stats.hasLaptop && <span title="MacBook">💻</span>}
           {stats.hasPhone && <span title="iPhone">📱</span>}
+        </div>
+        
+        {/* Funding stage indicator */}
+        <div className="flex flex-col items-center">
+          <span className="text-gb-lightest text-[7px] sm:text-[8px] uppercase opacity-60">Stage</span>
+          <span className={`text-[9px] sm:text-[10px] font-bold ${stats.fundingStage === 'ipo' ? 'text-yellow-400 animate-pulse' : 'text-gb-light'}`}>
+            {STAGE_LABELS[stats.fundingStage]}
+          </span>
         </div>
         
         {/* District name indicator */}

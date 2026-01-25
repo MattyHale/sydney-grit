@@ -1,18 +1,21 @@
 import { District } from './districts';
 
+export type FundingStage = 'bootstrap' | 'seed' | 'series-a' | 'series-b' | 'series-c' | 'series-d' | 'ipo';
+
 export interface GameStats {
   hunger: number;      // Energy/burnout
   warmth: number;      // Confidence/composure  
   hope: number;        // Investor confidence / mental state
   cocaine: number;
   lsd: number;
-  money: number;       // Cash on hand (thousands)
+  money: number;       // Cash on hand (runway)
   survivalTime: number;
   // Startup founder specific
   hasWatch: boolean;
   hasLaptop: boolean;
   hasPhone: boolean;
   burnRate: number;    // Monthly burn rate
+  fundingStage: FundingStage;  // Current funding stage
 }
 
 // Pedestrian action types
@@ -193,6 +196,7 @@ export const INITIAL_STATS: GameStats = {
   hasLaptop: true,
   hasPhone: true,
   burnRate: 500,     // Losing $500/tick (monthly burn)
+  fundingStage: 'bootstrap',
 };
 
 // Archetype response to pedestrian actions

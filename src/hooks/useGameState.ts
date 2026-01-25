@@ -46,7 +46,12 @@ export function useGameState() {
     setState(s => {
       if (s.isGameOver || s.isPaused || s.playerState === 'collapsed') return s;
       
-      const newX = Math.max(5, Math.min(90, s.playerX + delta));
+      // 5x speed when high on drugs (cocaine > 30 or LSD active)
+      const isHigh = s.stats.cocaine > 30 || s.lsdTripActive;
+      const speedMultiplier = isHigh ? 5 : 1;
+      const adjustedDelta = delta * speedMultiplier;
+      
+      const newX = Math.max(5, Math.min(90, s.playerX + adjustedDelta));
       const direction = delta > 0 ? 'right' : 'left';
       
       // Check which zone player is in
@@ -58,8 +63,8 @@ export function useGameState() {
         }
       }
       
-      // Update world offset for infinite scroll effect
-      const newWorldOffset = s.worldOffset + (delta * 2.5); // Faster scrolling
+      // Update world offset for infinite scroll effect (also affected by speed)
+      const newWorldOffset = s.worldOffset + (adjustedDelta * 2.5); // Faster scrolling
       const newDistrict = getDistrictFromOffset(newWorldOffset);
       
       // Track if player is in alley (for dealer access)
@@ -137,6 +142,18 @@ export function useGameState() {
     setState(s => ({ ...s, inShop: false, currentShop: null }));
   }, []);
 
+  // Funding stage progression
+  const STAGE_ORDER: import('@/types/game').FundingStage[] = ['bootstrap', 'seed', 'series-a', 'series-b', 'series-c', 'series-d', 'ipo'];
+  const STAGE_CONFIG: Record<import('@/types/game').FundingStage, { amount: number; successRate: number; energyCost: number; hopeLoss: number }> = {
+    'bootstrap': { amount: 500000, successRate: 0.5, energyCost: 20, hopeLoss: 15 },
+    'seed': { amount: 2000000, successRate: 0.4, energyCost: 25, hopeLoss: 25 },
+    'series-a': { amount: 10000000, successRate: 0.35, energyCost: 30, hopeLoss: 30 },
+    'series-b': { amount: 30000000, successRate: 0.3, energyCost: 35, hopeLoss: 35 },
+    'series-c': { amount: 80000000, successRate: 0.25, energyCost: 40, hopeLoss: 40 },
+    'series-d': { amount: 500000000, successRate: 0.15, energyCost: 50, hopeLoss: 50 },
+    'ipo': { amount: 0, successRate: 1, energyCost: 0, hopeLoss: 0 },
+  };
+
   // Handle shop action
   const handleShopAction = useCallback((shopType: HotspotZone, actionId: string) => {
     setState(s => {
@@ -144,37 +161,44 @@ export function useGameState() {
       
       const newState = { ...s, stats: { ...s.stats }, inShop: false, currentShop: null };
       
-      // VC Firm actions
+      // VC Firm actions - progressive funding rounds
       if (shopType === 'vc-firm') {
-        if (actionId === 'pitch-seed') {
-          // 50/50 - Win $500K or lose hope
-          if (Math.random() < 0.5) {
-            newState.stats.money += 500000;
+        if (actionId === 'pitch-next') {
+          const currentStage = s.stats.fundingStage;
+          const config = STAGE_CONFIG[currentStage];
+          const stageIdx = STAGE_ORDER.indexOf(currentStage);
+          const nextStage = stageIdx < STAGE_ORDER.length - 1 ? STAGE_ORDER[stageIdx + 1] : null;
+          
+          // Check energy cost
+          if (s.stats.hunger < config.energyCost) {
+            showEvent('Too exhausted to pitch. Need more energy.');
+            showTransaction('fail', 'No Energy');
+            return { ...s, inShop: false, currentShop: null };
+          }
+          
+          // Spend energy
+          newState.stats.hunger = Math.max(0, newState.stats.hunger - config.energyCost);
+          
+          if (Math.random() < config.successRate && nextStage) {
+            newState.stats.money += config.amount;
+            newState.stats.fundingStage = nextStage;
             newState.stats.hope = Math.min(100, newState.stats.hope + 25);
-            showEvent('SEED ROUND CLOSED! $500K in the bank!');
-            showTransaction('money', '+$500K');
+            const formatted = config.amount >= 1000000 ? `$${config.amount / 1000000}M` : `$${config.amount / 1000}K`;
+            showEvent(`${nextStage.toUpperCase()} CLOSED! ${formatted} in the bank!`);
+            showTransaction('money', `+${formatted}`);
           } else {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+            newState.stats.hope = Math.max(0, newState.stats.hope - config.hopeLoss);
             showEvent('"We\'ll pass. Not a fit for our portfolio."');
             showTransaction('fail', 'Rejected');
           }
-        } else if (actionId === 'pitch-series-a' && s.stats.money >= 50) {
-          newState.stats.money -= 50;
-          if (Math.random() < 0.35) {
-            newState.stats.money += 2000000;
-            newState.stats.hope = Math.min(100, newState.stats.hope + 40);
-            showEvent('SERIES A! $2M! You made it!');
-            showTransaction('money', '+$2M');
-          } else {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 35);
-            showEvent('"Your metrics aren\'t there yet. Come back with more traction."');
-            showTransaction('fail', 'Crushed');
+        } else if (actionId === 'network') {
+          if (s.stats.money >= 20 && s.stats.hunger >= 10) {
+            newState.stats.money -= 20;
+            newState.stats.hunger = Math.max(0, newState.stats.hunger - 10);
+            newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+            showEvent('Met some founders. Exchanged cards. Feeling connected.');
+            showTransaction('hope', '+10');
           }
-        } else if (actionId === 'network' && s.stats.money >= 20) {
-          newState.stats.money -= 20;
-          newState.stats.hope = Math.min(100, newState.stats.hope + 10);
-          showEvent('Met some founders. Exchanged cards. Feeling connected.');
-          showTransaction('hope', '+10');
         }
       }
       
