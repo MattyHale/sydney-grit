@@ -21,6 +21,7 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
   const isHigh = state.stats.cocaine > 30;
   const highIntensity = Math.min(1, (state.stats.cocaine - 30) / 70);
   const isTripping = state.lsdTripActive;
+  const isDogSacrifice = state.isPaused && !state.hasDog && state.dogHealth === 0;
   
   return (
     <div className="relative flex-1 overflow-hidden bg-gb-dark">
@@ -67,6 +68,23 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
             boxShadow: `inset 0 0 ${30 + highIntensity * 40}px rgba(255, 50, 100, ${highIntensity * 0.3})`,
           }}
         />
+      )}
+      
+      {/* Dog sacrifice overlay - dark dimming with frozen scroll effect */}
+      {isDogSacrifice && (
+        <div 
+          className="absolute inset-0 pointer-events-none z-40 flex items-center justify-center"
+          style={{ background: 'rgba(0, 0, 0, 0.85)' }}
+        >
+          <div className="text-center px-4">
+            <p className="text-gb-lightest text-[10px] leading-relaxed max-w-[200px]">
+              You did what you had to do.
+            </p>
+            <p className="text-gb-dark text-[8px] mt-2 italic">
+              Your companion is gone forever.
+            </p>
+          </div>
+        </div>
       )}
       
       {/* Street background and hotspots */}

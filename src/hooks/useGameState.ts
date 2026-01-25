@@ -117,20 +117,34 @@ export function useGameState() {
             const money = Math.floor(Math.random() * 3 * districtConfig.kindnessMultiplier) + 1;
             newState.stats.money += money;
             newState.stats.hope = Math.min(100, newState.stats.hope + 5);
-            showEvent('Someone gave you a few dollars.');
+            const messages = [
+              `Someone pressed ${money} dollars into your hand.`,
+              'A stranger stopped. They saw you.',
+              `"Here." ${money} dollars. No eye contact.`,
+            ];
+            showEvent(messages[Math.floor(Math.random() * messages.length)]);
           } else if (roll < kindnessChance + 0.2) {
             newState.stats.hope = Math.min(100, newState.stats.hope + 3);
-            showEvent('A passerby offered kind words.');
+            const messages = [
+              'A nod. Just a nod. It was something.',
+              'Someone smiled. Brief, but real.',
+              '"Hang in there." They kept walking.',
+            ];
+            showEvent(messages[Math.floor(Math.random() * messages.length)]);
           } else {
             newState.stats.hope = Math.max(0, newState.stats.hope - 2);
-            showEvent('People walked past without stopping.');
+            const messages = [
+              'Eyes forward. They all looked away.',
+              'Invisible. You\'re invisible.',
+              'The crowd parted around you.',
+            ];
+            showEvent(messages[Math.floor(Math.random() * messages.length)]);
           }
           break;
         }
         case 'bins': {
-          // Ibis mechanic - if ibis is active and has eaten
           if (s.ibis.isActive && s.ibis.hasEaten) {
-            showEvent('An ibis picked the bins clean before you.');
+            showEvent('A bin chicken got there first. Nothing left.');
             newState.stats.hope = Math.max(0, newState.stats.hope - 3);
             break;
           }
@@ -138,21 +152,20 @@ export function useGameState() {
           if (s.binsRestocked) {
             const roll = Math.random();
             if (s.ibis.isActive && roll < 0.3) {
-              // Ibis gets some but not all
               newState.stats.hunger = Math.min(100, newState.stats.hunger + 5);
-              showEvent('An ibis got most of it. You found some scraps.');
+              showEvent('You fought an ibis for scraps. Won some.');
             } else if (roll < 0.4) {
               newState.stats.hunger = Math.min(100, newState.stats.hunger + 15);
-              showEvent('You found some stale bread in the bins.');
+              showEvent('Bread. Stale but edible.');
             } else if (roll < 0.7) {
               newState.stats.hunger = Math.min(100, newState.stats.hunger + 8);
-              showEvent('You found half a sandwich. It was cold.');
+              showEvent('Half a meat pie. Cold. It\'ll do.');
             } else {
-              showEvent('The bins were mostly empty.');
+              showEvent('Empty. All of them.');
             }
             newState.binsRestocked = false;
           } else {
-            showEvent('The bins are empty. Check back later.');
+            showEvent('Already checked. Nothing new.');
           }
           break;
         }
@@ -397,12 +410,20 @@ export function useGameState() {
         }
         case 'dog-sacrifice': {
           if (s.hasDog) {
+            // Dog sacrifice event - enhanced with freeze and dimming via state
             newState.hasDog = false;
+            newState.dogHealth = 0;
             newState.stats.hunger = Math.min(100, newState.stats.hunger + 60);
             newState.stats.warmth = Math.min(100, newState.stats.warmth + 45);
             newState.stats.hope = Math.max(0, newState.stats.hope - 55);
-            newState.permanentHopeLoss += 20; // Permanent penalty
-            showEvent('Your companion is gone. You will carry this.');
+            newState.permanentHopeLoss += 25; // Stronger permanent penalty
+            // Pause for dramatic effect
+            newState.isPaused = true;
+            showEvent('You did what you had to. Your companion is gone. You will carry this forever.');
+            // Auto-unpause after 3 seconds
+            setTimeout(() => {
+              setState(prev => ({ ...prev, isPaused: false }));
+            }, 3000);
           }
           break;
         }
@@ -1139,6 +1160,9 @@ export function useGameState() {
       triggerGameOver('Overdose.');
     }
   }, [state.stats, state.isGameOver, triggerGameOver]);
+
+  // Expose setState for dog sacrifice timeout
+  // This is handled via closure in the performDesperationAction callback
 
   return {
     state,
