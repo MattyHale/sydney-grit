@@ -4,18 +4,38 @@ interface PlayerProps {
   x: number;
   direction: 'left' | 'right';
   state: 'idle' | 'walking' | 'ducking' | 'collapsed';
+  cocaineLevel?: number;
 }
 
-export function Player({ x, direction, state }: PlayerProps) {
+export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
   const [walkFrame, setWalkFrame] = useState(0);
+  const [jitterX, setJitterX] = useState(0);
+  const [jitterY, setJitterY] = useState(0);
+
+  const isHigh = cocaineLevel > 30;
+  const jitterIntensity = Math.min(2, (cocaineLevel - 30) / 35); // 0-2px jitter
 
   useEffect(() => {
     if (state !== 'walking') return;
     const interval = setInterval(() => {
       setWalkFrame(f => (f + 1) % 4);
-    }, 150);
+    }, isHigh ? 100 : 150); // Faster animation when high
     return () => clearInterval(interval);
-  }, [state]);
+  }, [state, isHigh]);
+
+  // Jitter effect when high
+  useEffect(() => {
+    if (!isHigh) {
+      setJitterX(0);
+      setJitterY(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setJitterX((Math.random() - 0.5) * jitterIntensity * 2);
+      setJitterY((Math.random() - 0.5) * jitterIntensity);
+    }, 80);
+    return () => clearInterval(interval);
+  }, [isHigh, jitterIntensity]);
 
   const getHeight = () => {
     if (state === 'ducking') return 'h-6';
@@ -27,8 +47,8 @@ export function Player({ x, direction, state }: PlayerProps) {
     <div 
       className="absolute transition-all duration-100 z-30"
       style={{ 
-        left: `${x}%`, 
-        bottom: '46%', // Positioned on footpath layer
+        left: `calc(${x}% + ${jitterX}px)`, 
+        bottom: `calc(46% + ${jitterY}px)`, // Positioned on footpath layer with jitter
         transform: `translateX(-50%) ${direction === 'left' ? 'scaleX(-1)' : ''}`,
       }}
     >
@@ -58,22 +78,40 @@ export function Player({ x, direction, state }: PlayerProps) {
           // Standing/walking pose
           <div className="relative w-6 h-10">
             {/* Head */}
-            <div className="absolute top-0 left-1 w-4 h-4 bg-[#6a7a6a] rounded-full border border-[#5a6a5a]">
-              {/* Eye */}
-              <div className="absolute top-1 right-1 w-1 h-1 bg-[#1a2a1a] rounded-full" />
+            <div 
+              className="absolute top-0 left-1 w-4 h-4 bg-[#6a7a6a] rounded-full border border-[#5a6a5a]"
+              style={isHigh ? { boxShadow: '0 0 4px rgba(255, 150, 200, 0.4)' } : {}}
+            >
+              {/* Eye - dilated when high */}
+              <div 
+                className="absolute top-1 right-1 rounded-full bg-[#1a2a1a]"
+                style={{ 
+                  width: isHigh ? '5px' : '4px', 
+                  height: isHigh ? '5px' : '4px',
+                  transition: 'all 0.3s'
+                }}
+              />
             </div>
             
             {/* Body/torso - more defined */}
             <div className="absolute top-4 left-0.5 w-5 h-4 bg-[#3a4a3a] rounded-sm border-2 border-[#2a3a2a]" />
             
-            {/* Arms */}
+            {/* Arms - more erratic when high */}
             <div 
               className="absolute top-5 left-[-2px] w-1.5 h-3 bg-[#3a4a3a] rounded origin-top transition-transform"
-              style={{ transform: state === 'walking' ? `rotate(${walkFrame % 2 === 0 ? 15 : -15}deg)` : 'rotate(0deg)' }}
+              style={{ 
+                transform: state === 'walking' 
+                  ? `rotate(${(walkFrame % 2 === 0 ? 15 : -15) + (isHigh ? jitterX * 5 : 0)}deg)` 
+                  : `rotate(${isHigh ? jitterX * 3 : 0}deg)` 
+              }}
             />
             <div 
               className="absolute top-5 right-[-2px] w-1.5 h-3 bg-[#3a4a3a] rounded origin-top transition-transform"
-              style={{ transform: state === 'walking' ? `rotate(${walkFrame % 2 === 0 ? -15 : 15}deg)` : 'rotate(0deg)' }}
+              style={{ 
+                transform: state === 'walking' 
+                  ? `rotate(${(walkFrame % 2 === 0 ? -15 : 15) + (isHigh ? -jitterX * 5 : 0)}deg)` 
+                  : `rotate(${isHigh ? -jitterX * 3 : 0}deg)` 
+              }}
             />
             
             {/* Legs - more prominent */}

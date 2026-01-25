@@ -18,10 +18,34 @@ interface GameCanvasProps {
 }
 
 export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
+  const isHigh = state.stats.cocaine > 30;
+  const highIntensity = Math.min(1, (state.stats.cocaine - 30) / 70); // 0-1 based on 30-100
+  
   return (
     <div className="relative flex-1 overflow-hidden bg-gb-dark">
       {/* CRT Scanlines overlay */}
       <div className="absolute inset-0 pointer-events-none z-10 scanlines opacity-20" />
+      
+      {/* Cocaine high overlay - pink/red tint with pulse */}
+      {isHigh && (
+        <div 
+          className="absolute inset-0 pointer-events-none z-20 animate-pulse"
+          style={{ 
+            background: `radial-gradient(ellipse at center, transparent 30%, rgba(255, 100, 150, ${highIntensity * 0.15}) 100%)`,
+            mixBlendMode: 'overlay',
+          }}
+        />
+      )}
+      
+      {/* Screen edge vignette when very high */}
+      {state.stats.cocaine > 60 && (
+        <div 
+          className="absolute inset-0 pointer-events-none z-20"
+          style={{ 
+            boxShadow: `inset 0 0 ${30 + highIntensity * 40}px rgba(255, 50, 100, ${highIntensity * 0.3})`,
+          }}
+        />
+      )}
       
       {/* Street background and hotspots */}
       <Street 
@@ -79,6 +103,7 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
         x={state.playerX}
         direction={state.playerDirection}
         state={state.playerState}
+        cocaineLevel={state.stats.cocaine}
       />
       
       {/* Event text overlay */}
