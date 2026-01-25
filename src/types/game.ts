@@ -56,7 +56,10 @@ export interface IbisState {
   hasEaten: boolean;
 }
 
+export type GameScreen = 'title' | 'playing';
+
 export interface GameState {
+  screen: GameScreen;
   stats: GameStats;
   playerX: number;
   playerDirection: 'left' | 'right';
@@ -176,6 +179,7 @@ export const ARCHETYPE_ACTION_BIAS: Record<PedestrianArchetype, {
 };
 
 export const INITIAL_STATE: GameState = {
+  screen: 'title',
   stats: { ...INITIAL_STATS },
   playerX: 50,
   playerDirection: 'right',

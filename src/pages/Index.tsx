@@ -5,6 +5,7 @@ import { useAmbientAudio } from '@/hooks/useAmbientAudio';
 import { HUD } from '@/components/game/HUD';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { Controls } from '@/components/game/Controls';
+import { TitleScreen } from '@/components/game/TitleScreen';
 
 const Index = () => {
   const {
@@ -13,6 +14,7 @@ const Index = () => {
     stopWalking,
     setDucking,
     togglePause,
+    startGame,
     restartGame,
     performAction,
     performDesperationAction,
@@ -117,6 +119,11 @@ const Index = () => {
 
     return () => clearInterval(interval);
   }, [tick]);
+
+  // Show title screen if not playing
+  if (state.screen === 'title') {
+    return <TitleScreen onStart={startGame} />;
+  }
 
   return (
     <div className="h-full flex flex-col bg-gb-darkest overflow-hidden">
