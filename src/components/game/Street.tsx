@@ -1,5 +1,6 @@
 import { HOTSPOTS } from '@/types/game';
 import { getDistrictBlend, DISTRICT_CONFIGS, DISTRICT_VENUES, getVenueForBlock, District, BlockSignage } from '@/types/districts';
+import { SkylineBackground } from './SkylineBackground';
 
 interface StreetProps {
   timeOfDay: 'dawn' | 'day' | 'dusk' | 'night';
@@ -618,114 +619,202 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         return isNight ? (
           <div className="w-1 h-4 opacity-20 animate-pulse" style={{ background: 'linear-gradient(0deg, #888888 0%, transparent 100%)' }} />
         ) : null;
+      // New clutter types for additional districts
+      case 'flyers':
+        return (
+          <div className="flex gap-0.5 items-end">
+            <div className="w-2 h-3" style={{ background: '#8a7a6a', transform: 'rotate(5deg)' }} />
+            <div className="w-1.5 h-2" style={{ background: '#7a8a6a', transform: 'rotate(-8deg)' }} />
+          </div>
+        );
+      case 'ashtrays':
+        return (
+          <div className="w-3 h-1.5 rounded" style={{ background: '#4a4a4a', border: '1px solid #5a5a5a' }}>
+            <div className="w-0.5 h-1 mx-auto" style={{ background: '#888888' }} />
+          </div>
+        );
+      case 'glitter':
+        return isNight ? (
+          <div className="flex gap-0.5">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="w-0.5 h-0.5 rounded-full animate-pulse" style={{ background: i % 2 === 0 ? '#ff88cc' : '#88ffcc', animationDelay: `${i * 0.1}s` }} />
+            ))}
+          </div>
+        ) : null;
+      case 'rainbowFlag':
+        return (
+          <div className="w-0.5 h-6" style={{ background: '#5a5a5a' }}>
+            <div className="absolute top-0 left-1 w-4 h-3" style={{ background: 'linear-gradient(180deg, #ff0000 0%, #ff8800 17%, #ffff00 33%, #00ff00 50%, #0088ff 67%, #8800ff 83%, #ff00ff 100%)' }} />
+          </div>
+        );
+      case 'chalkMenu':
+        return (
+          <div className="w-4 h-5" style={{ background: '#2a2a2a', border: '1px solid #4a4a4a' }}>
+            <div className="text-[2px] p-0.5" style={{ color: '#ffffff' }}>MENU</div>
+          </div>
+        );
+      case 'briefcase':
+        return (
+          <div className="w-4 h-3" style={{ background: '#5a4a3a', border: '1px solid #7a6a5a', borderRadius: '1px' }}>
+            <div className="w-2 h-0.5 mx-auto mt-0.5" style={{ background: '#3a2a1a' }} />
+          </div>
+        );
+      case 'ticketMachine':
+        return (
+          <div className="w-4 h-7" style={{ background: '#4a5a6a', border: '1px solid #6a7a8a' }}>
+            <div className="w-2 h-2 mx-auto mt-1" style={{ background: '#2a3a4a' }} />
+            <div className="w-3 h-1 mx-auto mt-1" style={{ background: '#3a4a5a' }} />
+          </div>
+        );
+      case 'timetable':
+        return (
+          <div className="w-5 h-4" style={{ background: '#ffffff', border: '1px solid #cccccc' }}>
+            <div className="text-[2px] p-0.5" style={{ color: '#333333' }}>TRAINS</div>
+          </div>
+        );
+      case 'pigeons':
+        return (
+          <div className="flex gap-1">
+            <div className="w-2 h-2 rounded-full" style={{ background: '#6a6a6a' }} />
+            <div className="w-2 h-2 rounded-full" style={{ background: '#7a7a7a' }} />
+          </div>
+        );
+      case 'graffiti':
+        return (
+          <div className="text-[4px] font-bold" style={{ color: '#ff4488', transform: 'rotate(-5deg)' }}>
+            SYDE
+          </div>
+        );
+      case 'buskerCorner':
+        return (
+          <div className="flex gap-1 items-end">
+            <div className="w-3 h-4 rounded-t" style={{ background: '#8a6a4a' }} />
+            <div className="w-2 h-1" style={{ background: '#666666' }} />
+          </div>
+        );
+      case 'bikes':
+        return (
+          <div className="flex gap-0.5 items-end">
+            <div className="w-4 h-3" style={{ border: '1px solid #5a5a5a', borderRadius: '50%' }} />
+            <div className="w-1 h-4" style={{ background: '#5a5a5a' }} />
+          </div>
+        );
+      case 'potPlants':
+        return (
+          <div className="w-3 h-4">
+            <div className="w-3 h-2 rounded-t" style={{ background: '#4a8a4a' }} />
+            <div className="w-2 h-2 mx-auto" style={{ background: '#6a4a3a' }} />
+          </div>
+        );
+      case 'dogBowl':
+        return (
+          <div className="w-3 h-1.5 rounded" style={{ background: '#6a6a8a', border: '1px solid #8a8aaa' }} />
+        );
+      case 'plasticStools':
+        return (
+          <div className="flex gap-0.5">
+            <div className="w-2 h-2" style={{ background: '#ff4444' }} />
+            <div className="w-2 h-2" style={{ background: '#4444ff' }} />
+          </div>
+        );
+      case 'herbCrates':
+        return (
+          <div className="w-4 h-3" style={{ background: '#4a6a4a', border: '1px solid #5a7a5a' }}>
+            <div className="w-3 h-1 mx-auto mt-0.5" style={{ background: '#6a8a6a' }} />
+          </div>
+        );
+      case 'seafoodBoxes':
+        return (
+          <div className="w-5 h-3" style={{ background: '#3a4a5a', border: '1px solid #4a5a6a' }}>
+            <div className="text-[2px] text-center mt-0.5" style={{ color: '#8a9aaa' }}>FISH</div>
+          </div>
+        );
+      case 'scooter':
+        return (
+          <div className="w-5 h-3" style={{ background: '#cc4444' }}>
+            <div className="absolute bottom-0 left-0 w-1.5 h-1.5 rounded-full" style={{ background: '#2a2a2a' }} />
+            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full" style={{ background: '#2a2a2a' }} />
+          </div>
+        );
+      case 'hangingSigns':
+        return (
+          <div className="w-0.5 h-4" style={{ background: '#5a5a5a' }}>
+            <div className="absolute bottom-0 left-0.5 w-3 h-2" style={{ background: '#aa3322', border: '1px solid #884422' }} />
+          </div>
+        );
+      case 'schooner':
+        return (
+          <div className="w-2 h-3 rounded-t" style={{ background: '#ffcc44', border: '1px solid #cc9922' }}>
+            <div className="w-2 h-1 mt-0.5" style={{ background: '#ffffff', opacity: 0.3 }} />
+          </div>
+        );
+      case 'footyPosters':
+        return (
+          <div className="w-4 h-5" style={{ background: '#3a5a3a', border: '1px solid #4a6a4a' }}>
+            <div className="text-[2px] text-center mt-1" style={{ color: '#ffffff' }}>NRL</div>
+          </div>
+        );
+      case 'shoppingTrolleys':
+        return (
+          <div className="w-4 h-4" style={{ border: '1px solid #8a8a8a', background: '#aaaaaa22' }}>
+            <div className="absolute bottom-0 left-0 w-1 h-1 rounded-full" style={{ background: '#5a5a5a' }} />
+            <div className="absolute bottom-0 right-0 w-1 h-1 rounded-full" style={{ background: '#5a5a5a' }} />
+          </div>
+        );
+      case 'cars':
+        return (
+          <div className="w-8 h-3" style={{ background: '#4a4a5a', borderRadius: '2px' }}>
+            <div className="absolute top-0 left-1 w-2 h-1.5" style={{ background: '#6a6a7a', borderRadius: '1px' }} />
+            <div className="absolute bottom-0 left-1 w-1.5 h-1.5 rounded-full" style={{ background: '#2a2a2a' }} />
+            <div className="absolute bottom-0 right-1 w-1.5 h-1.5 rounded-full" style={{ background: '#2a2a2a' }} />
+          </div>
+        );
+      case 'energyCans':
+        return (
+          <div className="flex gap-0.5">
+            <div className="w-1.5 h-2" style={{ background: '#44ff44', border: '1px solid #22cc22' }} />
+            <div className="w-1.5 h-2" style={{ background: '#ff4444', border: '1px solid #cc2222' }} />
+          </div>
+        );
+      case 'hoonCar':
+        return (
+          <div className="w-10 h-4" style={{ background: '#2a2a3a', borderRadius: '2px' }}>
+            <div className="absolute top-0 left-2 w-3 h-2" style={{ background: '#3a3a4a', borderRadius: '1px' }} />
+            <div className="absolute bottom-0 left-1 w-2 h-2 rounded-full" style={{ background: '#1a1a1a', border: '1px solid #ffcc00' }} />
+            <div className="absolute bottom-0 right-1 w-2 h-2 rounded-full" style={{ background: '#1a1a1a', border: '1px solid #ffcc00' }} />
+          </div>
+        );
+      case 'servoSign':
+        return (
+          <div className="w-5 h-6" style={{ background: '#ff4422', border: '2px solid #ffffff' }}>
+            <div className="text-[3px] text-center mt-1 font-bold" style={{ color: '#ffffff' }}>SHELL</div>
+          </div>
+        );
+      case 'syringes':
+        return (
+          <div className="flex gap-0.5 opacity-60">
+            <div className="w-0.5 h-2" style={{ background: '#aaaaaa' }} />
+            <div className="w-0.5 h-1.5 rotate-45" style={{ background: '#aaaaaa' }} />
+          </div>
+        );
       default:
         return null;
     }
   };
 
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ background: `linear-gradient(180deg, ${palette.sky} 0%, ${palette.building} 100%)` }}>
-      {/* LAYER 1: Skyline - 6% */}
-      <div className="absolute top-0 left-0 right-0 h-[6%]" style={{ background: palette.sky }}>
-        <div className="absolute bottom-0 left-0 right-0 h-full flex items-end">
-          {[...Array(25)].map((_, i) => (
-            <div
-              key={`sky-${i}`}
-              className="flex-shrink-0"
-              style={{
-                width: `${15 + (i % 4) * 10}px`,
-                height: `${30 + (i % 5) * 15}%`,
-                background: palette.building,
-                marginLeft: '-1px',
-                transform: `translateX(${-parallaxOffset * 0.15}px)`,
-              }}
-            />
-          ))}
-        </div>
-        
-        {/* Sydney Harbour Bridge silhouette - anchored in skyline */}
-        <div 
-          className="absolute bottom-0 h-full pointer-events-none"
-          style={{ 
-            left: `${40 - (parallaxOffset * 0.05) % 100}%`,
-            width: '80px',
-          }}
-        >
-          {/* Main arch */}
-          <div 
-            className="absolute bottom-0 w-full h-[80%]"
-            style={{
-              background: 'transparent',
-              borderTop: `3px solid ${palette.building}`,
-              borderRadius: '50% 50% 0 0',
-            }}
-          />
-          {/* Bridge deck */}
-          <div 
-            className="absolute bottom-[15%] left-0 right-0 h-[4px]"
-            style={{ background: palette.building }}
-          />
-          {/* Pylons */}
-          <div 
-            className="absolute bottom-0 left-[5%] w-[6px] h-[60%]"
-            style={{ background: palette.building }}
-          />
-          <div 
-            className="absolute bottom-0 right-[5%] w-[6px] h-[60%]"
-            style={{ background: palette.building }}
-          />
-          {/* Vertical cables */}
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={`cable-${i}`}
-              className="absolute bottom-[15%] w-px"
-              style={{
-                left: `${15 + i * 10}%`,
-                height: `${25 + Math.sin(i * 0.8) * 15}%`,
-                background: palette.building,
-                opacity: 0.7,
-              }}
-            />
-          ))}
-          {/* Car lights at night */}
-          {isNight && (
-            <div 
-              className="absolute bottom-[17%] left-[20%] right-[20%] h-px animate-pulse"
-              style={{ background: '#ffaa4433' }}
-            />
-          )}
-        </div>
-        
-        {/* Centrepoint Tower silhouette */}
-        <div 
-          className="absolute bottom-0"
-          style={{ 
-            left: `${75 - (parallaxOffset * 0.03) % 100}%`,
-          }}
-        >
-          {/* Tower spike */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[2px] h-[90%]" style={{ background: palette.building }} />
-          {/* Observation deck */}
-          <div className="absolute bottom-[50%] left-1/2 -translate-x-1/2 w-[8px] h-[8px] rounded-full" style={{ background: palette.building }} />
-          {/* Night glow ring */}
-          {isNight && (
-            <div className="absolute bottom-[52%] left-1/2 -translate-x-1/2 w-[10px] h-[4px] rounded-full animate-pulse" style={{ background: '#ffcc4444', boxShadow: '0 0 4px #ffcc4422' }} />
-          )}
-        </div>
+    <div className="absolute inset-0 overflow-hidden">
+      {/* LAYER 0: Fixed Sydney Harbour Skyline - does not scroll */}
+      <SkylineBackground timeOfDay={timeOfDay} isRaining={isRaining} />
+      
+      {/* Overlay gradient for district blending */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: `linear-gradient(180deg, transparent 0%, ${palette.building}88 60%, ${palette.footpath} 100%)` }}
+      />
 
-        {/* Stars at night */}
-        {timeOfDay === 'night' && (
-          <>
-            <div className="absolute top-1 left-[12%] w-1 h-1 rounded-full animate-pulse" style={{ background: '#9bbc0f' }} />
-            <div className="absolute top-2 left-[28%] w-0.5 h-0.5 rounded-full" style={{ background: '#8bac0f' }} />
-            <div className="absolute top-1 left-[55%] w-1 h-1 rounded-full animate-pulse" style={{ background: '#9bbc0f' }} />
-            <div className="absolute top-2 left-[78%] w-0.5 h-0.5 rounded-full" style={{ background: '#8bac0f' }} />
-          </>
-        )}
-      </div>
-
-      {/* LAYER 2: Buildings/Shopfronts - 38% */}
-      <div className="absolute top-[6%] left-0 right-0 h-[38%] overflow-hidden">
+      {/* LAYER 1: Buildings/Shopfronts */}
+      <div className="absolute top-[18%] left-0 right-0 h-[26%] overflow-hidden">
         {renderCityBlocks()}
       </div>
 

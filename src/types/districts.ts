@@ -1,8 +1,29 @@
-// District types for Sydney 1991
-export type District = 'cross' | 'oxford' | 'cbd' | 'chinatown' | 'central' | 'redfern' | 'cabramatta';
+// District types for Sydney 1991 - 10 districts looping
+export type District = 
+  | 'cross' 
+  | 'oxford' 
+  | 'cbd' 
+  | 'chinatown' 
+  | 'central' 
+  | 'surryHills'
+  | 'cabramatta'
+  | 'parramatta'
+  | 'mountDruitt'
+  | 'redfern';
 
-// District sequence for belt looping
-export const DISTRICT_SEQUENCE: District[] = ['cross', 'oxford', 'cbd', 'chinatown', 'central', 'redfern', 'cabramatta'];
+// District sequence for belt looping (as specified in patch)
+export const DISTRICT_SEQUENCE: District[] = [
+  'cross',
+  'oxford', 
+  'cbd',
+  'chinatown',
+  'central',
+  'surryHills',
+  'cabramatta',
+  'parramatta',
+  'mountDruitt',
+  'redfern',
+];
 
 // Human-readable district names
 export const DISTRICT_NAMES: Record<District, string> = {
@@ -11,186 +32,205 @@ export const DISTRICT_NAMES: Record<District, string> = {
   cbd: "Sydney City",
   chinatown: "Chinatown",
   central: "Central",
-  redfern: "Redfern",
+  surryHills: "Surry Hills",
   cabramatta: "Cabramatta",
+  parramatta: "Parramatta",
+  mountDruitt: "Mount Druitt",
+  redfern: "Redfern",
 };
 
-// Block type to signage mapping - ensures accurate function-to-name matching
+// Block type to signage mapping
 export interface BlockSignage {
-  type: 'bar' | 'food' | 'cafe' | 'vc' | 'hub' | 'club' | 'pawn' | 'shelter' | 'alley' | 'hostel' | 'shop' | 'derelict';
+  type: 'bar' | 'food' | 'cafe' | 'vc' | 'hub' | 'club' | 'pawn' | 'shelter' | 'alley' | 'hostel' | 'shop' | 'derelict' | 'servo' | 'rsl' | 'station' | 'arcade';
   name: string;
 }
 
-// District-specific venue lists with accurate block types
+// District-specific venue lists with accurate 1991 Sydney names
 export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
   cross: [
-    // Bars/Pubs
+    // Neon strip fronts, hostels, clubs, late-night food
     { type: 'bar', name: 'THE BOURBON' },
-    { type: 'bar', name: 'TEXAS TAVERN' },
-    { type: 'bar', name: "PORKY'S" },
-    { type: 'bar', name: 'PICCOLO BAR' },
-    // Clubs
-    { type: 'club', name: 'KINSELAS' },
-    { type: 'club', name: 'THE TUNNEL' },
+    { type: 'club', name: "PORKY'S" },
     { type: 'club', name: 'LES GIRLS' },
-    { type: 'club', name: 'CAROUSEL' },
-    // Food
+    { type: 'hostel', name: 'EVAS BACKPACKERS' },
     { type: 'food', name: 'HARRYS CAFE' },
-    { type: 'food', name: 'TROPICANA' },
-    { type: 'cafe', name: 'PICCOLO' },
-    // Other
-    { type: 'hostel', name: 'EVAS HOSTEL' },
-    { type: 'pawn', name: 'CROSS PAWN' },
+    { type: 'club', name: 'CAROUSEL' },
+    { type: 'bar', name: 'TEXAS TAVERN' },
+    { type: 'food', name: 'TROPICANA KEBAB' },
     { type: 'alley', name: 'ALLEY' },
+    { type: 'club', name: 'KINSELAS' },
+    { type: 'hostel', name: 'JOLLY SWAGMAN' },
+    { type: 'pawn', name: 'CROSS PAWN' },
   ],
   oxford: [
-    // Bars/Pubs - Golden Mile
+    // Pubs, rainbow clubs, kebab vans, charity shops
     { type: 'bar', name: 'THE ALBURY' },
     { type: 'bar', name: 'MIDNIGHT SHIFT' },
-    { type: 'bar', name: 'BERESFORD' },
-    { type: 'bar', name: 'FLINDERS' },
-    { type: 'bar', name: "GILLIGAN'S" },
-    // Clubs
     { type: 'club', name: 'DCM' },
     { type: 'club', name: 'EXCHANGE' },
-    { type: 'club', name: 'TAXI CLUB' },
-    { type: 'club', name: 'PALMS' },
-    // Food
     { type: 'food', name: 'COLOMBIAN' },
-    { type: 'food', name: 'BALKAN' },
+    { type: 'bar', name: 'BERESFORD' },
+    { type: 'club', name: 'TAXI CLUB' },
+    { type: 'food', name: 'BALKAN KEBAB' },
+    { type: 'shop', name: 'VINNIES' },
     { type: 'cafe', name: 'TROPICANA' },
-    // Other
-    { type: 'pawn', name: 'OXFORD GOLD' },
     { type: 'alley', name: 'ALLEY' },
+    { type: 'bar', name: 'FLINDERS' },
   ],
   cbd: [
-    // Australian VCs (real 1990s era)
+    // Sandstone facades, milk bars, TAB/pubs, pawn shops
     { type: 'vc', name: 'ALLEN & BUCKERIDGE' },
-    { type: 'vc', name: 'PLATINUM VENTURES' },
-    { type: 'vc', name: 'POLARIS' },
-    { type: 'vc', name: 'HAMBROS' },
-    // Startup Hubs / Accelerators
     { type: 'hub', name: 'ATP INNOVATIONS' },
-    { type: 'hub', name: 'AGSM' },
-    { type: 'hub', name: 'TECH SYDNEY' },
-    // Bars
     { type: 'bar', name: 'MARBLE BAR' },
-    { type: 'bar', name: 'REGENT' },
-    { type: 'bar', name: 'CIVIC' },
-    // Food
-    { type: 'food', name: 'ROCKPOOL' },
-    { type: 'food', name: 'KABLES' },
-    { type: 'cafe', name: 'LINDT' },
-    // Other
-    { type: 'shelter', name: 'QVB' },
     { type: 'shop', name: 'DAVID JONES' },
+    { type: 'vc', name: 'PLATINUM VENTURES' },
+    { type: 'cafe', name: 'LINDT' },
+    { type: 'hub', name: 'AGSM' },
+    { type: 'bar', name: 'REGENT' },
+    { type: 'food', name: 'ROCKPOOL' },
+    { type: 'pawn', name: 'TAB' },
+    { type: 'station', name: 'TOWN HALL' },
+    { type: 'shelter', name: 'QVB' },
   ],
   chinatown: [
-    // Restaurants - all food!
+    // BBQ duck windows, noodle shops, arcades, lanterns
     { type: 'food', name: 'GOLDEN CENTURY' },
     { type: 'food', name: 'BBQ KING' },
     { type: 'food', name: 'EAST OCEAN' },
+    { type: 'arcade', name: 'CAPITOL ARCADE' },
     { type: 'food', name: 'MARIGOLD' },
     { type: 'food', name: 'EMPERORS GARDEN' },
+    { type: 'shop', name: 'PADDY MARKETS' },
     { type: 'food', name: 'HINGARA' },
-    { type: 'food', name: 'REGAL' },
     { type: 'food', name: 'SUPERBOWL' },
     { type: 'cafe', name: 'EMPEROR' },
-    // Other
-    { type: 'shop', name: 'PADDY MARKETS' },
-    { type: 'shop', name: 'CAPITOL' },
-    { type: 'pawn', name: 'GOLD SHOP' },
     { type: 'alley', name: 'ALLEY' },
+    { type: 'pawn', name: 'GOLD SHOP' },
   ],
   central: [
-    // Bars/Pubs around Central
+    // Station entrance, underpass, bus stands, fast-food
+    { type: 'station', name: 'CENTRAL STATION' },
     { type: 'bar', name: 'RAILWAY HOTEL' },
-    { type: 'bar', name: 'CLOCK HOTEL' },
-    { type: 'bar', name: 'TERMINUS' },
-    { type: 'bar', name: 'ALFRED' },
-    // Food
     { type: 'food', name: 'RED ROOSTER' },
-    { type: 'food', name: 'RAILWAY BUFFET' },
-    { type: 'cafe', name: 'CENTRAL CAFE' },
-    // Services
     { type: 'shelter', name: 'SALVATION ARMY' },
-    { type: 'shelter', name: 'CITY MISSION' },
-    // Other
-    { type: 'shop', name: 'CENTRAL' },
-    { type: 'pawn', name: 'TAB' },
-    { type: 'pawn', name: 'BOTTLE-O' },
+    { type: 'bar', name: 'CLOCK HOTEL' },
     { type: 'derelict', name: 'EDDY AVE' },
-    { type: 'alley', name: 'ALLEY' },
-  ],
-  redfern: [
-    // Pubs
-    { type: 'bar', name: 'HOPETOUN HOTEL' },
-    { type: 'bar', name: 'COURTHOUSE' },
-    { type: 'bar', name: 'REGENT' },
-    // Food
-    { type: 'food', name: 'REDFERN RSL' },
-    { type: 'cafe', name: 'ELOUERA' },
-    // Shelters/Services
-    { type: 'shelter', name: 'THE BLOCK' },
-    { type: 'shelter', name: 'MURAWINA' },
-    // Other
-    { type: 'pawn', name: 'CASH LOANS' },
+    { type: 'food', name: 'RAILWAY BUFFET' },
+    { type: 'shelter', name: 'CITY MISSION' },
     { type: 'pawn', name: 'BOTTLE-O' },
-    { type: 'shop', name: 'KOORI RADIO' },
-    { type: 'derelict', name: 'EVELEIGH ST' },
+    { type: 'cafe', name: 'CENTRAL CAFE' },
     { type: 'alley', name: 'ALLEY' },
+    { type: 'bar', name: 'TERMINUS' },
+  ],
+  surryHills: [
+    // Terraces, indie cafes, vintage stores, small bars, bookshops
+    { type: 'cafe', name: 'BILLS' },
+    { type: 'bar', name: 'HOPETOUN' },
+    { type: 'shop', name: 'BERKELOUW' },
+    { type: 'cafe', name: 'BOURKE ST BAKERY' },
+    { type: 'bar', name: 'CLOCK HOTEL' },
+    { type: 'shop', name: 'VINTAGE' },
+    { type: 'hub', name: 'TECH SYDNEY' },
+    { type: 'food', name: 'THAI POTHONG' },
+    { type: 'cafe', name: 'REUBEN HILLS' },
+    { type: 'bar', name: 'SHAKESPEARE' },
+    { type: 'alley', name: 'ALLEY' },
+    { type: 'shop', name: 'RECORD STORE' },
   ],
   cabramatta: [
-    // Vietnamese Restaurants - all food!
+    // Pho shops, butchers, fruit stalls, night-market tarps
     { type: 'food', name: 'PHO TAU BAY' },
     { type: 'food', name: 'THANH BINH' },
     { type: 'food', name: 'AN RESTAURANT' },
     { type: 'food', name: 'TAN VIET' },
+    { type: 'shop', name: 'FREEDOM PLAZA' },
     { type: 'food', name: 'PHO AN' },
     { type: 'food', name: 'HUONG XUAN' },
-    { type: 'food', name: 'SAIGON GATE' },
     { type: 'cafe', name: 'CA PHE' },
-    { type: 'cafe', name: 'BANH MI' },
-    // Other
-    { type: 'shop', name: 'FREEDOM PLAZA' },
     { type: 'shop', name: 'CABRA MALL' },
-    { type: 'pawn', name: 'VANG 24K' },
+    { type: 'food', name: 'BANH MI' },
     { type: 'alley', name: 'ALLEY' },
+    { type: 'pawn', name: 'VANG 24K' },
+  ],
+  parramatta: [
+    // Strip pubs with TAB, strip mall, kebab shops, mall entrance
+    { type: 'rsl', name: 'PARRAMATTA RSL' },
+    { type: 'bar', name: 'ALBION HOTEL' },
+    { type: 'shop', name: 'WESTFIELD' },
+    { type: 'food', name: 'KEBAB KING' },
+    { type: 'bar', name: 'COMMERCIAL' },
+    { type: 'pawn', name: 'TAB' },
+    { type: 'food', name: 'RED ROOSTER' },
+    { type: 'cafe', name: 'MUFFIN BREAK' },
+    { type: 'bar', name: 'WOOLPACK' },
+    { type: 'shop', name: 'CASH CONVERTERS' },
+    { type: 'alley', name: 'ALLEY' },
+    { type: 'rsl', name: 'LEAGUES CLUB' },
+  ],
+  mountDruitt: [
+    // Servo, carpark, Centrelink, pokies pub, bottle shop
+    { type: 'servo', name: 'SHELL SERVO' },
+    { type: 'derelict', name: 'CARPARK' },
+    { type: 'shelter', name: 'CENTRELINK' },
+    { type: 'rsl', name: 'MOUNT DRUITT RSL' },
+    { type: 'pawn', name: 'BOTTLE-O' },
+    { type: 'shop', name: 'WESTFIELD' },
+    { type: 'food', name: 'MACCAS' },
+    { type: 'bar', name: 'CRITERION' },
+    { type: 'servo', name: 'CALTEX' },
+    { type: 'alley', name: 'ALLEY' },
+    { type: 'pawn', name: 'CASH CONVERTERS' },
+    { type: 'derelict', name: 'WASTELAND' },
+  ],
+  redfern: [
+    // The Block, community, pubs, Aboriginal services
+    { type: 'shelter', name: 'THE BLOCK' },
+    { type: 'bar', name: 'HOPETOUN HOTEL' },
+    { type: 'shelter', name: 'MURAWINA' },
+    { type: 'bar', name: 'COURTHOUSE' },
+    { type: 'shop', name: 'KOORI RADIO' },
+    { type: 'food', name: 'REDFERN RSL' },
+    { type: 'derelict', name: 'EVELEIGH ST' },
+    { type: 'pawn', name: 'CASH LOANS' },
+    { type: 'cafe', name: 'ELOUERA' },
+    { type: 'bar', name: 'REGENT' },
+    { type: 'alley', name: 'ALLEY' },
+    { type: 'pawn', name: 'BOTTLE-O' },
   ],
 };
 
 // Visual and economy properties per district
 export interface DistrictConfig {
-  // Lighting
-  neonIntensity: number; // 0-1
-  warmth: number; // 0-1 (warm vs cold light)
-  brightness: number; // 0-1
+  // Lighting profiles
+  neonIntensity: number;
+  warmth: number;
+  brightness: number;
+  primaryColor: string;     // Main neon/light color
+  secondaryColor: string;   // Accent color
   
-  // Population biases
-  pedestrianDensity: number; // 0-1
+  // Population
+  pedestrianDensity: number;
   archetypeWeights: Record<string, number>;
   
-  // Economy biases (multipliers)
+  // Economy multipliers
   sexEconomyMultiplier: number;
   foodMultiplier: number;
   servicesMultiplier: number;
   theftMultiplier: number;
   kindnessMultiplier: number;
   dangerMultiplier: number;
-  dealerFrequency: number; // 0-1 chance of dealer events
-  
-  // Pedestrian action biases (multipliers)
+  dealerFrequency: number;
   pitchMultiplier: number;
   tradeMultiplier: number;
   violenceMultiplier: number;
-  lsdFrequency: number; // 0-1 chance of LSD events
+  lsdFrequency: number;
   
   // Environment
   policeFrequency: number;
   dogFrequency: number;
   ibisFrequency: number;
   
-  // Clutter types
+  // Clutter types for foreground
   clutterTypes: string[];
 }
 
@@ -199,18 +239,13 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     neonIntensity: 1.0,
     warmth: 0.3,
     brightness: 0.6,
+    primaryColor: '#ff6688',
+    secondaryColor: '#88ffff',
     pedestrianDensity: 0.9,
     archetypeWeights: {
-      businessman: 0.03,
-      clubber: 0.12,
-      tourist: 0.08,
-      pensioner: 0.02,
-      backpacker: 0.18,
-      junkie: 0.15,
-      sexworker: 0.25,
-      student: 0.05,
-      cop: 0.04,
-      punk: 0.08,
+      businessman: 0.02, clubber: 0.15, tourist: 0.08, pensioner: 0.02,
+      backpacker: 0.18, junkie: 0.12, sexworker: 0.22, student: 0.05,
+      cop: 0.06, punk: 0.06, dealer: 0.04,
     },
     sexEconomyMultiplier: 1.8,
     foodMultiplier: 0.6,
@@ -219,31 +254,26 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     kindnessMultiplier: 0.3,
     dangerMultiplier: 0.8,
     dealerFrequency: 0.95,
-    pitchMultiplier: 0.5,
+    pitchMultiplier: 0.4,
     tradeMultiplier: 1.5,
     violenceMultiplier: 0.6,
     lsdFrequency: 0.3,
     policeFrequency: 0.8,
     dogFrequency: 0.3,
     ibisFrequency: 0.2,
-    clutterTypes: ['neon', 'bottles', 'trash', 'posters', 'puddles', 'crates', 'smoke', 'dumpster', 'syringes'],
+    clutterTypes: ['neon', 'bottles', 'trash', 'flyers', 'crates', 'puddles', 'ashtrays', 'dumpster'],
   },
   oxford: {
     neonIntensity: 0.8,
     warmth: 0.5,
     brightness: 0.5,
+    primaryColor: '#ff44aa',
+    secondaryColor: '#44ffaa',
     pedestrianDensity: 0.85,
     archetypeWeights: {
-      businessman: 0.05,
-      clubber: 0.30,
-      tourist: 0.08,
-      pensioner: 0.02,
-      backpacker: 0.08,
-      junkie: 0.08,
-      sexworker: 0.08,
-      student: 0.18,
-      cop: 0.03,
-      punk: 0.10,
+      businessman: 0.05, clubber: 0.28, tourist: 0.08, pensioner: 0.03,
+      backpacker: 0.08, junkie: 0.06, sexworker: 0.08, student: 0.18,
+      cop: 0.04, punk: 0.12,
     },
     sexEconomyMultiplier: 1.0,
     foodMultiplier: 1.0,
@@ -252,31 +282,26 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     kindnessMultiplier: 0.8,
     dangerMultiplier: 0.4,
     dealerFrequency: 0.4,
-    pitchMultiplier: 0.6,
+    pitchMultiplier: 0.5,
     tradeMultiplier: 0.8,
     violenceMultiplier: 0.5,
-    lsdFrequency: 0.4,
+    lsdFrequency: 0.5,
     policeFrequency: 0.5,
     dogFrequency: 0.2,
     ibisFrequency: 0.3,
-    clutterTypes: ['bottles', 'kebabvan', 'posters', 'crates', 'busstop', 'neon', 'puddles', 'cone'],
+    clutterTypes: ['glitter', 'bottles', 'posters', 'kebabvan', 'rainbowFlag', 'crates', 'chalkMenu'],
   },
   cbd: {
     neonIntensity: 0.3,
     warmth: 0.2,
     brightness: 0.7,
+    primaryColor: '#88ccff',
+    secondaryColor: '#ffffff',
     pedestrianDensity: 0.6,
     archetypeWeights: {
-      businessman: 0.40,
-      clubber: 0.03,
-      tourist: 0.20,
-      pensioner: 0.08,
-      backpacker: 0.04,
-      junkie: 0.05,
-      sexworker: 0.02,
-      student: 0.08,
-      cop: 0.08,
-      punk: 0.02,
+      businessman: 0.38, clubber: 0.03, tourist: 0.18, pensioner: 0.08,
+      backpacker: 0.04, junkie: 0.03, sexworker: 0.02, student: 0.1,
+      cop: 0.1, punk: 0.02, vc: 0.02,
     },
     sexEconomyMultiplier: 0.15,
     foodMultiplier: 0.8,
@@ -285,36 +310,31 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     kindnessMultiplier: 0.6,
     dangerMultiplier: 0.25,
     dealerFrequency: 0.1,
-    pitchMultiplier: 1.2,
+    pitchMultiplier: 1.5,
     tradeMultiplier: 0.2,
     violenceMultiplier: 0.3,
     lsdFrequency: 0.1,
     policeFrequency: 1.0,
     dogFrequency: 0.1,
     ibisFrequency: 0.4,
-    clutterTypes: ['newsrack', 'phonebooth', 'busstop', 'bins', 'crates', 'cone'],
+    clutterTypes: ['briefcase', 'newsrack', 'phonebooth', 'busstop', 'bins', 'cone'],
   },
   chinatown: {
     neonIntensity: 0.6,
     warmth: 0.9,
     brightness: 0.6,
+    primaryColor: '#ff4422',
+    secondaryColor: '#ffcc00',
     pedestrianDensity: 0.8,
     archetypeWeights: {
-      businessman: 0.10,
-      clubber: 0.08,
-      tourist: 0.35,
-      pensioner: 0.12,
-      backpacker: 0.10,
-      junkie: 0.04,
-      sexworker: 0.02,
-      student: 0.15,
-      cop: 0.02,
-      punk: 0.02,
+      businessman: 0.1, clubber: 0.06, tourist: 0.32, pensioner: 0.14,
+      backpacker: 0.1, junkie: 0.03, sexworker: 0.02, student: 0.18,
+      cop: 0.03, punk: 0.02,
     },
     sexEconomyMultiplier: 0.1,
     foodMultiplier: 2.0,
     servicesMultiplier: 0.5,
-    theftMultiplier: 0.35,
+    theftMultiplier: 0.5,
     kindnessMultiplier: 1.0,
     dangerMultiplier: 0.2,
     dealerFrequency: 0.15,
@@ -325,24 +345,19 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.4,
     dogFrequency: 0.1,
     ibisFrequency: 0.5,
-    clutterTypes: ['crates', 'bins', 'steam', 'lanterns', 'bottles', 'dumpster'],
+    clutterTypes: ['crates', 'steam', 'lanterns', 'plasticStools', 'hangingSigns', 'dumpster'],
   },
   central: {
     neonIntensity: 0.2,
     warmth: 0.3,
     brightness: 0.4,
+    primaryColor: '#88ff88',
+    secondaryColor: '#aaaaaa',
     pedestrianDensity: 0.5,
     archetypeWeights: {
-      businessman: 0.12,
-      clubber: 0.05,
-      tourist: 0.06,
-      pensioner: 0.08,
-      backpacker: 0.08,
-      junkie: 0.25,
-      sexworker: 0.06,
-      student: 0.15,
-      cop: 0.07,
-      punk: 0.08,
+      businessman: 0.12, clubber: 0.04, tourist: 0.06, pensioner: 0.08,
+      backpacker: 0.1, junkie: 0.22, sexworker: 0.08, student: 0.12,
+      cop: 0.1, punk: 0.08,
     },
     sexEconomyMultiplier: 0.25,
     foodMultiplier: 0.5,
@@ -357,74 +372,148 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     lsdFrequency: 0.5,
     policeFrequency: 1.2,
     dogFrequency: 0.4,
-    ibisFrequency: 0.6,
-    clutterTypes: ['trash', 'bottles', 'newsrack', 'phonebooth', 'busstop', 'puddles', 'dumpster', 'smoke', 'syringes'],
+    ibisFrequency: 0.7,
+    clutterTypes: ['ticketMachine', 'timetable', 'pigeons', 'graffiti', 'buskerCorner', 'trash', 'puddles'],
   },
-  redfern: {
-    neonIntensity: 0.1,
-    warmth: 0.2,
-    brightness: 0.3,
-    pedestrianDensity: 0.35,
+  surryHills: {
+    neonIntensity: 0.3,
+    warmth: 0.7,
+    brightness: 0.6,
+    primaryColor: '#ffaa66',
+    secondaryColor: '#66aa88',
+    pedestrianDensity: 0.6,
     archetypeWeights: {
-      businessman: 0.02,
-      clubber: 0.02,
-      tourist: 0.01,
-      pensioner: 0.12,
-      backpacker: 0.02,
-      junkie: 0.38,
-      sexworker: 0.10,
-      student: 0.15,
-      cop: 0.06,
-      punk: 0.12,
+      businessman: 0.08, clubber: 0.1, tourist: 0.06, pensioner: 0.06,
+      backpacker: 0.08, junkie: 0.05, sexworker: 0.03, student: 0.22,
+      cop: 0.04, punk: 0.15, founder: 0.08, vc: 0.05,
     },
-    sexEconomyMultiplier: 0.5,
-    foodMultiplier: 0.25,
-    servicesMultiplier: 0.2,
-    theftMultiplier: 1.5,
-    kindnessMultiplier: 0.05,
-    dangerMultiplier: 1.2,
-    dealerFrequency: 0.95,
-    pitchMultiplier: 0.0,
+    sexEconomyMultiplier: 0.3,
+    foodMultiplier: 1.2,
+    servicesMultiplier: 0.8,
+    theftMultiplier: 0.5,
+    kindnessMultiplier: 0.9,
+    dangerMultiplier: 0.3,
+    dealerFrequency: 0.35,
+    pitchMultiplier: 1.0,
     tradeMultiplier: 0.6,
-    violenceMultiplier: 1.2,
-    lsdFrequency: 0.6,
-    policeFrequency: 0.8,
-    dogFrequency: 0.8,
-    ibisFrequency: 0.9,
-    clutterTypes: ['trash', 'bottles', 'crates', 'bins', 'puddles', 'posters', 'dumpster', 'smoke'],
+    violenceMultiplier: 0.3,
+    lsdFrequency: 0.4,
+    policeFrequency: 0.4,
+    dogFrequency: 0.6,
+    ibisFrequency: 0.4,
+    clutterTypes: ['bikes', 'crates', 'chalkMenu', 'posters', 'potPlants', 'dogBowl'],
   },
   cabramatta: {
     neonIntensity: 0.4,
     warmth: 0.85,
-    brightness: 0.45,
-    pedestrianDensity: 0.7,
+    brightness: 0.5,
+    primaryColor: '#ffcc44',
+    secondaryColor: '#ff6644',
+    pedestrianDensity: 0.75,
     archetypeWeights: {
-      businessman: 0.03,
-      clubber: 0.02,
-      tourist: 0.05,
-      pensioner: 0.15,
-      backpacker: 0.03,
-      junkie: 0.35,
-      sexworker: 0.05,
-      student: 0.12,
-      cop: 0.08,
-      punk: 0.12,
+      businessman: 0.04, clubber: 0.02, tourist: 0.06, pensioner: 0.18,
+      backpacker: 0.04, junkie: 0.2, sexworker: 0.04, student: 0.15,
+      cop: 0.1, punk: 0.08, dealer: 0.09,
     },
     sexEconomyMultiplier: 0.3,
     foodMultiplier: 1.8,
     servicesMultiplier: 0.4,
-    theftMultiplier: 1.2,
+    theftMultiplier: 1.0,
+    kindnessMultiplier: 0.6,
+    dangerMultiplier: 1.2,
+    dealerFrequency: 0.9,
+    pitchMultiplier: 0.15,
+    tradeMultiplier: 0.5,
+    violenceMultiplier: 1.0,
+    lsdFrequency: 0.2,
+    policeFrequency: 1.0,
+    dogFrequency: 0.4,
+    ibisFrequency: 0.3,
+    clutterTypes: ['plasticStools', 'herbCrates', 'lanterns', 'seafoodBoxes', 'steam', 'scooter'],
+  },
+  parramatta: {
+    neonIntensity: 0.4,
+    warmth: 0.5,
+    brightness: 0.5,
+    primaryColor: '#ffaa44',
+    secondaryColor: '#44aaff',
+    pedestrianDensity: 0.55,
+    archetypeWeights: {
+      businessman: 0.15, clubber: 0.08, tourist: 0.08, pensioner: 0.12,
+      backpacker: 0.05, junkie: 0.08, sexworker: 0.04, student: 0.18,
+      cop: 0.08, punk: 0.08, founder: 0.06,
+    },
+    sexEconomyMultiplier: 0.25,
+    foodMultiplier: 0.8,
+    servicesMultiplier: 0.7,
+    theftMultiplier: 0.8,
     kindnessMultiplier: 0.5,
+    dangerMultiplier: 0.6,
+    dealerFrequency: 0.4,
+    pitchMultiplier: 0.5,
+    tradeMultiplier: 0.4,
+    violenceMultiplier: 0.6,
+    lsdFrequency: 0.2,
+    policeFrequency: 0.6,
+    dogFrequency: 0.3,
+    ibisFrequency: 0.5,
+    clutterTypes: ['schooner', 'footyPosters', 'shoppingTrolleys', 'bins', 'busstop', 'crates'],
+  },
+  mountDruitt: {
+    neonIntensity: 0.2,
+    warmth: 0.3,
+    brightness: 0.35,
+    primaryColor: '#ff6644',
+    secondaryColor: '#888888',
+    pedestrianDensity: 0.4,
+    archetypeWeights: {
+      businessman: 0.03, clubber: 0.04, tourist: 0.02, pensioner: 0.1,
+      backpacker: 0.02, junkie: 0.18, sexworker: 0.06, student: 0.12,
+      cop: 0.12, punk: 0.18, dealer: 0.13,
+    },
+    sexEconomyMultiplier: 0.4,
+    foodMultiplier: 0.5,
+    servicesMultiplier: 0.3,
+    theftMultiplier: 1.5,
+    kindnessMultiplier: 0.2,
     dangerMultiplier: 1.5,
-    dealerFrequency: 1.0,
+    dealerFrequency: 0.85,
     pitchMultiplier: 0.1,
     tradeMultiplier: 0.4,
     violenceMultiplier: 1.5,
-    lsdFrequency: 0.2,
-    policeFrequency: 1.2,
-    dogFrequency: 0.5,
-    ibisFrequency: 0.3,
-    clutterTypes: ['crates', 'bins', 'steam', 'trash', 'bottles', 'dumpster', 'puddles', 'syringes'],
+    lsdFrequency: 0.3,
+    policeFrequency: 0.9,
+    dogFrequency: 0.7,
+    ibisFrequency: 0.8,
+    clutterTypes: ['cars', 'crates', 'energyCans', 'hoonCar', 'servoSign', 'bins', 'trash'],
+  },
+  redfern: {
+    neonIntensity: 0.15,
+    warmth: 0.2,
+    brightness: 0.3,
+    primaryColor: '#666666',
+    secondaryColor: '#884422',
+    pedestrianDensity: 0.35,
+    archetypeWeights: {
+      businessman: 0.02, clubber: 0.03, tourist: 0.01, pensioner: 0.12,
+      backpacker: 0.02, junkie: 0.28, sexworker: 0.08, student: 0.18,
+      cop: 0.08, punk: 0.12, dealer: 0.06,
+    },
+    sexEconomyMultiplier: 0.5,
+    foodMultiplier: 0.3,
+    servicesMultiplier: 0.25,
+    theftMultiplier: 1.4,
+    kindnessMultiplier: 0.15,
+    dangerMultiplier: 1.3,
+    dealerFrequency: 0.85,
+    pitchMultiplier: 0.05,
+    tradeMultiplier: 0.5,
+    violenceMultiplier: 1.2,
+    lsdFrequency: 0.5,
+    policeFrequency: 0.75,
+    dogFrequency: 0.8,
+    ibisFrequency: 0.9,
+    clutterTypes: ['trash', 'bottles', 'crates', 'bins', 'puddles', 'posters', 'dumpster', 'graffiti'],
   },
 };
 
@@ -471,8 +560,12 @@ export function blockTypeToHotspotZone(blockType: BlockSignage['type']): import(
     'shelter': 'shelter',
     'alley': 'alley',
     'hostel': 'shelter',
-    'shop': 'bins',  // Generic shops have bins
-    'derelict': 'bins',  // Derelict buildings have bins
+    'shop': 'bins',
+    'derelict': 'bins',
+    'servo': 'bins',
+    'rsl': 'bar',
+    'station': 'services',
+    'arcade': 'bins',
   };
   return mapping[blockType];
 }
@@ -482,25 +575,19 @@ export function getVenueAtPosition(worldOffset: number, playerX: number): { venu
   const district = getDistrictFromOffset(worldOffset);
   const venues = DISTRICT_VENUES[district];
   
-  // Block width is 100px (WIDER buildings), matches Street.tsx
   const blockWidth = 100;
   const totalWidth = blockWidth * venues.length;
   
-  // Calculate which block the player is standing in front of
-  // playerX is 0-100%, convert to pixel position in the parallax space
   const parallaxOffset = worldOffset * 0.3;
   const normalizedOffset = ((parallaxOffset % totalWidth) + totalWidth) % totalWidth;
   
-  // Player screen position (0-100%) maps to a block
-  // Screen shows about 10 blocks at 100px each
   const screenWidth = blockWidth * 10;
   const playerScreenPos = (playerX / 100) * screenWidth;
   
-  // The block at the player's position
   const absolutePos = normalizedOffset + playerScreenPos;
-  const blockIndex = Math.floor((absolutePos / blockWidth)) % venues.length;
+  const blockIndex = Math.floor((absolutePos % totalWidth + totalWidth) % totalWidth / blockWidth);
   
-  const venue = venues[blockIndex];
+  const venue = venues[blockIndex % venues.length];
   const hotspotZone = blockTypeToHotspotZone(venue.type);
   
   return { venue, hotspotZone };
