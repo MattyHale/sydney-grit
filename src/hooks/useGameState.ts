@@ -404,6 +404,57 @@ export function useGameState() {
           }
           break;
         }
+        case 'buy-coke': {
+          const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
+          const dealerPresent = Math.random() < districtConfig.dealerFrequency;
+          
+          if (!dealerPresent) {
+            showEvent('No one around. The alley is empty.');
+            break;
+          }
+          
+          if (s.stats.money >= 10) {
+            const roll = Math.random();
+            if (roll < 0.7) {
+              // Good deal
+              newState.stats.money -= 10;
+              newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 35);
+              newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+              showEvent('You scored. The world sharpens.');
+            } else if (roll < 0.85) {
+              // Weak stuff
+              newState.stats.money -= 10;
+              newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 20);
+              showEvent('Weak gear. Better than nothing.');
+            } else {
+              // Scammed
+              newState.stats.money -= 10;
+              newState.stats.hope = Math.max(0, newState.stats.hope - 8);
+              showEvent('They took your money and ran.');
+            }
+          } else if (s.stats.money >= 5) {
+            // Cheaper, riskier
+            const roll = Math.random();
+            if (roll < 0.4) {
+              newState.stats.money -= 5;
+              newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 15);
+              showEvent('Got a taste for cheap.');
+            } else {
+              newState.stats.money -= 5;
+              showEvent('Not enough. They laughed and left.');
+            }
+          } else {
+            // No money - beg for a hit
+            if (Math.random() < 0.15) {
+              newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 10);
+              showEvent('They took pity. A small bump.');
+            } else {
+              newState.stats.hope = Math.max(0, newState.stats.hope - 3);
+              showEvent('No money, no gear. Move along.');
+            }
+          }
+          break;
+        }
       }
       
       return newState;
@@ -738,6 +789,11 @@ export function useGameState() {
         if (s.hasDog && newState.stats.hunger < 15 && newState.stats.warmth < 15) {
           desperationAvailable.push('dog-sacrifice');
         }
+      }
+      
+      // Buy coke available in alleys in dealer districts
+      if (s.currentZone === 'alley' && districtConfig.dealerFrequency > 0.3) {
+        desperationAvailable.push('buy-coke');
       }
       
       // Purse steal available when near pedestrian
