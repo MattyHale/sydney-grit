@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useControls } from '@/hooks/useControls';
 import { useAmbientAudio } from '@/hooks/useAmbientAudio';
@@ -8,6 +8,8 @@ import { Controls } from '@/components/game/Controls';
 import { TitleScreen } from '@/components/game/TitleScreen';
 
 const Index = () => {
+  const [isMuted, setIsMuted] = useState(false);
+  
   const {
     state,
     updatePlayerPosition,
@@ -33,8 +35,13 @@ const Index = () => {
     state.isPaused,
     state.isGameOver,
     state.isRaining,
-    state.timeOfDay
+    state.timeOfDay,
+    isMuted
   );
+
+  const toggleMute = useCallback(() => {
+    setIsMuted(prev => !prev);
+  }, []);
 
   // Handle interactions based on current zone or car encounter
   const handleInteract = useCallback(() => {
@@ -133,6 +140,8 @@ const Index = () => {
         timeOfDay={state.timeOfDay}
         isRaining={state.isRaining}
         lsdTripActive={state.lsdTripActive}
+        isMuted={isMuted}
+        onToggleMute={toggleMute}
       />
       
       {/* Main game canvas - fills remaining space */}
