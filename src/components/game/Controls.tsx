@@ -7,11 +7,11 @@ interface ControlsProps {
   onDown: (pressed: boolean) => void;
   onStopMove: () => void;
   onSteal: () => void;
-  onFuck: () => void;
+  onPitch: () => void;
   onBuyDrugs: () => void;
   onSellDrugs: () => void;
   canSteal: boolean;
-  canFuck: boolean;
+  canPitch: boolean;
   canBuyDrugs: boolean;
   canSellDrugs: boolean;
   // Zone info
@@ -27,11 +27,11 @@ export function Controls({
   onDown,
   onStopMove,
   onSteal,
-  onFuck,
+  onPitch,
   onBuyDrugs,
   onSellDrugs,
   canSteal,
-  canFuck,
+  canPitch,
   canBuyDrugs,
   canSellDrugs,
   currentZone,
@@ -56,23 +56,28 @@ export function Controls({
     onStopMove();
   }, [onStopMove]);
 
-  // Zone label for UP button hint
+  // Zone label for UP button hint - all zones are now enterable
   const getZoneHint = () => {
     if (!currentZone) return null;
     
-    // Special case: Eat Dog at food vendors
+    // Special case: Sell Dog at food vendors
     if (currentZone === 'food-vendor' && hasDog) {
       return '🐕 Sell Dog';
     }
     
     const labels: Record<string, string> = {
-      'ask-help': 'Beg',
+      'ask-help': 'Talk',
       'bins': 'Search',
       'services': 'Enter',
       'shelter': 'Enter',
       'sleep': 'Rest',
       'alley': 'Enter',
-      'food-vendor': 'Order',
+      'food-vendor': 'Enter',
+      'shop': 'Enter',
+      'bar': 'Enter',
+      'club': 'Enter',
+      'arcade': 'Enter',
+      'pawn': 'Enter',
     };
     return labels[currentZone] || 'Enter';
   };
@@ -154,19 +159,19 @@ export function Controls({
           <span className="text-[7px] sm:text-[6px] text-gb-lightest font-bold">STEAL</span>
         </button>
 
-        {/* FUCK */}
+        {/* PITCH */}
         <button
           className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all ${
-            canFuck 
+            canPitch 
               ? 'bg-gb-light border-gb-lightest animate-pulse' 
               : 'bg-gb-dark border-gb-dark opacity-50'
           } active:bg-gb-light`}
-          onTouchStart={(e) => { e.preventDefault(); onFuck(); }}
-          onMouseDown={onFuck}
-          disabled={!canFuck}
+          onTouchStart={(e) => { e.preventDefault(); onPitch(); }}
+          onMouseDown={onPitch}
+          disabled={!canPitch}
         >
-          <span className="text-lg sm:text-base">💋</span>
-          <span className="text-[7px] sm:text-[6px] text-gb-lightest font-bold">FUCK</span>
+          <span className="text-lg sm:text-base">📢</span>
+          <span className="text-[7px] sm:text-[6px] text-gb-lightest font-bold">PITCH</span>
         </button>
 
         {/* BUY DRUGS */}

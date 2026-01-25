@@ -66,10 +66,10 @@ const Index = () => {
     }
   }, [state.stealWindowActive, state.stealTarget, performPedestrianAction]);
 
-  // FUCK - sex work with nearby target
-  const handleFuck = useCallback(() => {
+  // PITCH - sales pitch to nearby target
+  const handlePitch = useCallback(() => {
     if (state.stealWindowActive && state.stealTarget) {
-      performPedestrianAction('trade');
+      performPedestrianAction('pitch');
     } else if (state.carEncounterActive) {
       handleCarEncounter();
     }
@@ -89,7 +89,7 @@ const Index = () => {
 
   // Determine button availability
   const canSteal = state.stealWindowActive && state.stealTarget !== null;
-  const canFuck = (state.stealWindowActive && state.stealTarget !== null) || state.carEncounterActive;
+  const canPitch = (state.stealWindowActive && state.stealTarget !== null) || state.carEncounterActive;
   // Can buy drugs if in alley with dealer OR near a dealer pedestrian
   const canBuyDrugs = (state.inAlley && state.dealerNearby) || (state.stealWindowActive && state.stealTarget?.archetype === 'dealer');
   const canSellDrugs = state.stealWindowActive && state.stealTarget !== null && state.stats.cocaine > 0;
@@ -102,7 +102,7 @@ const Index = () => {
     onDuck: handleDuck,
     onInteract: handleInteract,
     onSteal: handleSteal,
-    onFuck: handleFuck,
+    onPitch: handlePitch,
     onBuyDrugs: handleBuyDrugs,
     onSellDrugs: handleSellDrugs,
     onPause: togglePause,
@@ -153,11 +153,11 @@ const Index = () => {
         onDown={handleDuck}
         onStopMove={stopWalking}
         onSteal={handleSteal}
-        onFuck={handleFuck}
+        onPitch={handlePitch}
         onBuyDrugs={handleBuyDrugs}
         onSellDrugs={handleSellDrugs}
         canSteal={canSteal}
-        canFuck={canFuck}
+        canPitch={canPitch}
         canBuyDrugs={canBuyDrugs}
         canSellDrugs={canSellDrugs}
         currentZone={state.currentZone}

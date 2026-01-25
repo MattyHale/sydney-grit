@@ -7,7 +7,7 @@ interface UseControlsProps {
   onDuck: (ducking: boolean) => void;
   onInteract: () => void;
   onSteal: () => void;
-  onFuck: () => void;
+  onPitch: () => void;
   onBuyDrugs: () => void;
   onSellDrugs: () => void;
   onPause: () => void;
@@ -22,7 +22,7 @@ export function useControls({
   onDuck,
   onInteract,
   onSteal,
-  onFuck,
+  onPitch,
   onBuyDrugs,
   onSellDrugs,
   onPause,
@@ -87,7 +87,7 @@ export function useControls({
         case 'x':
         case 'X':
         case '2':
-          onFuck();
+          onPitch();
           break;
         case 'c':
         case 'C':
@@ -123,7 +123,7 @@ export function useControls({
         clearInterval(moveIntervalRef.current);
       }
     };
-  }, [isPaused, isGameOver, onPause, onInteract, onDuck, onSteal, onFuck, onBuyDrugs, onSellDrugs, startMoving, stopMoving]);
+  }, [isPaused, isGameOver, onPause, onInteract, onDuck, onSteal, onPitch, onBuyDrugs, onSellDrugs, startMoving, stopMoving]);
 
   return { startMoving, stopMoving };
 }
