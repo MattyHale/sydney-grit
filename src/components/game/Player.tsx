@@ -32,6 +32,12 @@ export function Player({ x, direction, state }: PlayerProps) {
         transform: `translateX(-50%) ${direction === 'left' ? 'scaleX(-1)' : ''}`,
       }}
     >
+      {/* Shadow - grounds the player */}
+      <div 
+        className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-5 h-1.5 rounded-full opacity-30"
+        style={{ background: '#0a0a0a', filter: 'blur(1px)' }}
+      />
+      
       {/* Player sprite */}
       <div className={`relative w-6 ${getHeight()} transition-all duration-100`}>
         {state === 'collapsed' ? (
@@ -57,8 +63,8 @@ export function Player({ x, direction, state }: PlayerProps) {
               <div className="absolute top-1 right-1 w-1 h-1 bg-[#1a2a1a] rounded-full" />
             </div>
             
-            {/* Body/torso */}
-            <div className="absolute top-4 left-0.5 w-5 h-4 bg-[#3a4a3a] rounded-sm border border-[#2a3a2a]" />
+            {/* Body/torso - more defined */}
+            <div className="absolute top-4 left-0.5 w-5 h-4 bg-[#3a4a3a] rounded-sm border-2 border-[#2a3a2a]" />
             
             {/* Arms */}
             <div 
@@ -70,7 +76,7 @@ export function Player({ x, direction, state }: PlayerProps) {
               style={{ transform: state === 'walking' ? `rotate(${walkFrame % 2 === 0 ? -15 : 15}deg)` : 'rotate(0deg)' }}
             />
             
-            {/* Legs */}
+            {/* Legs - more prominent */}
             <div className="absolute bottom-0 left-0.5 flex gap-1">
               <div 
                 className="w-2 h-3 bg-[#2a3a2a] rounded-b transition-transform origin-top"

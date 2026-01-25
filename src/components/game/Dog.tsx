@@ -10,12 +10,14 @@ interface DogProps {
 
 export function Dog({ playerX, playerDirection, isVisible, health, isSick = false }: DogProps) {
   const [tailWag, setTailWag] = useState(0);
+  const [walkFrame, setWalkFrame] = useState(0);
 
   useEffect(() => {
     if (!isVisible) return;
     const interval = setInterval(() => {
       setTailWag(t => (t + 1) % 2);
-    }, isSick ? 600 : 300);
+      setWalkFrame(f => (f + 1) % 2);
+    }, isSick ? 600 : 250);
     return () => clearInterval(interval);
   }, [isVisible, isSick]);
 
@@ -24,6 +26,10 @@ export function Dog({ playerX, playerDirection, isVisible, health, isSick = fals
   const dogX = playerDirection === 'right' ? playerX - 8 : playerX + 8;
   const isWeak = health < 50;
 
+  // Distinct brown/tan coloring for visibility
+  const bodyColor = isSick ? '#5a5a4a' : '#8a6a4a';
+  const darkColor = isSick ? '#4a4a3a' : '#6a4a2a';
+
   return (
     <div 
       className="absolute transition-all duration-200 z-25"
@@ -31,41 +37,99 @@ export function Dog({ playerX, playerDirection, isVisible, health, isSick = fals
         left: `${dogX}%`, 
         bottom: '46%', // Same level as player on footpath
         transform: `translateX(-50%) ${playerDirection === 'left' ? 'scaleX(-1)' : ''}`,
-        opacity: isWeak ? 0.6 : 1,
+        opacity: isWeak ? 0.7 : 1,
       }}
     >
-      {/* Dog sprite - distinct brown color */}
-      <div className="relative w-10 h-6">
-        {/* Body */}
-        <div className={`absolute bottom-1 left-0 w-8 h-4 ${isSick ? 'bg-[#4a5a4a]' : 'bg-[#6a5a4a]'} border ${isSick ? 'border-[#3a4a3a]' : 'border-[#5a4a3a]'} rounded`} />
-        
-        {/* Head */}
-        <div className={`absolute bottom-2 right-[-2px] w-4 h-4 ${isSick ? 'bg-[#4a5a4a]' : 'bg-[#6a5a4a]'} border ${isSick ? 'border-[#3a4a3a]' : 'border-[#5a4a3a]'} rounded-full`}>
-          {/* Eye */}
-          <div className="absolute top-1 right-1 w-1 h-1 bg-[#1a1a1a] rounded-full" />
-          {/* Nose */}
-          <div className="absolute bottom-0.5 right-0 w-1 h-1 bg-[#1a1a1a] rounded-full" />
-        </div>
-        
-        {/* Ear */}
-        <div className={`absolute top-0 right-1.5 w-1.5 h-2 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#5a4a3a]'} rounded`} />
-        
-        {/* Tail */}
+      {/* Shadow - grounds the dog */}
+      <div 
+        className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-8 h-1.5 rounded-full opacity-30"
+        style={{ background: '#0a0a0a', filter: 'blur(1px)' }}
+      />
+      
+      {/* Dog sprite - distinct from player */}
+      <div className="relative w-12 h-8">
+        {/* Body - larger and more defined */}
         <div 
-          className={`absolute bottom-2 left-[-4px] w-1.5 h-3 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#5a4a3a]'} rounded transition-transform origin-bottom ${
-            tailWag === 0 ? 'rotate-[30deg]' : 'rotate-[-20deg]'
-          }`}
+          className="absolute bottom-2 left-0 w-9 h-5 rounded border-2"
+          style={{ background: bodyColor, borderColor: darkColor }}
         />
         
-        {/* Legs */}
-        <div className={`absolute bottom-[-2px] left-1 w-1.5 h-2 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#5a4a3a]'} rounded-b`} />
-        <div className={`absolute bottom-[-2px] left-4 w-1.5 h-2 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#5a4a3a]'} rounded-b`} />
+        {/* Chest/underbelly - lighter color */}
+        <div 
+          className="absolute bottom-2 left-2 w-4 h-3 rounded"
+          style={{ background: '#aa8a6a' }}
+        />
         
-        {/* Sick indicator */}
+        {/* Head - positioned at front */}
+        <div 
+          className="absolute bottom-3 right-[-2px] w-5 h-5 rounded-full border-2"
+          style={{ background: bodyColor, borderColor: darkColor }}
+        >
+          {/* Eye - expressive */}
+          <div className="absolute top-1 right-1.5 w-1.5 h-1.5 bg-[#1a1a1a] rounded-full">
+            <div className="absolute top-0 right-0 w-0.5 h-0.5 bg-white rounded-full" />
+          </div>
+          {/* Nose - black and wet */}
+          <div className="absolute bottom-0.5 right-0 w-1.5 h-1.5 bg-[#1a1a1a] rounded-full" />
+          {/* Snout */}
+          <div className="absolute bottom-1 right-[-2px] w-2 h-2 rounded" style={{ background: '#9a7a5a' }} />
+        </div>
+        
+        {/* Ears - floppy */}
+        <div 
+          className="absolute top-0 right-2 w-2 h-3 rounded"
+          style={{ background: darkColor }}
+        />
+        
+        {/* Tail - animated wag */}
+        <div 
+          className="absolute bottom-3 left-[-5px] w-2 h-4 rounded transition-transform origin-bottom"
+          style={{ 
+            background: darkColor,
+            transform: `rotate(${tailWag === 0 ? 35 : -25}deg)`,
+          }}
+        />
+        
+        {/* Legs - walking animation, touching ground */}
+        <div 
+          className="absolute bottom-0 left-1 w-2 h-3 rounded-b"
+          style={{ 
+            background: darkColor,
+            transform: `translateY(${walkFrame === 0 ? 0 : -1}px)`,
+          }}
+        />
+        <div 
+          className="absolute bottom-0 left-4 w-2 h-3 rounded-b"
+          style={{ 
+            background: darkColor,
+            transform: `translateY(${walkFrame === 1 ? 0 : -1}px)`,
+          }}
+        />
+        <div 
+          className="absolute bottom-0 right-3 w-2 h-2.5 rounded-b"
+          style={{ 
+            background: darkColor,
+            transform: `translateY(${walkFrame === 0 ? -1 : 0}px)`,
+          }}
+        />
+        <div 
+          className="absolute bottom-0 right-0.5 w-2 h-2.5 rounded-b"
+          style={{ 
+            background: darkColor,
+            transform: `translateY(${walkFrame === 1 ? -1 : 0}px)`,
+          }}
+        />
+        
+        {/* Sick indicator - more visible */}
         {isSick && (
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-[6px]" style={{ color: '#8a8a6a' }}>
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[8px] font-bold" style={{ color: '#6a8a4a' }}>
             ×_×
           </div>
+        )}
+        
+        {/* Collar - makes it look like a companion */}
+        {!isSick && (
+          <div className="absolute bottom-4 right-3 w-3 h-1 rounded" style={{ background: '#aa4444' }} />
         )}
       </div>
     </div>
