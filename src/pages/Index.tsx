@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useControls } from '@/hooks/useControls';
+import { useAmbientAudio } from '@/hooks/useAmbientAudio';
 import { HUD } from '@/components/game/HUD';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { Controls } from '@/components/game/Controls';
@@ -23,6 +24,15 @@ const Index = () => {
     takeLSD,
     tick,
   } = useGameState();
+
+  // Ambient audio per district
+  useAmbientAudio(
+    state.currentDistrict,
+    state.isPaused,
+    state.isGameOver,
+    state.isRaining,
+    state.timeOfDay
+  );
 
   // Handle interactions based on current zone or car encounter
   const handleInteract = useCallback(() => {
