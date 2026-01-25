@@ -103,7 +103,7 @@ export interface GameState {
   buttonLockTime: number;
 }
 
-export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley';
+export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley' | 'food-vendor';
 
 export type DesperationAction = 'theft' | 'car' | 'sell' | 'dog-sacrifice' | 'purse-steal' | 'buy-coke';
 
@@ -118,9 +118,10 @@ export const HOTSPOTS: Hotspot[] = [
   { zone: 'ask-help', x: 10, width: 12, label: 'Street' },
   { zone: 'bins', x: 25, width: 10, label: 'Bins' },
   { zone: 'alley', x: 36, width: 8, label: 'Alley' },
-  { zone: 'services', x: 48, width: 12, label: 'Services' },
-  { zone: 'shelter', x: 62, width: 10, label: 'Shelter' },
-  { zone: 'sleep', x: 78, width: 12, label: 'Doorway' },
+  { zone: 'food-vendor', x: 45, width: 10, label: 'Food' },
+  { zone: 'services', x: 58, width: 12, label: 'Services' },
+  { zone: 'shelter', x: 72, width: 10, label: 'Shelter' },
+  { zone: 'sleep', x: 84, width: 10, label: 'Doorway' },
 ];
 
 export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
