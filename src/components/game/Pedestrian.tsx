@@ -21,19 +21,25 @@ const ARCHETYPE_STYLES: Record<string, {
   walkSpeed: number;
   // Unique silhouette elements
   shoulderWidth?: number;
-  hairStyle?: 'bald' | 'short' | 'long' | 'curly' | 'mohawk' | 'grey';
+  hairStyle?: 'bald' | 'short' | 'long' | 'curly' | 'mohawk' | 'grey' | 'spiky' | 'big';
   bodyShape?: 'thin' | 'average' | 'wide' | 'hunched';
+  // Special visual elements
+  hasSkirt?: boolean;
+  hasFishnets?: boolean;
+  hasTie?: boolean;
+  hasStuds?: boolean;
 }> = {
   businessman: { 
-    bodyColor: '#1a1a2a', // Dark suit
+    bodyColor: '#1a1a2a', // Dark pinstripe suit
     headColor: '#6a6a5a', 
     accessory: 'briefcase', 
-    height: 22,
+    height: 23,
     bodyWidth: 5,
-    walkSpeed: 200,
-    shoulderWidth: 6,
+    walkSpeed: 180,
+    shoulderWidth: 7,
     hairStyle: 'short',
-    bodyShape: 'average',
+    bodyShape: 'wide',
+    hasTie: true,
   },
   clubber: { 
     bodyColor: '#5a2a5a', // Bright purple/pink
@@ -89,15 +95,17 @@ const ARCHETYPE_STYLES: Record<string, {
     bodyShape: 'hunched',
   },
   sexworker: { 
-    bodyColor: '#6a3a4a', // Red/dark outfit
+    bodyColor: '#8a2a4a', // Hot pink/red mini
     headColor: '#7a6a6a', 
     accessory: 'purse', 
-    height: 20,
+    height: 21,
     bodyWidth: 4,
     hasHeels: true,
+    hasSkirt: true,
+    hasFishnets: true,
     stance: 'posed',
-    walkSpeed: 220,
-    hairStyle: 'long',
+    walkSpeed: 200,
+    hairStyle: 'big',
     bodyShape: 'thin',
   },
   student: { 
@@ -121,6 +129,17 @@ const ARCHETYPE_STYLES: Record<string, {
     shoulderWidth: 7,
     hairStyle: 'short',
     bodyShape: 'wide',
+  },
+  punk: {
+    bodyColor: '#1a1a1a', // Black leather
+    headColor: '#5a5a4a',
+    accessory: 'none',
+    height: 20,
+    bodyWidth: 4,
+    walkSpeed: 150,
+    hairStyle: 'spiky',
+    bodyShape: 'thin',
+    hasStuds: true,
   },
 };
 
@@ -155,9 +174,27 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
           </>
         );
       case 'mohawk':
-        return <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-2.5 rounded-t" style={{ background: '#3a2a4a' }} />;
+        return <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-3 rounded-t" style={{ background: '#8a2a6a' }} />;
       case 'curly':
         return <div className="absolute -top-1 left-0 right-0 h-2.5 rounded-t" style={{ background: '#4a3a2a', borderRadius: '50% 50% 0 0' }} />;
+      case 'spiky':
+        // Punk spiky hair
+        return (
+          <>
+            <div className="absolute -top-2 left-0 w-1 h-3 rotate-[-20deg]" style={{ background: '#1a1a1a' }} />
+            <div className="absolute -top-2.5 left-1.5 w-1 h-3.5" style={{ background: '#1a1a1a' }} />
+            <div className="absolute -top-2 right-0 w-1 h-3 rotate-[20deg]" style={{ background: '#1a1a1a' }} />
+          </>
+        );
+      case 'big':
+        // Big 80s/90s hair for sex workers
+        return (
+          <>
+            <div className="absolute -top-1.5 -left-1 right-[-4px] h-4 rounded-t" style={{ background: '#4a2a2a' }} />
+            <div className="absolute top-0 -left-1.5 w-2 h-3 rounded" style={{ background: '#4a2a2a' }} />
+            <div className="absolute top-0 -right-1.5 w-2 h-3 rounded" style={{ background: '#4a2a2a' }} />
+          </>
+        );
       case 'short':
       default:
         return <div className="absolute -top-0.5 left-0.5 right-0.5 h-1.5 rounded-t" style={{ background: '#3a3a3a' }} />;
@@ -249,11 +286,26 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
             borderColor: '#1a1a1a',
           }}
         >
-          {/* Cop badge */}
-          {pedestrian.archetype === 'cop' && (
-            <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-sm" style={{ background: '#8a8a4a' }} />
-          )}
-        </div>
+        {/* Cop badge */}
+        {pedestrian.archetype === 'cop' && (
+          <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-sm" style={{ background: '#8a8a4a' }} />
+        )}
+        
+        {/* Businessman tie */}
+        {style.hasTie && (
+          <div className="absolute top-0.5 left-1/2 -translate-x-1/2 w-1 h-4" style={{ background: '#8a3a3a' }} />
+        )}
+        
+        {/* Punk studs on jacket */}
+        {style.hasStuds && (
+          <>
+            <div className="absolute top-0.5 left-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#aaaaaa' }} />
+            <div className="absolute top-0.5 right-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#aaaaaa' }} />
+            <div className="absolute top-2 left-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#aaaaaa' }} />
+            <div className="absolute top-2 right-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#aaaaaa' }} />
+          </>
+        )}
+      </div>
         
         {/* Shoulders for wider builds */}
         {(style.shoulderWidth || 0) > style.bodyWidth && (
@@ -281,35 +333,77 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
           </>
         )}
         
+        {/* Skirt for sex workers */}
+        {style.hasSkirt && (
+          <div 
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{
+              top: style.height > 20 ? '18px' : '16px',
+              width: `${style.bodyWidth * bodyMods.widthMod * 3}px`,
+              height: '5px',
+              background: '#8a2a4a',
+              borderRadius: '0 0 3px 3px',
+            }}
+          />
+        )}
+        
         {/* Legs - walking animation */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
+          {/* Fishnets pattern for sex workers */}
           <div 
-            className="rounded-b transition-transform"
+            className="rounded-b transition-transform relative"
             style={{ 
               width: '3px',
-              height: style.hasHeels ? '6px' : '5px',
+              height: style.hasHeels ? '7px' : '5px',
               background: pedestrian.archetype === 'cop' ? '#1a2a3a' : 
-                         pedestrian.archetype === 'sexworker' ? '#1a1a1a' : '#2a2a2a',
+                         pedestrian.archetype === 'punk' ? '#1a1a1a' :
+                         pedestrian.archetype === 'sexworker' ? '#5a4a4a' : '#2a2a2a',
               transform: `translateY(${walkFrame % 2 === 0 ? 0 : 1}px)`,
             }}
-          />
+          >
+            {style.hasFishnets && (
+              <>
+                <div className="absolute top-1 left-0 right-0 h-px" style={{ background: '#1a1a1a55' }} />
+                <div className="absolute top-2.5 left-0 right-0 h-px" style={{ background: '#1a1a1a55' }} />
+              </>
+            )}
+          </div>
           <div 
-            className="rounded-b transition-transform"
+            className="rounded-b transition-transform relative"
             style={{ 
               width: '3px',
-              height: style.hasHeels ? '6px' : '5px',
+              height: style.hasHeels ? '7px' : '5px',
               background: pedestrian.archetype === 'cop' ? '#1a2a3a' : 
-                         pedestrian.archetype === 'sexworker' ? '#1a1a1a' : '#2a2a2a',
+                         pedestrian.archetype === 'punk' ? '#1a1a1a' :
+                         pedestrian.archetype === 'sexworker' ? '#5a4a4a' : '#2a2a2a',
               transform: `translateY(${walkFrame % 2 === 1 ? 0 : 1}px)`,
             }}
-          />
+          >
+            {style.hasFishnets && (
+              <>
+                <div className="absolute top-1 left-0 right-0 h-px" style={{ background: '#1a1a1a55' }} />
+                <div className="absolute top-2.5 left-0 right-0 h-px" style={{ background: '#1a1a1a55' }} />
+              </>
+            )}
+          </div>
         </div>
         
-        {/* Heels */}
+        {/* Heels - red stilettos for sex workers */}
         {style.hasHeels && (
           <>
-            <div className="absolute bottom-0 left-4 w-1 h-1.5" style={{ background: '#aa4444' }} />
-            <div className="absolute bottom-0 right-4 w-1 h-1.5" style={{ background: '#aa4444' }} />
+            <div className="absolute -bottom-1 left-[14px] w-1.5 h-2.5" style={{ background: '#cc3333' }} />
+            <div className="absolute -bottom-1 right-[14px] w-1.5 h-2.5" style={{ background: '#cc3333' }} />
+            {/* Thin heels */}
+            <div className="absolute -bottom-1 left-[15px] w-0.5 h-1" style={{ background: '#aa2222' }} />
+            <div className="absolute -bottom-1 right-[15px] w-0.5 h-1" style={{ background: '#aa2222' }} />
+          </>
+        )}
+        
+        {/* Punk boots */}
+        {pedestrian.archetype === 'punk' && (
+          <>
+            <div className="absolute -bottom-0.5 left-[13px] w-2 h-2" style={{ background: '#1a1a1a', border: '1px solid #3a3a3a' }} />
+            <div className="absolute -bottom-0.5 right-[13px] w-2 h-2" style={{ background: '#1a1a1a', border: '1px solid #3a3a3a' }} />
           </>
         )}
         
