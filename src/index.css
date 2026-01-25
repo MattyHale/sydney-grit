@@ -1,96 +1,60 @@
+@import "@fontsource/press-start-2p";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Sydney 1991 - Game Boy Inspired Design System
+   Authentic Game Boy 4-color green palette with pixel aesthetics
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Game Boy Color Palette - Classic Green LCD */
+    --gb-darkest: 87 100% 9%;     /* #0f380f - Almost black green */
+    --gb-dark: 87 52% 28%;        /* #306230 - Dark green */
+    --gb-light: 66 85% 36%;       /* #8bac0f - Light green */
+    --gb-lightest: 66 85% 39%;    /* #9bbc0f - Pale green/cream */
+    
+    /* Semantic mappings */
+    --background: var(--gb-darkest);
+    --foreground: var(--gb-lightest);
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: var(--gb-dark);
+    --card-foreground: var(--gb-lightest);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: var(--gb-dark);
+    --popover-foreground: var(--gb-lightest);
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: var(--gb-light);
+    --primary-foreground: var(--gb-darkest);
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: var(--gb-dark);
+    --secondary-foreground: var(--gb-lightest);
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: var(--gb-dark);
+    --muted-foreground: var(--gb-light);
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: var(--gb-light);
+    --accent-foreground: var(--gb-darkest);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: var(--gb-lightest);
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: var(--gb-dark);
+    --input: var(--gb-dark);
+    --ring: var(--gb-light);
 
-    --radius: 0.5rem;
+    --radius: 0px;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: var(--gb-darkest);
+    --sidebar-foreground: var(--gb-lightest);
+    --sidebar-primary: var(--gb-light);
+    --sidebar-primary-foreground: var(--gb-darkest);
+    --sidebar-accent: var(--gb-dark);
+    --sidebar-accent-foreground: var(--gb-lightest);
+    --sidebar-border: var(--gb-dark);
+    --sidebar-ring: var(--gb-light);
   }
 }
 
@@ -99,7 +63,76 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html, body, #root {
+    @apply h-full;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: 'Press Start 2P', monospace;
+    image-rendering: pixelated;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+  }
+}
+
+@layer utilities {
+  /* CRT Scanlines effect */
+  .scanlines {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      hsl(var(--gb-darkest) / 0.3) 2px,
+      hsl(var(--gb-darkest) / 0.3) 4px
+    );
+  }
+
+  /* Rain animation */
+  @keyframes rain {
+    0% {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(100px);
+      opacity: 0;
+    }
+  }
+
+  .animate-rain {
+    animation: rain 0.8s linear infinite;
+  }
+
+  /* Fade in animation */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  /* Pixel-perfect text rendering */
+  .pixel-text {
+    font-family: 'Press Start 2P', monospace;
+    text-rendering: optimizeSpeed;
+  }
+
+  /* Game Boy screen glow */
+  .gb-glow {
+    box-shadow: 
+      inset 0 0 60px hsl(var(--gb-light) / 0.1),
+      0 0 20px hsl(var(--gb-light) / 0.2);
   }
 }

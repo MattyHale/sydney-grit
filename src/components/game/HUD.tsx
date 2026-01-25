@@ -1,0 +1,73 @@
+import { GameStats } from '@/types/game';
+
+interface HUDProps {
+  stats: GameStats;
+  timeOfDay: string;
+  isRaining: boolean;
+}
+
+function StatBar({ label, value, max = 100, danger = false }: { 
+  label: string; 
+  value: number; 
+  max?: number;
+  danger?: boolean;
+}) {
+  const percentage = Math.max(0, Math.min(100, (value / max) * 100));
+  const isDanger = danger || percentage < 25;
+  
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-gb-lightest text-[8px] sm:text-[10px] uppercase tracking-tight">
+        {label}
+      </span>
+      <div className="w-12 sm:w-16 h-2 bg-gb-darkest border border-gb-dark">
+        <div 
+          className={`h-full transition-all duration-300 ${
+            isDanger ? 'bg-gb-lightest animate-pulse' : 'bg-gb-light'
+          }`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function HUD({ stats, timeOfDay, isRaining }: HUDProps) {
+  return (
+    <div className="bg-gb-dark border-b-2 border-gb-darkest px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap gap-2 sm:gap-3">
+        <StatBar label="HGR" value={stats.hunger} danger={stats.hunger < 25} />
+        <StatBar label="WRM" value={stats.warmth} danger={stats.warmth < 25} />
+        <StatBar label="HPE" value={stats.hope} danger={stats.hope < 25} />
+        <StatBar label="FTG" value={100 - stats.fatigue} danger={stats.fatigue > 75} />
+      </div>
+      
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex flex-col items-end">
+          <span className="text-gb-lightest text-[8px] sm:text-[10px] uppercase">Money</span>
+          <span className={`text-xs sm:text-sm font-bold ${
+            stats.money < 0 ? 'text-gb-lightest animate-pulse' : 'text-gb-light'
+          }`}>
+            ${stats.money}
+          </span>
+        </div>
+        
+        <div className="flex flex-col items-end">
+          <span className="text-gb-lightest text-[8px] sm:text-[10px] uppercase">Time</span>
+          <span className="text-gb-light text-xs sm:text-sm font-bold">
+            {stats.survivalTime}s
+          </span>
+        </div>
+        
+        <div className="flex flex-col items-center">
+          <span className="text-[10px] sm:text-xs text-gb-light capitalize">
+            {timeOfDay}
+          </span>
+          {isRaining && (
+            <span className="text-[8px] text-gb-lightest">🌧</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
