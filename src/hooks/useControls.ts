@@ -125,5 +125,12 @@ export function useControls({
     };
   }, [isPaused, isGameOver, onPause, onInteract, onDuck, onSteal, onPitch, onBuyDrugs, onSellDrugs, startMoving, stopMoving]);
 
+  useEffect(() => {
+    if (isPaused || isGameOver) {
+      keysPressed.current.clear();
+      stopMoving();
+    }
+  }, [isPaused, isGameOver, stopMoving]);
+
   return { startMoving, stopMoving };
 }
