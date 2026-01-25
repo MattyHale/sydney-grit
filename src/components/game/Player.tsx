@@ -8,7 +8,7 @@ interface PlayerProps {
 }
 
 export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
-  const [walkFrame, setWalkFrame] = useState(0);
+  const [frame, setFrame] = useState(0);
   const [jitterX, setJitterX] = useState(0);
   const [jitterY, setJitterY] = useState(0);
 
@@ -17,13 +17,10 @@ export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
 
   useEffect(() => {
     if (state !== 'walking') return;
-    const interval = setInterval(() => {
-      setWalkFrame(f => (f + 1) % 4);
-    }, isHigh ? 80 : 120);
+    const interval = setInterval(() => setFrame(f => (f + 1) % 4), isHigh ? 80 : 120);
     return () => clearInterval(interval);
   }, [state, isHigh]);
 
-  // Jitter effect when high
   useEffect(() => {
     if (!isHigh) {
       setJitterX(0);
@@ -37,226 +34,199 @@ export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
     return () => clearInterval(interval);
   }, [isHigh, jitterIntensity]);
 
+  const armSwing = state === 'walking' ? (frame % 2 === 0 ? 25 : -25) : 10;
+  const legOffset = frame % 2 === 0;
+
   return (
     <div 
-      className="absolute transition-all duration-100 z-30"
+      className="absolute z-30"
       style={{ 
         left: `calc(${x}% + ${jitterX}px)`, 
-        bottom: `calc(46% + ${jitterY}px)`,
-        transform: `translateX(-50%) ${direction === 'left' ? 'scaleX(-1)' : ''}`,
+        bottom: `calc(42% + ${jitterY}px)`,
+        transform: `translateX(-50%) scaleX(${direction === 'left' ? -1 : 1})`,
       }}
     >
       {/* Shadow */}
-      <div 
-        className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full opacity-40"
-        style={{ background: '#0a0a0a', filter: 'blur(1px)' }}
-      />
+      <div style={{
+        position: 'absolute', width: '20px', height: '5px',
+        background: 'rgba(0,0,0,0.3)', borderRadius: '50%',
+        bottom: '0px', left: '50%', transform: 'translateX(-50%)',
+      }} />
       
-      {/* Sega chibi businessman sprite */}
-      <div className={`relative transition-all duration-75`}>
-        {state === 'collapsed' ? (
-          // Collapsed - lying flat in suit
-          <div className="relative w-14 h-6">
-            {/* Body lying flat - suit visible */}
-            <div 
-              className="absolute bottom-0 left-0 w-6 h-4 rounded"
-              style={{ background: '#2a2a3a', border: '1px solid #1a1a2a' }}
-            />
-            {/* Big head on side */}
-            <div 
-              className="absolute bottom-0 right-0 w-8 h-6 rounded-full"
-              style={{ background: '#ffcdb8', border: '2px solid #e8a888' }}
-            >
-              <div className="absolute top-2 right-2 w-1.5 h-0.5 rounded" style={{ background: '#2a2a2a' }} />
+      {state === 'collapsed' ? (
+        /* Collapsed - lying flat */
+        <div style={{ position: 'relative', width: '32px', height: '12px' }}>
+          <div style={{
+            position: 'absolute', width: '14px', height: '8px',
+            background: '#2a2a3a', borderRadius: '2px',
+            left: '0', bottom: '0',
+          }} />
+          <div style={{
+            position: 'absolute', width: '16px', height: '12px',
+            background: '#ffcdb8', borderRadius: '8px',
+            right: '0', bottom: '0', border: '1px solid #e8a888',
+          }}>
+            <div style={{ position: 'absolute', width: '3px', height: '1px', background: '#222', borderRadius: '1px', right: '4px', top: '4px' }} />
+          </div>
+        </div>
+      ) : state === 'ducking' ? (
+        /* Ducking - crouched */
+        <div style={{ position: 'relative', width: '24px', height: '20px' }}>
+          <div style={{
+            position: 'absolute', width: '16px', height: '10px',
+            background: '#2a2a3a', borderRadius: '4px',
+            left: '4px', bottom: '0', border: '1px solid #1a1a2a',
+          }} />
+          <div style={{
+            position: 'absolute', width: '20px', height: '16px',
+            background: '#ffcdb8', borderRadius: '10px',
+            left: '2px', top: '0', border: '1px solid #e8a888',
+          }}>
+            <div style={{
+              position: 'absolute', width: '5px', height: '5px',
+              background: '#fff', borderRadius: '50%',
+              left: '4px', top: '5px', border: '1px solid #ccc',
+            }}>
+              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#222', borderRadius: '50%', left: '1px', top: '1px' }} />
             </div>
           </div>
-        ) : state === 'ducking' ? (
-          // Ducking - scrunched up
-          <div className="relative w-10 h-8">
-            {/* Curled body in suit */}
-            <div 
-              className="absolute bottom-0 left-1 w-8 h-5 rounded-full"
-              style={{ background: '#2a2a3a', border: '1px solid #1a1a2a' }}
-            />
-            {/* Big head tucked */}
-            <div 
-              className="absolute top-0 left-0 w-9 h-7 rounded-full"
-              style={{ background: '#ffcdb8', border: '2px solid #e8a888' }}
-            >
-              {/* Worried eyes */}
-              <div className="absolute top-2 left-2 w-2 h-2 rounded-full" style={{ background: '#ffffff' }}>
-                <div className="absolute top-0.5 left-0.5 w-1 h-1 rounded-full" style={{ background: '#2a2a2a' }} />
-              </div>
+        </div>
+      ) : (
+        /* Standing/walking - chibi businessman */
+        <div style={{ position: 'relative', width: '28px', height: '36px' }}>
+          
+          {/* BIG HEAD */}
+          <div style={{
+            position: 'absolute', width: '24px', height: '20px',
+            background: 'linear-gradient(180deg, #ffcdb8 0%, #f5b89d 100%)',
+            borderRadius: '12px', left: '2px', top: '0',
+            border: '1px solid #e8a888',
+            boxShadow: isHigh ? '0 0 8px rgba(255,100,150,0.6)' : 'none',
+          }}>
+            {/* Hair */}
+            <div style={{
+              position: 'absolute', width: '18px', height: '5px',
+              background: '#2a2a2a', borderRadius: '9px 9px 0 0',
+              left: '3px', top: '-1px',
+            }} />
+            {/* Receding temples */}
+            <div style={{ position: 'absolute', width: '4px', height: '4px', background: '#ffcdb8', borderRadius: '50%', left: '1px', top: '0' }} />
+            <div style={{ position: 'absolute', width: '4px', height: '4px', background: '#ffcdb8', borderRadius: '50%', right: '1px', top: '0' }} />
+            
+            {/* Eyes */}
+            <div style={{
+              position: 'absolute', width: '6px', height: '6px',
+              background: '#fff', borderRadius: '50%',
+              left: '4px', top: '6px', border: '1px solid #ccc',
+            }}>
+              <div style={{
+                position: 'absolute', width: isHigh ? '5px' : '3px', height: isHigh ? '5px' : '3px',
+                background: '#222', borderRadius: '50%',
+                left: isHigh ? '0' : '1px', top: isHigh ? '0' : '1px',
+                transition: 'all 0.2s',
+              }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#fff', borderRadius: '50%', left: '1px', top: '1px' }} />
             </div>
+            <div style={{
+              position: 'absolute', width: '6px', height: '6px',
+              background: '#fff', borderRadius: '50%',
+              right: '4px', top: '6px', border: '1px solid #ccc',
+            }}>
+              <div style={{
+                position: 'absolute', width: isHigh ? '5px' : '3px', height: isHigh ? '5px' : '3px',
+                background: '#222', borderRadius: '50%',
+                left: isHigh ? '0' : '1px', top: isHigh ? '0' : '1px',
+                transition: 'all 0.2s',
+              }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#fff', borderRadius: '50%', left: '1px', top: '1px' }} />
+            </div>
+            
+            {/* Cheeks */}
+            <div style={{ position: 'absolute', width: '4px', height: '3px', background: '#ff9999', borderRadius: '50%', opacity: 0.5, left: '1px', top: '11px' }} />
+            <div style={{ position: 'absolute', width: '4px', height: '3px', background: '#ff9999', borderRadius: '50%', opacity: 0.5, right: '1px', top: '11px' }} />
+            
+            {/* Smile */}
+            <div style={{
+              position: 'absolute', width: '6px', height: '3px',
+              background: isHigh ? '#ff6666' : '#cc8888',
+              borderRadius: '0 0 3px 3px',
+              left: '9px', bottom: '2px',
+            }} />
           </div>
-        ) : (
-          // Standing/walking - chibi businessman in suit
-          <div className="relative w-12 h-14">
-            {/* HUGE round head */}
-            <div 
-              className="absolute top-0 left-1/2 -translate-x-1/2 w-11 h-10 rounded-full"
-              style={{ 
-                background: 'linear-gradient(180deg, #ffcdb8 0%, #f5b89d 100%)',
-                border: '2px solid #e8a888',
-                boxShadow: isHigh ? '0 0 8px rgba(255, 100, 150, 0.6)' : 'none',
-              }}
-            >
-              {/* Slick businessman hair */}
-              <div 
-                className="absolute -top-0.5 left-2 right-2 h-2 rounded-t"
-                style={{ background: '#2a2a2a' }}
-              />
-              {/* Receding temples */}
-              <div 
-                className="absolute -top-0.5 left-0.5 w-2 h-2 rounded-tl"
-                style={{ background: '#ffcdb8' }}
-              />
-              <div 
-                className="absolute -top-0.5 right-0.5 w-2 h-2 rounded-tr"
-                style={{ background: '#ffcdb8' }}
-              />
-              
-              {/* Big round eyes */}
-              <div 
-                className="absolute top-3 left-1.5 w-3 h-3 rounded-full"
-                style={{ background: '#ffffff', border: '1px solid #cccccc' }}
-              >
-                <div 
-                  className="absolute rounded-full"
-                  style={{ 
-                    background: '#1a1a1a',
-                    width: isHigh ? '8px' : '6px',
-                    height: isHigh ? '8px' : '6px',
-                    top: isHigh ? '1px' : '2px',
-                    left: isHigh ? '1px' : '2px',
-                    transition: 'all 0.3s',
-                  }}
-                />
-                <div className="absolute top-0.5 left-0.5 w-1 h-1 rounded-full" style={{ background: '#ffffff' }} />
-              </div>
-              <div 
-                className="absolute top-3 right-1.5 w-3 h-3 rounded-full"
-                style={{ background: '#ffffff', border: '1px solid #cccccc' }}
-              >
-                <div 
-                  className="absolute rounded-full"
-                  style={{ 
-                    background: '#1a1a1a',
-                    width: isHigh ? '8px' : '6px',
-                    height: isHigh ? '8px' : '6px',
-                    top: isHigh ? '1px' : '2px',
-                    left: isHigh ? '1px' : '2px',
-                    transition: 'all 0.3s',
-                  }}
-                />
-                <div className="absolute top-0.5 left-0.5 w-1 h-1 rounded-full" style={{ background: '#ffffff' }} />
-              </div>
-              
-              {/* Rosy cheeks */}
-              <div 
-                className="absolute top-5 left-0.5 w-2 h-1.5 rounded-full opacity-60"
-                style={{ background: '#ff9999' }}
-              />
-              <div 
-                className="absolute top-5 right-0.5 w-2 h-1.5 rounded-full opacity-60"
-                style={{ background: '#ff9999' }}
-              />
-              
-              {/* Confident smile */}
-              <div 
-                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-1.5 rounded-b-full"
-                style={{ background: isHigh ? '#ff6666' : '#cc8888' }}
-              />
-            </div>
-            
-            {/* SUIT JACKET - tiny body */}
-            <div 
-              className="absolute top-9 left-1/2 -translate-x-1/2 w-6 h-4 rounded"
-              style={{ background: '#2a2a3a', border: '1px solid #1a1a2a' }}
-            >
-              {/* White shirt collar */}
-              <div 
-                className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-1.5"
-                style={{ background: '#ffffff', borderRadius: '0 0 2px 2px' }}
-              />
-              {/* Red tie */}
-              <div 
-                className="absolute top-1 left-1/2 -translate-x-1/2 w-1 h-3"
-                style={{ background: '#cc3333' }}
-              />
-              {/* Suit lapels */}
-              <div className="absolute top-0 left-0.5 w-1.5 h-2.5 rotate-[15deg]" style={{ background: '#3a3a4a' }} />
-              <div className="absolute top-0 right-0.5 w-1.5 h-2.5 rotate-[-15deg]" style={{ background: '#3a3a4a' }} />
-            </div>
-            
-            {/* Suit arms */}
-            <div 
-              className="absolute top-9 left-0.5 w-2 h-3 rounded-full origin-top transition-transform"
-              style={{ 
-                background: '#2a2a3a',
-                border: '1px solid #1a1a2a',
-                transform: state === 'walking' 
-                  ? `rotate(${(walkFrame % 2 === 0 ? 30 : -30) + (isHigh ? jitterX * 8 : 0)}deg)` 
-                  : `rotate(${10 + (isHigh ? jitterX * 5 : 0)}deg)`,
-              }}
-            >
-              {/* Hand */}
-              <div className="absolute -bottom-1 left-0 w-2 h-1.5 rounded-full" style={{ background: '#ffcdb8' }} />
-            </div>
-            <div 
-              className="absolute top-9 right-0.5 w-2 h-3 rounded-full origin-top transition-transform"
-              style={{ 
-                background: '#2a2a3a',
-                border: '1px solid #1a1a2a',
-                transform: state === 'walking' 
-                  ? `rotate(${(walkFrame % 2 === 0 ? -30 : 30) + (isHigh ? -jitterX * 8 : 0)}deg)` 
-                  : `rotate(${-10 + (isHigh ? -jitterX * 5 : 0)}deg)`,
-              }}
-            >
-              {/* Hand */}
-              <div className="absolute -bottom-1 left-0 w-2 h-1.5 rounded-full" style={{ background: '#ffcdb8' }} />
-            </div>
-            
-            {/* Suit pants legs */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
-              <div 
-                className="w-2 h-3 rounded-b transition-transform"
-                style={{ 
-                  background: '#2a2a3a',
-                  border: '1px solid #1a1a2a',
-                  transform: state === 'walking' 
-                    ? `translateY(${walkFrame % 2 === 0 ? 0 : 2}px) rotate(${walkFrame % 2 === 0 ? -10 : 10}deg)` 
-                    : 'translateY(0)',
-                }}
-              >
-                {/* Dress shoe */}
-                <div className="absolute -bottom-0.5 left-0 w-2.5 h-1" style={{ background: '#1a1a1a', borderRadius: '0 0 2px 2px' }} />
-              </div>
-              <div 
-                className="w-2 h-3 rounded-b transition-transform"
-                style={{ 
-                  background: '#2a2a3a',
-                  border: '1px solid #1a1a2a',
-                  transform: state === 'walking' 
-                    ? `translateY(${walkFrame % 2 === 1 ? 0 : 2}px) rotate(${walkFrame % 2 === 1 ? -10 : 10}deg)` 
-                    : 'translateY(0)',
-                }}
-              >
-                {/* Dress shoe */}
-                <div className="absolute -bottom-0.5 left-0 w-2.5 h-1" style={{ background: '#1a1a1a', borderRadius: '0 0 2px 2px' }} />
-              </div>
-            </div>
-            
-            {/* Briefcase accessory */}
-            <div 
-              className="absolute top-10 -right-3 w-4 h-3 rounded-sm"
-              style={{ background: '#5a4a3a', border: '1px solid #4a3a2a' }}
-            >
-              <div className="absolute top-0.5 left-1/2 -translate-x-1/2 w-2 h-0.5" style={{ background: '#3a2a1a' }} />
-            </div>
+          
+          {/* BODY - suit */}
+          <div style={{
+            position: 'absolute', width: '14px', height: '8px',
+            background: '#2a2a3a', borderRadius: '2px',
+            left: '7px', top: '19px', border: '1px solid #1a1a2a',
+          }}>
+            {/* Collar */}
+            <div style={{
+              position: 'absolute', width: '6px', height: '3px',
+              background: '#fff', borderRadius: '0 0 2px 2px',
+              left: '4px', top: '0',
+            }} />
+            {/* Tie */}
+            <div style={{
+              position: 'absolute', width: '2px', height: '5px',
+              background: '#cc3333', left: '6px', top: '2px',
+            }} />
           </div>
-        )}
-      </div>
+          
+          {/* ARMS */}
+          <div style={{
+            position: 'absolute', width: '5px', height: '8px',
+            background: '#2a2a3a', borderRadius: '2px',
+            left: '2px', top: '19px',
+            transform: `rotate(${armSwing + (isHigh ? jitterX * 5 : 0)}deg)`,
+            transformOrigin: 'top center',
+          }}>
+            <div style={{ position: 'absolute', width: '4px', height: '3px', background: '#ffcdb8', borderRadius: '2px', bottom: '-1px', left: '0' }} />
+          </div>
+          <div style={{
+            position: 'absolute', width: '5px', height: '8px',
+            background: '#2a2a3a', borderRadius: '2px',
+            right: '2px', top: '19px',
+            transform: `rotate(${-armSwing + (isHigh ? -jitterX * 5 : 0)}deg)`,
+            transformOrigin: 'top center',
+          }}>
+            <div style={{ position: 'absolute', width: '4px', height: '3px', background: '#ffcdb8', borderRadius: '2px', bottom: '-1px', left: '0' }} />
+          </div>
+          
+          {/* LEGS */}
+          <div style={{
+            position: 'absolute', width: '5px', height: '10px',
+            background: '#2a2a3a', borderRadius: '0 0 2px 2px',
+            left: '8px', top: '26px',
+            transform: state === 'walking' 
+              ? `translateY(${legOffset ? 0 : 1}px) rotate(${legOffset ? -8 : 8}deg)` 
+              : 'none',
+            transformOrigin: 'top center',
+          }}>
+            <div style={{ position: 'absolute', width: '6px', height: '2px', background: '#1a1a1a', borderRadius: '1px', bottom: '0', left: '-1px' }} />
+          </div>
+          <div style={{
+            position: 'absolute', width: '5px', height: '10px',
+            background: '#2a2a3a', borderRadius: '0 0 2px 2px',
+            right: '8px', top: '26px',
+            transform: state === 'walking' 
+              ? `translateY(${legOffset ? 1 : 0}px) rotate(${legOffset ? 8 : -8}deg)` 
+              : 'none',
+            transformOrigin: 'top center',
+          }}>
+            <div style={{ position: 'absolute', width: '6px', height: '2px', background: '#1a1a1a', borderRadius: '1px', bottom: '0', left: '-1px' }} />
+          </div>
+          
+          {/* Briefcase */}
+          <div style={{
+            position: 'absolute', width: '8px', height: '6px',
+            background: '#5a4a3a', borderRadius: '1px', border: '1px solid #4a3a2a',
+            right: '-4px', top: '22px',
+          }}>
+            <div style={{ position: 'absolute', width: '4px', height: '1px', background: '#3a2a1a', left: '2px', top: '0' }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
