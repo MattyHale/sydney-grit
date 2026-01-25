@@ -233,11 +233,11 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
           <div className="relative w-full h-full">
             <div className="absolute inset-0" style={{ background: '#1a0510' }} />
             <div className="absolute top-1 left-1 right-1 h-8" style={{ background: '#0a0308' }}>
-              {/* Vertical neon tubes on either side */}
+              {/* Vertical neon tubes on either side - with flicker */}
               {isNight && (
                 <>
-                  <div className="absolute top-0 left-0 w-0.5 h-full animate-pulse" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa' }} />
-                  <div className="absolute top-0 right-0 w-0.5 h-full animate-pulse" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa', animationDelay: '0.5s' }} />
+                  <div className="absolute top-0 left-0 w-0.5 h-full neon-flicker-fast" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa' }} />
+                  <div className="absolute top-0 right-0 w-0.5 h-full neon-buzz" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa' }} />
                 </>
               )}
             </div>
@@ -246,28 +246,34 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               <div className="absolute inset-1" style={{ background: 'repeating-linear-gradient(90deg, #2a0a1a 0px, #3a1a2a 2px)' }} />
               {isNight && <div className="absolute inset-1 animate-pulse opacity-20" style={{ background: 'linear-gradient(90deg, transparent, #ff88aa33, transparent)' }} />}
             </div>
-            {/* Bouncer silhouette */}
+            {/* Bouncer silhouette with cigarette */}
             <div className="absolute bottom-1 right-0.5 w-2.5 h-4 rounded-t" style={{ background: '#0a0505' }}>
               <div className="w-1.5 h-1.5 rounded-full mx-auto mt-0.5" style={{ background: '#151010' }} />
+              {/* Cigarette ember */}
+              {isNight && <div className="absolute bottom-2 -right-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />}
             </div>
             {/* Clubber queue silhouettes */}
             <div className="absolute bottom-1 left-0 flex gap-0.5">
               <div className="w-1 h-2.5 rounded-t" style={{ background: '#150a10' }} />
               <div className="w-1 h-2 rounded-t" style={{ background: '#150a10' }} />
             </div>
+            {/* Graffiti tag on wall */}
+            <div className="absolute top-10 left-0.5 text-[3px] rotate-6" style={{ color: '#4a3a5a', opacity: 0.5 }}>XTC</div>
             {isNight && neonIntensity > 0.3 && (
               <>
                 {/* Female silhouette neon - stylized, non-explicit */}
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-8 h-6">
+                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-8 h-6 neon-flicker-slow">
                   <div className="w-2 h-2 rounded-full mx-auto" style={{ background: pal.neonPrimary, boxShadow: `0 0 6px ${pal.neonPrimary}` }} />
                   <div className="w-1 h-3 mx-auto" style={{ background: pal.neonPrimary, boxShadow: `0 0 4px ${pal.neonPrimary}` }} />
                 </div>
-                <div className={`absolute bottom-19 left-1/2 -translate-x-1/2 px-1 py-0.5 text-[5px] animate-pulse font-bold ${signageClass}`} style={{ color: pal.neonPrimary, textShadow: `0 0 8px ${pal.neonPrimary}` }}>
+                <div className={`absolute bottom-19 left-1/2 -translate-x-1/2 px-1 py-0.5 text-[5px] neon-buzz font-bold ${signageClass}`} style={{ color: pal.neonPrimary, textShadow: `0 0 8px ${pal.neonPrimary}` }}>
                   {scrambleText('GIRLS')}
                 </div>
-                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: pal.neonPrimary, boxShadow: `0 0 10px ${pal.neonPrimary}` }} />
+                <div className="absolute top-0 left-0 right-0 h-1 neon-flicker-fast" style={{ background: pal.neonPrimary, boxShadow: `0 0 10px ${pal.neonPrimary}` }} />
                 {/* Smoke haze */}
                 <div className="absolute bottom-8 left-0 right-0 h-4 opacity-15" style={{ background: 'linear-gradient(0deg, #888888 0%, transparent 100%)' }} />
+                {/* Puddle reflection */}
+                <div className="absolute bottom-0 left-1 w-8 h-1 rounded puddle-shimmer" style={{ background: `linear-gradient(90deg, transparent, ${pal.neonPrimary}22, transparent)` }} />
               </>
             )}
           </div>
@@ -288,18 +294,24 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               {/* Door window */}
               <div className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-3" style={{ background: '#ffaa4422' }} />
             </div>
-            {/* Smokers outside */}
-            <div className="absolute bottom-1 left-0.5 w-1.5 h-2.5 rounded-t" style={{ background: '#151510' }} />
+            {/* Smokers outside with cigarette ember */}
+            <div className="absolute bottom-1 left-0.5 w-1.5 h-2.5 rounded-t" style={{ background: '#151510' }}>
+              {isNight && <div className="absolute top-0.5 -right-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />}
+            </div>
             {isNight && <div className="absolute bottom-3 left-1 w-0.5 h-2 opacity-20 animate-pulse" style={{ background: 'linear-gradient(0deg, #888888 0%, transparent 100%)' }} />}
+            {/* Graffiti on side */}
+            <div className="absolute top-8 right-0.5 text-[2px] -rotate-12" style={{ color: '#5a4a3a', opacity: 0.4 }}>ACE</div>
             {isNight && neonIntensity > 0.2 && (
               <>
-                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] animate-pulse font-bold ${signageClass}`} style={{ color: '#ffaa44', textShadow: '0 0 6px #ffaa44' }}>
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] neon-flicker-slow font-bold ${signageClass}`} style={{ color: '#ffaa44', textShadow: '0 0 6px #ffaa44' }}>
                   {scrambleText('BAR')}
                 </div>
-                {/* Beer glass neon */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-4 rounded-b border" style={{ borderColor: '#ffaa44', boxShadow: '0 0 4px #ffaa4488' }} />
+                {/* Beer glass neon with flicker */}
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-4 rounded-b border neon-buzz" style={{ borderColor: '#ffaa44', boxShadow: '0 0 4px #ffaa4488' }} />
                 {/* Amber light spill */}
                 <div className="absolute bottom-0 left-0 right-0 h-4 opacity-15" style={{ background: 'linear-gradient(0deg, #ffaa4444 0%, transparent 100%)' }} />
+                {/* Puddle reflection */}
+                <div className="absolute bottom-0 left-2 w-6 h-0.5 rounded puddle-shimmer" style={{ background: 'linear-gradient(90deg, transparent, #ffaa4433, transparent)' }} />
               </>
             )}
           </div>
@@ -547,8 +559,13 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               <div className="absolute top-1 right-1 w-0.5 h-0.5 rounded-full" style={{ background: '#4a4a3a' }} />
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-6" style={{ background: '#0a0a05' }} />
-            {/* Graffiti tag */}
-            <div className="absolute bottom-3 left-2 text-[3px]" style={{ color: '#4a4a5a' }}>TAG</div>
+            {/* Multiple graffiti tags */}
+            <div className="absolute bottom-3 left-1 text-[3px] rotate-6" style={{ color: '#5a4a6a', opacity: 0.6 }}>SYDE</div>
+            <div className="absolute bottom-5 right-1 text-[2px] -rotate-3" style={{ color: '#4a5a4a', opacity: 0.5 }}>91</div>
+            <div className="absolute top-12 left-3 text-[3px] rotate-12" style={{ color: '#6a3a4a', opacity: 0.4 }}>RIP</div>
+            {/* Trash on ground */}
+            <div className="absolute bottom-0.5 left-2 w-1 h-0.5 rotate-12" style={{ background: '#2a2a1a' }} />
+            <div className="absolute bottom-0.5 right-2 w-0.5 h-1" style={{ background: '#1a1a0a' }} />
           </div>
         );
       
@@ -561,15 +578,26 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               {/* Velvet rope suggestion */}
               <div className="absolute -left-1 top-2 bottom-2 w-0.5" style={{ background: '#aa4466' }} />
             </div>
+            {/* Queue silhouettes with embers */}
+            <div className="absolute bottom-1 left-0 flex gap-0.5 items-end">
+              <div className="relative w-1 h-2.5 rounded-t" style={{ background: '#1a1520' }}>
+                {isNight && <div className="absolute top-0.5 -right-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />}
+              </div>
+              <div className="w-1 h-2 rounded-t" style={{ background: '#1a1520' }} />
+            </div>
+            {/* Graffiti */}
+            <div className="absolute top-10 right-0.5 text-[2px] rotate-6" style={{ color: '#6a4a6a', opacity: 0.4 }}>RAVE</div>
             {isNight && neonIntensity > 0.5 && (
               <>
-                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[5px] animate-pulse font-bold ${signageClass}`} style={{ color: '#ff44ff', textShadow: '0 0 6px #ff44ff' }}>
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[5px] neon-flicker-fast font-bold ${signageClass}`} style={{ color: '#ff44ff', textShadow: '0 0 6px #ff44ff' }}>
                   {scrambleText('CLUB')}
                 </div>
-                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #ff44ff, #44ffff, #ff44ff)', boxShadow: '0 0 8px #ff44ff' }} />
+                <div className="absolute top-0 left-0 right-0 h-1 neon-buzz" style={{ background: 'linear-gradient(90deg, #ff44ff, #44ffff, #ff44ff)', boxShadow: '0 0 8px #ff44ff' }} />
                 {/* Disco lights */}
-                <div className="absolute top-3 left-2 w-1 h-1 rounded-full animate-pulse" style={{ background: '#ff44ff' }} />
-                <div className="absolute top-4 right-2 w-1 h-1 rounded-full animate-pulse" style={{ background: '#44ffff', animationDelay: '0.3s' }} />
+                <div className="absolute top-3 left-2 w-1 h-1 rounded-full neon-flicker-fast" style={{ background: '#ff44ff' }} />
+                <div className="absolute top-4 right-2 w-1 h-1 rounded-full neon-flicker-fast" style={{ background: '#44ffff', animationDelay: '0.3s' }} />
+                {/* Puddle reflection of lights */}
+                <div className="absolute bottom-0 left-1 w-8 h-1 rounded puddle-shimmer" style={{ background: 'linear-gradient(90deg, #ff44ff22, #44ffff22, #ff44ff22)' }} />
               </>
             )}
           </div>
@@ -588,6 +616,20 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             <div className="absolute bottom-0 right-4 w-1.5 h-2" style={{ background: '#0f0f0f' }} />
             {/* Fire escape */}
             <div className="absolute top-2 left-0 w-1.5 h-6" style={{ background: '#2a2a2a' }} />
+            {/* Graffiti tags in alley */}
+            <div className="absolute top-4 left-2.5 text-[3px] rotate-12" style={{ color: '#5a3a4a', opacity: 0.6 }}>SYDE</div>
+            <div className="absolute top-8 right-2.5 text-[2px] -rotate-6" style={{ color: '#4a4a5a', opacity: 0.5 }}>91</div>
+            <div className="absolute bottom-4 left-3 text-[3px]" style={{ color: '#3a5a4a', opacity: 0.4 }}>NME</div>
+            {/* Puddle in alley */}
+            {isNight && (
+              <div className="absolute bottom-0.5 left-4 w-4 h-1 rounded puddle-shimmer" style={{ background: 'linear-gradient(90deg, transparent, #ffffff11, transparent)' }} />
+            )}
+            {/* Figure lurking - cigarette ember */}
+            {isNight && (
+              <div className="absolute bottom-1 right-3 w-1.5 h-3 rounded-t opacity-40" style={{ background: '#0a0a0a' }}>
+                <div className="absolute top-0.5 -left-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />
+              </div>
+            )}
           </div>
         );
       
@@ -711,19 +753,27 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             <div className="absolute inset-0" style={{ background: '#0a0510' }} />
             {/* Dark arcade - games, seedy */}
             <div className="absolute top-2 left-1 right-1 h-8" style={{ background: '#050208' }}>
-              {/* Arcade cabinets */}
+              {/* Arcade cabinets with screen flicker */}
               <div className="absolute top-1 left-1 w-3 h-5 rounded-t" style={{ background: '#1a1a2a' }}>
-                <div className="w-2 h-2 mx-auto mt-0.5" style={{ background: '#2a4a3a' }} />
+                <div className="w-2 h-2 mx-auto mt-0.5 neon-flicker-fast" style={{ background: '#2a4a3a' }} />
               </div>
               <div className="absolute top-1 right-1 w-3 h-5 rounded-t" style={{ background: '#1a1a2a' }}>
-                <div className="w-2 h-2 mx-auto mt-0.5" style={{ background: '#4a2a3a' }} />
+                <div className="w-2 h-2 mx-auto mt-0.5 neon-buzz" style={{ background: '#4a2a3a' }} />
               </div>
             </div>
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-8" style={{ background: '#0a0508', border: '1px solid #2a1a2a' }} />
+            {/* Kid with cigarette */}
+            <div className="absolute bottom-1 left-0.5 w-1 h-2 rounded-t" style={{ background: '#1a1520' }}>
+              {isNight && <div className="absolute top-0.5 -right-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />}
+            </div>
+            {/* Graffiti */}
+            <div className="absolute top-11 right-0.5 text-[2px] rotate-6" style={{ color: '#5a4a6a', opacity: 0.4 }}>PAC</div>
             {isNight && neonIntensity > 0.2 && (
               <>
-                <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[5px] animate-pulse font-bold ${signageClass}`} style={{ color: '#ff66aa', textShadow: '0 0 4px #ff66aa' }}>{scrambleText('ARCADE')}</div>
-                <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa' }} />
+                <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[5px] neon-flicker-fast font-bold ${signageClass}`} style={{ color: '#ff66aa', textShadow: '0 0 4px #ff66aa' }}>{scrambleText('ARCADE')}</div>
+                <div className="absolute top-0 left-0 right-0 h-0.5 neon-buzz" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa' }} />
+                {/* Puddle */}
+                <div className="absolute bottom-0 left-2 w-5 h-0.5 rounded puddle-shimmer" style={{ background: 'linear-gradient(90deg, transparent, #ff66aa22, transparent)' }} />
               </>
             )}
           </div>
@@ -740,15 +790,21 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               <div className="absolute inset-1" style={{ background: '#ffaa4411' }} />
             </div>
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-9" style={{ background: '#0f0a08', border: '2px solid #4a3a2a' }} />
+            {/* Smoker with ember */}
+            <div className="absolute bottom-1 left-0.5 w-1.5 h-2.5 rounded-t" style={{ background: '#201510' }}>
+              {isNight && <div className="absolute top-0.5 -right-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />}
+            </div>
             {isNight && (
               <>
-                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold px-1 ${signageClass}`} style={{ color: '#ffcc44', textShadow: '0 0 6px #ffaa44' }}>
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold px-1 neon-flicker-slow ${signageClass}`} style={{ color: '#ffcc44', textShadow: '0 0 6px #ffaa44' }}>
                   {scrambleText('THE BOURBON')}
                 </div>
                 {/* Warm yellow glow */}
                 <div className="absolute bottom-0 left-0 right-0 h-8 opacity-20" style={{ background: 'linear-gradient(0deg, #ffaa4444 0%, transparent 100%)' }} />
                 {/* Taxi silhouettes */}
                 <div className="absolute bottom-1 right-1 w-4 h-2 rounded-t" style={{ background: '#4a4a2a' }} />
+                {/* Puddle reflection */}
+                <div className="absolute bottom-0 left-2 w-6 h-0.5 rounded puddle-shimmer" style={{ background: 'linear-gradient(90deg, transparent, #ffcc4422, transparent)' }} />
               </>
             )}
           </div>
@@ -769,15 +825,21 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               {/* Concierge silhouette */}
               <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-2 h-3 rounded-t" style={{ background: '#1a1015' }} />
             </div>
+            {/* Taxi lingering with ember */}
+            <div className="absolute bottom-1 right-1 w-3.5 h-2 rounded-t" style={{ background: '#2a2a20' }}>
+              {isNight && <div className="absolute top-0.5 left-0.5 w-0.5 h-0.5 rounded-full ember-glow" style={{ background: '#ff4400' }} />}
+            </div>
             {isNight && neonIntensity > 0.3 && (
               <>
-                <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[4px] px-1 ${signageClass}`} style={{ color: '#ff88aa', textShadow: '0 0 4px #ff66aa44' }}>
+                <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[4px] px-1 neon-buzz ${signageClass}`} style={{ color: '#ff88aa', textShadow: '0 0 4px #ff66aa44' }}>
                   {scrambleText(sign || 'LANGTREES')}
                 </div>
-                {/* Soft neon glow */}
-                <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: '#ff88aa', boxShadow: '0 0 8px #ff66aa44' }} />
+                {/* Soft neon glow with flicker */}
+                <div className="absolute top-0 left-0 right-0 h-0.5 neon-flicker-slow" style={{ background: '#ff88aa', boxShadow: '0 0 8px #ff66aa44' }} />
                 {/* Light spill onto pavement */}
                 <div className="absolute bottom-0 left-0 right-0 h-4 opacity-15" style={{ background: 'linear-gradient(0deg, #ff88aa22 0%, transparent 100%)' }} />
+                {/* Puddle reflection */}
+                <div className="absolute bottom-0 left-1 w-6 h-0.5 rounded puddle-shimmer" style={{ background: 'linear-gradient(90deg, transparent, #ff88aa22, transparent)' }} />
               </>
             )}
           </div>
