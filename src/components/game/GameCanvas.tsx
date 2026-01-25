@@ -10,6 +10,7 @@ import { TextOverlay } from './TextOverlay';
 import { PauseButton } from './PauseButton';
 import { PauseOverlay } from './PauseOverlay';
 import { GameOverOverlay } from './GameOverOverlay';
+import { VictoryOverlay } from './VictoryOverlay';
 import { TransactionIndicator } from './TransactionIndicator';
 import { ShopInterior } from './ShopInterior';
 
@@ -219,7 +220,15 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
       {!state.isGameOver && <PauseButton onPause={onPause} />}
       
       {/* Pause overlay */}
-      {state.isPaused && <PauseOverlay onResume={onPause} />}
+      {state.isPaused && !state.isVictory && <PauseOverlay onResume={onPause} />}
+      
+      {/* Victory overlay */}
+      {state.isVictory && (
+        <VictoryOverlay 
+          survivalTime={state.stats.survivalTime}
+          onRestart={onRestart}
+        />
+      )}
       
       {/* Game over overlay */}
       {state.isGameOver && (

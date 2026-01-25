@@ -86,6 +86,7 @@ export interface GameState {
   isPaused: boolean;
   isGameOver: boolean;
   gameOverReason: string;
+  isVictory: boolean;
   currentZone: HotspotZone | null;
   timeOfDay: 'dawn' | 'day' | 'dusk' | 'night';
   isRaining: boolean;
@@ -248,6 +249,7 @@ export const INITIAL_STATE: GameState = {
   isPaused: false,
   isGameOver: false,
   gameOverReason: '',
+  isVictory: false,
   currentZone: null,
   timeOfDay: 'day',
   isRaining: false,
