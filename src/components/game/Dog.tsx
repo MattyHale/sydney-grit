@@ -13,7 +13,6 @@ export function Dog({ playerX, playerDirection, isVisible, health, isSick = fals
 
   useEffect(() => {
     if (!isVisible) return;
-    // Slower wag when sick
     const interval = setInterval(() => {
       setTailWag(t => (t + 1) % 2);
     }, isSick ? 600 : 300);
@@ -22,48 +21,49 @@ export function Dog({ playerX, playerDirection, isVisible, health, isSick = fals
 
   if (!isVisible) return null;
 
-  const dogX = playerDirection === 'right' ? playerX - 10 : playerX + 10;
+  const dogX = playerDirection === 'right' ? playerX - 8 : playerX + 8;
   const isWeak = health < 50;
 
   return (
     <div 
-      className="absolute bottom-[30%] transition-all duration-200"
+      className="absolute transition-all duration-200 z-25"
       style={{ 
         left: `${dogX}%`, 
+        bottom: '46%', // Same level as player on footpath
         transform: `translateX(-50%) ${playerDirection === 'left' ? 'scaleX(-1)' : ''}`,
         opacity: isWeak ? 0.6 : 1,
       }}
     >
-      {/* Dog sprite - more visible with better contrast */}
-      <div className="relative w-12 h-8">
-        {/* Body - distinct color */}
-        <div className={`absolute bottom-1 left-0 w-10 h-5 ${isSick ? 'bg-[#4a5a4a]' : 'bg-[#5a4a3a]'} border-2 ${isSick ? 'border-gb-dark' : 'border-[#3a2a1a]'} rounded`} />
+      {/* Dog sprite - distinct brown color */}
+      <div className="relative w-10 h-6">
+        {/* Body */}
+        <div className={`absolute bottom-1 left-0 w-8 h-4 ${isSick ? 'bg-[#4a5a4a]' : 'bg-[#6a5a4a]'} border ${isSick ? 'border-[#3a4a3a]' : 'border-[#5a4a3a]'} rounded`} />
         
         {/* Head */}
-        <div className={`absolute bottom-2 right-[-2px] w-5 h-5 ${isSick ? 'bg-[#4a5a4a]' : 'bg-[#5a4a3a]'} border-2 ${isSick ? 'border-gb-dark' : 'border-[#3a2a1a]'} rounded-full`}>
+        <div className={`absolute bottom-2 right-[-2px] w-4 h-4 ${isSick ? 'bg-[#4a5a4a]' : 'bg-[#6a5a4a]'} border ${isSick ? 'border-[#3a4a3a]' : 'border-[#5a4a3a]'} rounded-full`}>
           {/* Eye */}
-          <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-gb-lightest rounded-full" />
+          <div className="absolute top-1 right-1 w-1 h-1 bg-[#1a1a1a] rounded-full" />
           {/* Nose */}
-          <div className="absolute bottom-1 right-0 w-1 h-1 bg-gb-darkest rounded-full" />
+          <div className="absolute bottom-0.5 right-0 w-1 h-1 bg-[#1a1a1a] rounded-full" />
         </div>
         
-        {/* Ears */}
-        <div className={`absolute top-0 right-2 w-2 h-3 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#4a3a2a]'} rounded`} />
+        {/* Ear */}
+        <div className={`absolute top-0 right-1.5 w-1.5 h-2 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#5a4a3a]'} rounded`} />
         
-        {/* Tail - wags slower when sick */}
+        {/* Tail */}
         <div 
-          className={`absolute bottom-3 left-[-5px] w-2 h-4 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#4a3a2a]'} rounded transition-transform origin-bottom ${
-            tailWag === 0 ? 'rotate-[35deg]' : 'rotate-[-25deg]'
+          className={`absolute bottom-2 left-[-4px] w-1.5 h-3 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#5a4a3a]'} rounded transition-transform origin-bottom ${
+            tailWag === 0 ? 'rotate-[30deg]' : 'rotate-[-20deg]'
           }`}
         />
         
         {/* Legs */}
-        <div className={`absolute bottom-[-4px] left-1.5 w-2 h-3 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#4a3a2a]'} rounded-b`} />
-        <div className={`absolute bottom-[-4px] left-5 w-2 h-3 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#4a3a2a]'} rounded-b`} />
+        <div className={`absolute bottom-[-2px] left-1 w-1.5 h-2 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#5a4a3a]'} rounded-b`} />
+        <div className={`absolute bottom-[-2px] left-4 w-1.5 h-2 ${isSick ? 'bg-[#3a4a3a]' : 'bg-[#5a4a3a]'} rounded-b`} />
         
         {/* Sick indicator */}
         {isSick && (
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] text-gb-light">
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-[6px]" style={{ color: '#8a8a6a' }}>
             ×_×
           </div>
         )}

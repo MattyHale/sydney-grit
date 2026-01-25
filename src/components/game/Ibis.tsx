@@ -20,33 +20,41 @@ export function Ibis({ x, isActive }: IbisProps) {
 
   return (
     <div 
-      className="absolute bottom-[33%]"
+      className="absolute z-15"
       style={{ 
         left: `${x}%`, 
+        bottom: '74%', // Foreground layer
         transform: 'translateX(-50%)',
       }}
     >
-      {/* Ibis sprite - distinctive long beak */}
-      <div className="relative w-6 h-5">
-        {/* Body - white/light colored */}
-        <div className="absolute bottom-1 left-0 w-4 h-3 bg-gb-lightest border border-gb-dark rounded" />
+      {/* Ibis sprite - white bird with long curved beak */}
+      <div className="relative w-5 h-4">
+        {/* Body */}
+        <div 
+          className="absolute bottom-1 left-0 w-3 h-2 rounded border"
+          style={{ background: '#9a9a8a', borderColor: '#6a6a5a' }}
+        />
         
         {/* Head with curved beak */}
-        <div className={`absolute left-3 w-2 h-2 bg-gb-lightest border border-gb-dark rounded-full transition-transform ${
-          peckFrame === 1 ? 'top-1 rotate-12' : peckFrame === 2 ? 'top-2 rotate-[-10deg]' : 'top-0'
-        }`}>
-          {/* Long curved beak */}
-          <div className="absolute top-0.5 right-[-6px] w-2 h-0.5 bg-gb-darkest rounded-r origin-left"
-            style={{ transform: `rotate(${peckFrame === 1 ? '20deg' : peckFrame === 2 ? '-15deg' : '5deg'})` }}
+        <div 
+          className={`absolute left-2 w-2 h-2 rounded-full border transition-transform ${
+            peckFrame === 1 ? 'top-0.5 rotate-12' : peckFrame === 2 ? 'top-1 rotate-[-10deg]' : 'top-0'
+          }`}
+          style={{ background: '#9a9a8a', borderColor: '#6a6a5a' }}
+        >
+          {/* Beak */}
+          <div 
+            className="absolute top-0.5 right-[-4px] w-1.5 h-0.5 rounded-r origin-left"
+            style={{ 
+              background: '#3a3a3a',
+              transform: `rotate(${peckFrame === 1 ? '20deg' : peckFrame === 2 ? '-15deg' : '5deg'})`,
+            }}
           />
         </div>
         
         {/* Legs */}
-        <div className="absolute bottom-[-2px] left-1 w-0.5 h-2 bg-gb-dark" />
-        <div className="absolute bottom-[-2px] left-2.5 w-0.5 h-2 bg-gb-dark" />
-        
-        {/* Tail */}
-        <div className="absolute bottom-1 left-[-2px] w-1.5 h-1 bg-gb-dark rounded-l" />
+        <div className="absolute bottom-[-1px] left-0.5 w-0.5 h-1.5" style={{ background: '#5a5a4a' }} />
+        <div className="absolute bottom-[-1px] left-2 w-0.5 h-1.5" style={{ background: '#5a5a4a' }} />
       </div>
     </div>
   );
