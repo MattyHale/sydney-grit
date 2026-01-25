@@ -11,7 +11,8 @@ import {
   PEDESTRIAN_ARCHETYPES,
   ARCHETYPE_STEAL_BIAS,
   ARCHETYPE_ACTION_BIAS,
-  PedestrianArchetype
+  PedestrianArchetype,
+  TransactionType
 } from '@/types/game';
 import { getDistrictFromOffset, DISTRICT_CONFIGS } from '@/types/districts';
 
@@ -30,6 +31,15 @@ export function useGameState() {
     eventTimeoutRef.current = window.setTimeout(() => {
       setState(s => ({ ...s, eventTextVisible: false }));
     }, 3000);
+  }, []);
+
+  // Show transaction feedback
+  const showTransaction = useCallback((type: TransactionType, amount?: string) => {
+    setState(s => ({ ...s, lastTransaction: { type, amount } }));
+  }, []);
+
+  const clearTransaction = useCallback(() => {
+    setState(s => ({ ...s, lastTransaction: null }));
   }, []);
 
   const updatePlayerPosition = useCallback((delta: number) => {
@@ -51,6 +61,11 @@ export function useGameState() {
       // Update world offset for infinite scroll effect
       const newWorldOffset = s.worldOffset + (delta * 2.5); // Faster scrolling
       const newDistrict = getDistrictFromOffset(newWorldOffset);
+      
+      // Track if player is in alley (for dealer access)
+      const inAlley = currentZone === 'alley';
+      // Keep dealer nearby if we're still in alley, otherwise clear
+      const dealerNearby = inAlley ? s.dealerNearby : false;
 
       return {
         ...s,
@@ -60,6 +75,8 @@ export function useGameState() {
         currentZone,
         worldOffset: newWorldOffset,
         currentDistrict: newDistrict,
+        inAlley,
+        dealerNearby,
       };
     });
   }, []);
@@ -120,31 +137,34 @@ export function useGameState() {
           const kindnessChance = 0.35 * districtConfig.kindnessMultiplier;
           const roll = Math.random();
           if (roll < kindnessChance) {
-            const money = Math.floor(Math.random() * 4 * districtConfig.kindnessMultiplier) + 2;
+            const money = Math.floor(Math.random() * 3 * districtConfig.kindnessMultiplier) + 1;
             newState.stats.money += money;
-            newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+            newState.stats.hope = Math.min(100, newState.stats.hope + 5);
             const messages = [
-              `Someone pressed ${money} dollars into your hand.`,
+              `Someone pressed $${money} into your hand.`,
               'A stranger stopped. They saw you.',
-              `"Here." ${money} dollars. No eye contact.`,
+              `"Here." $${money}. No eye contact.`,
             ];
             showEvent(messages[Math.floor(Math.random() * messages.length)]);
+            showTransaction('money', `+$${money}`);
           } else if (roll < kindnessChance + 0.25) {
-            newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+            newState.stats.hope = Math.min(100, newState.stats.hope + 3);
             const messages = [
               'A nod. Just a nod. It was something.',
               'Someone smiled. Brief, but real.',
               '"Hang in there." They kept walking.',
             ];
             showEvent(messages[Math.floor(Math.random() * messages.length)]);
+            showTransaction('hope', '+3');
           } else {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 3);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 2);
             const messages = [
               'Eyes forward. They all looked away.',
               'Invisible. You\'re invisible.',
               'The crowd parted around you.',
             ];
             showEvent(messages[Math.floor(Math.random() * messages.length)]);
+            showTransaction('fail', 'Ignored');
           }
           break;
         }
@@ -269,11 +289,38 @@ export function useGameState() {
           }
           break;
         }
+        case 'alley': {
+          // Entering alley - check for dealer
+          const districtDealerChance = districtConfig.dealerFrequency;
+          const hasDealerHere = Math.random() < districtDealerChance;
+          
+          newState.inAlley = true;
+          
+          if (hasDealerHere) {
+            newState.dealerNearby = true;
+            const dealerMessages = [
+              'A figure in the shadows beckons. They\'re holding.',
+              'Someone whispers: "You need something?"',
+              'A dealer steps from the dark. Product available.',
+            ];
+            showEvent(dealerMessages[Math.floor(Math.random() * dealerMessages.length)]);
+            showTransaction('drugs', 'DEALER');
+          } else {
+            newState.dealerNearby = false;
+            const emptyMessages = [
+              'The alley is quiet. Empty.',
+              'Just trash and shadows.',
+              'No one here. The usual smell of piss.',
+            ];
+            showEvent(emptyMessages[Math.floor(Math.random() * emptyMessages.length)]);
+          }
+          break;
+        }
       }
       
       return newState;
     });
-  }, [showEvent]);
+  }, [showEvent, showTransaction]);
 
   const handleCarEncounter = useCallback(() => {
     setState(s => {
@@ -546,20 +593,23 @@ export function useGameState() {
           // Reuse existing purse steal logic
           const roll = Math.random();
           if (roll < stealBias.kindnessChance) {
-            const amount = Math.floor(Math.random() * 5) + 2;
+            const amount = Math.floor(Math.random() * 3) + 1;
             newState.stats.money += amount;
-            newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+            newState.stats.hope = Math.min(100, newState.stats.hope + 5);
             showEvent('They stopped. They gave you money instead.');
+            showTransaction('money', `+$${amount}`);
           } else if (roll < stealBias.kindnessChance + stealBias.shoutChance) {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 12);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 8);
             newState.recentTheft = true;
             showEvent('They shouted. People are staring.');
+            showTransaction('danger', 'BUSTED');
           } else {
             const [minMoney, maxMoney] = stealBias.moneyRange;
             const stolen = Math.floor(Math.random() * (maxMoney - minMoney + 1)) + minMoney;
             newState.stats.money += stolen;
-            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
-            showEvent(`You grabbed ${stolen} dollars and ran.`);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 3);
+            showEvent(`You grabbed $${stolen} and ran.`);
+            showTransaction('steal', `+$${stolen}`);
             newState.recentTheft = true;
           }
           break;
@@ -674,9 +724,9 @@ export function useGameState() {
       
       return newState;
     });
-  }, [showEvent]);
+  }, [showEvent, showTransaction]);
 
-  // Buy from dealer action
+  // Buy from dealer action (when near dealer pedestrian)
   const buyFromDealer = useCallback(() => {
     setState(s => {
       if (!s.stealWindowActive || !s.stealTarget || s.isGameOver || s.isPaused) return s;
@@ -687,6 +737,7 @@ export function useGameState() {
       
       if (newState.stats.money < cost) {
         showEvent('Not enough cash. The dealer waves you off.');
+        showTransaction('fail', 'No $');
         return s;
       }
       
@@ -698,10 +749,12 @@ export function useGameState() {
         // Cocaine
         newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 40);
         showEvent(`Paid $${cost}. White powder in a tiny bag.`);
+        showTransaction('drugs', `+40 COC`);
       } else {
         // LSD
         newState.stats.lsd = Math.min(5, newState.stats.lsd + 1);
         showEvent(`Paid $${cost}. A tiny square on your tongue.`);
+        showTransaction('drugs', `+1 LSD`);
       }
       
       // Dealer disappears after transaction
@@ -711,7 +764,75 @@ export function useGameState() {
       
       return newState;
     });
-  }, [showEvent]);
+  }, [showEvent, showTransaction]);
+
+  // Buy drugs - works in alley OR from dealer pedestrian
+  const buyDrugs = useCallback(() => {
+    setState(s => {
+      if (s.isGameOver || s.isPaused) return s;
+      
+      // If near a dealer pedestrian, buy from them
+      if (s.stealWindowActive && s.stealTarget?.archetype === 'dealer') {
+        // Delegate to buyFromDealer
+        return s; // Will be called separately
+      }
+      
+      // If in alley with dealer nearby, buy there
+      if (s.inAlley && s.dealerNearby) {
+        const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
+        const newState = { ...s, stats: { ...s.stats } };
+        
+        // Alley prices are slightly cheaper but riskier
+        const cost = 10 + Math.floor(Math.random() * 8); // $10-17
+        
+        if (newState.stats.money < cost) {
+          // Try begging
+          if (Math.random() < 0.2) {
+            newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 10);
+            showEvent('Dealer took pity. A small taste.');
+            showTransaction('drugs', '+10 COC');
+          } else {
+            showEvent('No money. The dealer ignores you.');
+            showTransaction('fail', 'No $');
+          }
+          return newState;
+        }
+        
+        const roll = Math.random();
+        if (roll < 0.7 * districtConfig.dealerFrequency) {
+          // Good deal
+          newState.stats.money -= cost;
+          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 35);
+          showEvent(`Paid $${cost}. The alley deal was clean.`);
+          showTransaction('drugs', `+35 COC`);
+        } else if (roll < 0.85) {
+          // Weak stuff
+          newState.stats.money -= cost;
+          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 20);
+          showEvent('Weak gear. Better than nothing.');
+          showTransaction('drugs', '+20 COC');
+        } else if (roll < 0.95) {
+          // Scammed
+          newState.stats.money -= cost;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+          showEvent('They took your money and ran.');
+          showTransaction('fail', `-$${cost}`);
+        } else {
+          // Cops! Dealer runs
+          newState.dealerNearby = false;
+          showEvent('Cops! The dealer scattered.');
+          showTransaction('danger', 'RUN!');
+        }
+        
+        return newState;
+      }
+      
+      return s;
+    });
+    
+    // Also try dealer pedestrian path
+    buyFromDealer();
+  }, [showEvent, showTransaction, buyFromDealer]);
 
   // Sell drugs to pedestrian
   const sellDrugs = useCallback(() => {
@@ -748,22 +869,26 @@ export function useGameState() {
         showEvent('You tried to sell to a cop. Big mistake.');
         newState.recentTheft = true; // Triggers police
         newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+        showTransaction('danger', 'COP!');
       } else if (roll < chance) {
-        // Successful sale
-        const amount = Math.floor(Math.random() * 15) + 8; // $8-22
+        // Successful sale - balanced: sell 15 coke for $10-18
+        const amount = Math.floor(Math.random() * 8) + 10;
         newState.stats.money += amount;
         newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 15);
         showEvent(`Sold a bump for $${amount}.`);
+        showTransaction('money', `+$${amount}`);
       } else if (roll < chance + 0.2) {
-        // They're interested but haggle
-        const amount = Math.floor(Math.random() * 5) + 3;
+        // They're interested but haggle - sell 10 coke for $5-8
+        const amount = Math.floor(Math.random() * 3) + 5;
         newState.stats.money += amount;
         newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 10);
         showEvent(`They wanted a taste. $${amount}.`);
+        showTransaction('money', `+$${amount}`);
       } else {
         // No interest
-        newState.stats.hope = Math.max(0, newState.stats.hope - 3);
+        newState.stats.hope = Math.max(0, newState.stats.hope - 2);
         showEvent('Not interested. They walked away.');
+        showTransaction('fail', 'No sale');
       }
       
       // Target moves on after interaction
@@ -773,7 +898,7 @@ export function useGameState() {
       
       return newState;
     });
-  }, [showEvent]);
+  }, [showEvent, showTransaction]);
 
   // Take LSD action
   const takeLSD = useCallback(() => {
@@ -1344,7 +1469,9 @@ export function useGameState() {
     ignoreCarEncounter,
     attemptPurseSteal,
     buyFromDealer,
+    buyDrugs,
     sellDrugs,
+    clearTransaction,
     takeLSD,
     tick,
   };

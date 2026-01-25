@@ -10,14 +10,16 @@ import { TextOverlay } from './TextOverlay';
 import { PauseButton } from './PauseButton';
 import { PauseOverlay } from './PauseOverlay';
 import { GameOverOverlay } from './GameOverOverlay';
+import { TransactionIndicator } from './TransactionIndicator';
 
 interface GameCanvasProps {
   state: GameState;
   onPause: () => void;
   onRestart: () => void;
+  onClearTransaction: () => void;
 }
 
-export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
+export function GameCanvas({ state, onPause, onRestart, onClearTransaction }: GameCanvasProps) {
   const isHigh = state.stats.cocaine > 30;
   const highIntensity = Math.min(1, (state.stats.cocaine - 30) / 70);
   const isTripping = state.lsdTripActive;
@@ -170,6 +172,12 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
       <TextOverlay 
         text={state.lastEventText}
         visible={state.eventTextVisible}
+      />
+      
+      {/* Transaction indicator */}
+      <TransactionIndicator 
+        transaction={state.lastTransaction}
+        onClear={onClearTransaction}
       />
       
       {/* Steal window indicator */}
