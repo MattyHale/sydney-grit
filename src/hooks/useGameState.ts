@@ -14,7 +14,7 @@ import {
   PedestrianArchetype,
   TransactionType
 } from '@/types/game';
-import { getDistrictFromOffset, DISTRICT_CONFIGS } from '@/types/districts';
+import { getDistrictFromOffset, DISTRICT_CONFIGS, getVenueAtPosition } from '@/types/districts';
 
 export function useGameState() {
   const [state, setState] = useState<GameState>({ ...INITIAL_STATE });
@@ -54,21 +54,18 @@ export function useGameState() {
       const newX = Math.max(5, Math.min(90, s.playerX + adjustedDelta));
       const direction = delta > 0 ? 'right' : 'left';
       
-      // Check which zone player is in
-      let currentZone: HotspotZone | null = null;
-      for (const hotspot of HOTSPOTS) {
-        if (newX >= hotspot.x && newX <= hotspot.x + hotspot.width) {
-          currentZone = hotspot.zone;
-          break;
-        }
-      }
-      
       // Update world offset for infinite scroll effect (also affected by speed)
       const newWorldOffset = s.worldOffset + (adjustedDelta * 2.5); // Faster scrolling
       const newDistrict = getDistrictFromOffset(newWorldOffset);
       
+      // Get the actual building at the player's position
+      const { venue, hotspotZone } = getVenueAtPosition(newWorldOffset, newX);
+      
+      // Use the building-based zone instead of fixed hotspots
+      const currentZone = hotspotZone;
+      
       // Track if player is in alley (for dealer access)
-      const inAlley = currentZone === 'alley';
+      const inAlley = venue.type === 'alley';
       // Keep dealer nearby if we're still in alley, otherwise clear
       const dealerNearby = inAlley ? s.dealerNearby : false;
 

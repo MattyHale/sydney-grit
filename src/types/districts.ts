@@ -457,3 +457,51 @@ export function getVenueForBlock(district: District, index: number): BlockSignag
   const venues = DISTRICT_VENUES[district];
   return venues[index % venues.length];
 }
+
+// Map block type to hotspot zone for shop entry
+export function blockTypeToHotspotZone(blockType: BlockSignage['type']): import('./game').HotspotZone | null {
+  const mapping: Record<BlockSignage['type'], import('./game').HotspotZone | null> = {
+    'bar': 'bar',
+    'food': 'food-vendor',
+    'cafe': 'cafe',
+    'vc': 'vc-firm',
+    'hub': 'services',
+    'club': 'strip-club',
+    'pawn': 'pawn',
+    'shelter': 'shelter',
+    'alley': 'alley',
+    'hostel': 'shelter',
+    'shop': 'bins',  // Generic shops have bins
+    'derelict': 'bins',  // Derelict buildings have bins
+  };
+  return mapping[blockType];
+}
+
+// Get the building/venue at a specific world position
+export function getVenueAtPosition(worldOffset: number, playerX: number): { venue: BlockSignage; hotspotZone: import('./game').HotspotZone | null } {
+  const district = getDistrictFromOffset(worldOffset);
+  const venues = DISTRICT_VENUES[district];
+  
+  // Block width is 100px (WIDER buildings), matches Street.tsx
+  const blockWidth = 100;
+  const totalWidth = blockWidth * venues.length;
+  
+  // Calculate which block the player is standing in front of
+  // playerX is 0-100%, convert to pixel position in the parallax space
+  const parallaxOffset = worldOffset * 0.3;
+  const normalizedOffset = ((parallaxOffset % totalWidth) + totalWidth) % totalWidth;
+  
+  // Player screen position (0-100%) maps to a block
+  // Screen shows about 10 blocks at 100px each
+  const screenWidth = blockWidth * 10;
+  const playerScreenPos = (playerX / 100) * screenWidth;
+  
+  // The block at the player's position
+  const absolutePos = normalizedOffset + playerScreenPos;
+  const blockIndex = Math.floor((absolutePos / blockWidth)) % venues.length;
+  
+  const venue = venues[blockIndex];
+  const hotspotZone = blockTypeToHotspotZone(venue.type);
+  
+  return { venue, hotspotZone };
+}
