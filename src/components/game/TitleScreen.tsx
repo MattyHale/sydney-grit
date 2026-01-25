@@ -52,39 +52,48 @@ export const TitleScreen = ({ onStart }: TitleScreenProps) => {
       <div className="absolute inset-0 bg-gradient-radial from-gb-light/5 via-transparent to-transparent pointer-events-none" />
       
       {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center gap-6 px-4 text-center">
+      <div className="relative z-10 flex flex-col items-center gap-4 px-4 text-center">
         {/* Game title */}
-        <div className="flex flex-col items-center gap-2">
-          <h1 className="text-gb-lightest text-2xl sm:text-3xl md:text-4xl tracking-wider gb-glow">
-            SYDNEY
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-gb-medium text-[8px] sm:text-[10px] tracking-widest">
+            SYDNEY 1991
+          </p>
+          <h1 className="text-gb-lightest text-3xl sm:text-4xl md:text-5xl tracking-wider gb-glow font-bold">
+            THE FOUNDER
           </h1>
-          <h2 className="text-gb-light text-3xl sm:text-4xl md:text-5xl tracking-widest gb-glow">
-            1991
-          </h2>
         </div>
+
+        {/* Tagline */}
+        <p className="text-gb-light text-[10px] sm:text-xs tracking-wide italic">
+          "Bootstrap or Die"
+        </p>
 
         {/* Decorative divider */}
-        <div className="flex items-center gap-2 my-2">
-          <div className="w-8 h-0.5 bg-gb-medium" />
-          <div className="w-2 h-2 bg-gb-light rotate-45" />
-          <div className="w-8 h-0.5 bg-gb-medium" />
+        <div className="flex items-center gap-2 my-1">
+          <div className="w-6 h-0.5 bg-gb-medium" />
+          <div className="text-gb-light text-[8px]">💼</div>
+          <div className="w-6 h-0.5 bg-gb-medium" />
         </div>
 
-        {/* Instructions */}
-        <div className="flex flex-col gap-2 text-gb-medium text-[8px] sm:text-[10px] leading-relaxed max-w-xs">
-          <p>SURVIVE THE STREETS</p>
-          <p className="text-gb-light/80">
-            MANAGE HUNGER • WARMTH • HOPE
+        {/* Story intro */}
+        <div className="flex flex-col gap-1 text-gb-medium text-[7px] sm:text-[9px] leading-relaxed max-w-xs">
+          <p className="text-gb-light">YOU ARE A TECH FOUNDER</p>
+          <p className="text-gb-medium/80">
+            NO RUNWAY • NO OFFICE • JUST A DREAM
           </p>
-          <div className="flex flex-col gap-1 mt-2 text-gb-medium/80">
-            <p>← → MOVE</p>
-            <p>↑ INTERACT • ↓ DUCK</p>
-            <p>A B C ACTIONS</p>
-          </div>
+          <p className="text-gb-medium/60 mt-1">
+            PITCH VCs • SCROUNGE FOR RUNWAY • SURVIVE
+          </p>
+        </div>
+
+        {/* Controls */}
+        <div className="flex flex-col gap-1 mt-2 text-gb-medium/70 text-[6px] sm:text-[8px]">
+          <p>← → MOVE  •  ↑ ENTER  •  ↓ DUCK</p>
+          <p>A B C CONTEXT ACTIONS</p>
         </div>
 
         {/* Press Start prompt */}
-        <div className="mt-6">
+        <div className="mt-4">
           <p 
             className={`text-gb-lightest text-[10px] sm:text-xs tracking-widest transition-opacity duration-100 ${
               blinkVisible ? 'opacity-100' : 'opacity-0'
@@ -96,11 +105,11 @@ export const TitleScreen = ({ onStart }: TitleScreenProps) => {
 
         {/* Copyright/version */}
         <p className="absolute bottom-4 text-gb-dark text-[6px] sm:text-[8px]">
-          © 2024 LOVABLE GAMES
+          © 1991 KINGS CROSS GAMES
         </p>
       </div>
 
-      {/* Corner decorations */}
+      {/* Corner decorations - briefcase style */}
       <div className="absolute top-4 left-4 w-3 h-3 border-l-2 border-t-2 border-gb-medium" />
       <div className="absolute top-4 right-4 w-3 h-3 border-r-2 border-t-2 border-gb-medium" />
       <div className="absolute bottom-4 left-4 w-3 h-3 border-l-2 border-b-2 border-gb-medium" />
