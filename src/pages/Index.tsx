@@ -15,9 +15,11 @@ const Index = () => {
     restartGame,
     performAction,
     performDesperationAction,
+    performPedestrianAction,
     handleCarEncounter,
     ignoreCarEncounter,
     attemptPurseSteal,
+    takeLSD,
     tick,
   } = useGameState();
 
@@ -38,34 +40,45 @@ const Index = () => {
     setDucking(ducking);
   }, [state.carEncounterActive, ignoreCarEncounter, setDucking]);
 
-  // Button handlers for desperation actions
+  // Button handlers for desperation actions and pedestrian actions
   const handleButtonA = useCallback(() => {
     if (state.carEncounterActive) {
       handleCarEncounter();
+    } else if (state.stats.lsd > 0 && !state.lsdTripActive && state.currentZone === 'alley') {
+      // Take LSD in alleys
+      takeLSD();
+    } else if (state.pedestrianActionAvailable.includes('steal')) {
+      performPedestrianAction('steal');
     } else if (state.desperationAvailable[0]) {
       performDesperationAction(state.desperationAvailable[0]);
     } else if (state.currentZone) {
       performAction(state.currentZone);
     }
-  }, [state.desperationAvailable, state.currentZone, state.carEncounterActive, performAction, performDesperationAction, handleCarEncounter]);
+  }, [state.desperationAvailable, state.currentZone, state.carEncounterActive, state.pedestrianActionAvailable, state.stats.lsd, state.lsdTripActive, performAction, performDesperationAction, performPedestrianAction, handleCarEncounter, takeLSD]);
 
   const handleButtonB = useCallback(() => {
-    // B button for purse steal when near pedestrian
-    if (state.stealWindowActive) {
+    // B button for pitch or steal
+    if (state.pedestrianActionAvailable.includes('pitch')) {
+      performPedestrianAction('pitch');
+    } else if (state.stealWindowActive) {
       attemptPurseSteal();
     } else if (state.desperationAvailable[1]) {
       performDesperationAction(state.desperationAvailable[1]);
     }
-  }, [state.stealWindowActive, state.desperationAvailable, attemptPurseSteal, performDesperationAction]);
+  }, [state.stealWindowActive, state.desperationAvailable, state.pedestrianActionAvailable, attemptPurseSteal, performDesperationAction, performPedestrianAction]);
 
   const handleButtonC = useCallback(() => {
-    // C button also for purse steal
-    if (state.stealWindowActive) {
+    // C button for trade/hit or purse steal
+    if (state.pedestrianActionAvailable.includes('trade')) {
+      performPedestrianAction('trade');
+    } else if (state.pedestrianActionAvailable.includes('hit')) {
+      performPedestrianAction('hit');
+    } else if (state.stealWindowActive) {
       attemptPurseSteal();
     } else if (state.desperationAvailable[2]) {
       performDesperationAction(state.desperationAvailable[2]);
     }
-  }, [state.stealWindowActive, state.desperationAvailable, attemptPurseSteal, performDesperationAction]);
+  }, [state.stealWindowActive, state.desperationAvailable, state.pedestrianActionAvailable, attemptPurseSteal, performDesperationAction, performPedestrianAction]);
 
   // Set up keyboard controls
   useControls({
@@ -98,6 +111,7 @@ const Index = () => {
         stats={state.stats} 
         timeOfDay={state.timeOfDay}
         isRaining={state.isRaining}
+        lsdTripActive={state.lsdTripActive}
       />
       
       {/* Main game canvas - fills remaining space */}
@@ -120,6 +134,7 @@ const Index = () => {
         desperationActions={state.desperationAvailable}
         carEncounterActive={state.carEncounterActive}
         stealWindowActive={state.stealWindowActive}
+        pedestrianActions={state.pedestrianActionAvailable}
       />
     </div>
   );

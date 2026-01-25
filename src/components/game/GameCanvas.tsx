@@ -19,15 +19,37 @@ interface GameCanvasProps {
 
 export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
   const isHigh = state.stats.cocaine > 30;
-  const highIntensity = Math.min(1, (state.stats.cocaine - 30) / 70); // 0-1 based on 30-100
+  const highIntensity = Math.min(1, (state.stats.cocaine - 30) / 70);
+  const isTripping = state.lsdTripActive;
   
   return (
     <div className="relative flex-1 overflow-hidden bg-gb-dark">
       {/* CRT Scanlines overlay */}
       <div className="absolute inset-0 pointer-events-none z-10 scanlines opacity-20" />
       
+      {/* LSD trip overlay - chromatic aberration and color shift */}
+      {isTripping && (
+        <>
+          <div 
+            className="absolute inset-0 pointer-events-none z-20 animate-pulse"
+            style={{ 
+              background: `radial-gradient(ellipse at center, transparent 20%, rgba(150, 100, 255, 0.15) 60%, rgba(100, 200, 255, 0.1) 100%)`,
+              mixBlendMode: 'overlay',
+              animation: 'pulse 2s ease-in-out infinite',
+            }}
+          />
+          <div 
+            className="absolute inset-0 pointer-events-none z-20"
+            style={{ 
+              boxShadow: 'inset 0 0 60px rgba(150, 100, 255, 0.3), inset 0 0 120px rgba(100, 200, 150, 0.15)',
+              filter: 'hue-rotate(15deg)',
+            }}
+          />
+        </>
+      )}
+      
       {/* Cocaine high overlay - pink/red tint with pulse */}
-      {isHigh && (
+      {isHigh && !isTripping && (
         <div 
           className="absolute inset-0 pointer-events-none z-20 animate-pulse"
           style={{ 
@@ -37,8 +59,8 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
         />
       )}
       
-      {/* Screen edge vignette when very high */}
-      {state.stats.cocaine > 60 && (
+      {/* Screen edge vignette when very high on coke */}
+      {state.stats.cocaine > 60 && !isTripping && (
         <div 
           className="absolute inset-0 pointer-events-none z-20"
           style={{ 

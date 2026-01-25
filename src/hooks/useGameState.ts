@@ -7,8 +7,10 @@ import {
   DesperationAction,
   CarState,
   PedestrianState,
+  PedestrianAction,
   PEDESTRIAN_ARCHETYPES,
   ARCHETYPE_STEAL_BIAS,
+  ARCHETYPE_ACTION_BIAS,
   PedestrianArchetype
 } from '@/types/game';
 import { getDistrictFromOffset, DISTRICT_CONFIGS } from '@/types/districts';
@@ -461,6 +463,171 @@ export function useGameState() {
     });
   }, [showEvent, triggerGameOver, handleCarEncounter, attemptPurseSteal]);
 
+  // Pedestrian actions: Pitch, Trade, Hit
+  const performPedestrianAction = useCallback((action: PedestrianAction) => {
+    setState(s => {
+      if (!s.stealTarget || s.isGameOver || s.isPaused) return s;
+      
+      const newState = { ...s, stats: { ...s.stats } };
+      const target = s.stealTarget;
+      const archetype = target.archetype;
+      const stealBias = ARCHETYPE_STEAL_BIAS[archetype];
+      const actionBias = ARCHETYPE_ACTION_BIAS[archetype];
+      const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
+      const isTripping = s.lsdTripActive;
+      
+      switch (action) {
+        case 'steal': {
+          // Reuse existing purse steal logic
+          const roll = Math.random();
+          if (roll < stealBias.kindnessChance) {
+            const amount = Math.floor(Math.random() * 5) + 2;
+            newState.stats.money += amount;
+            newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+            showEvent('They stopped. They gave you money instead.');
+          } else if (roll < stealBias.kindnessChance + stealBias.shoutChance) {
+            newState.stats.hope = Math.max(0, newState.stats.hope - 12);
+            newState.recentTheft = true;
+            showEvent('They shouted. People are staring.');
+          } else {
+            const [minMoney, maxMoney] = stealBias.moneyRange;
+            const stolen = Math.floor(Math.random() * (maxMoney - minMoney + 1)) + minMoney;
+            newState.stats.money += stolen;
+            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+            showEvent(`You grabbed ${stolen} dollars and ran.`);
+            newState.recentTheft = true;
+          }
+          break;
+        }
+        case 'pitch': {
+          // Sales pitch - founder arc
+          const successChance = actionBias.pitchSuccess * districtConfig.pitchMultiplier;
+          const roll = Math.random();
+          
+          if (isTripping) {
+            // LSD makes pitches weird
+            if (roll < 0.3) {
+              newState.stats.money += Math.floor(Math.random() * 8) + 2;
+              newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+              showEvent('Your pitch was... transcendent? They bought it.');
+            } else {
+              newState.stats.hope = Math.max(0, newState.stats.hope - 8);
+              showEvent('You pitched. The words came out wrong. They walked away.');
+            }
+          } else if (roll < successChance) {
+            const earnings = Math.floor(Math.random() * 10) + 3;
+            newState.stats.money += earnings;
+            newState.stats.hope = Math.min(100, newState.stats.hope + 6);
+            showEvent(`They listened. You earned $${earnings}.`);
+          } else if (roll < successChance + 0.3) {
+            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+            showEvent('They ignored you completely.');
+          } else if (roll < successChance + 0.5) {
+            newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+            showEvent('"Get a job." They laughed.');
+          } else {
+            // Police interest
+            if (Math.random() < 0.15 * districtConfig.policeFrequency) {
+              newState.recentTheft = true; // Triggers police attention
+              showEvent('Someone called security. Move.');
+            } else {
+              showEvent('No takers.');
+            }
+          }
+          break;
+        }
+        case 'trade': {
+          // Non-explicit sex trade - reuses sex economy logic
+          const willingChance = actionBias.tradeWilling * districtConfig.tradeMultiplier;
+          const roll = Math.random();
+          
+          if (roll < willingChance) {
+            // Trade accepted
+            const reward = Math.random();
+            if (reward < 0.4) {
+              newState.stats.money += Math.floor(Math.random() * 12) + 5;
+              showEvent('Transaction complete. Money changed hands.');
+            } else if (reward < 0.7) {
+              newState.stats.hunger = Math.min(100, newState.stats.hunger + 25);
+              showEvent('They bought you food instead.');
+            } else {
+              newState.stats.warmth = Math.min(100, newState.stats.warmth + 20);
+              showEvent('A warm place for a while.');
+            }
+            newState.stats.hope = Math.max(0, newState.stats.hope - 18);
+            newState.recentCarEncounter = true;
+          } else if (roll < willingChance + 0.2) {
+            newState.stats.hope = Math.max(0, newState.stats.hope - 8);
+            showEvent('They looked disgusted and walked away.');
+          } else {
+            showEvent('Not interested.');
+          }
+          break;
+        }
+        case 'hit': {
+          // Violence - dangerous
+          const fightBackChance = actionBias.fightBack * districtConfig.violenceMultiplier;
+          const roll = Math.random();
+          
+          if (roll < 0.25) {
+            // Knockdown success
+            const loot = Math.floor(Math.random() * 15) + 3;
+            newState.stats.money += loot;
+            newState.stats.hope = Math.max(0, newState.stats.hope - 15);
+            newState.recentViolence = true;
+            showEvent(`They went down. You took $${loot}.`);
+          } else if (roll < 0.25 + fightBackChance) {
+            // They fight back
+            newState.stats.warmth = Math.max(0, newState.stats.warmth - 25);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+            newState.recentViolence = true;
+            showEvent('They fought back. You\'re hurt.');
+          } else if (roll < 0.6) {
+            // Cops called
+            newState.recentViolence = true;
+            if (!s.police.isActive) {
+              newState.police = {
+                x: Math.random() < 0.5 ? -10 : 110,
+                isActive: true,
+                direction: Math.random() < 0.5 ? 'right' : 'left',
+              };
+            }
+            showEvent('Someone screamed. Cops are coming.');
+          } else {
+            // They run
+            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+            showEvent('They ran. You got nothing.');
+          }
+          break;
+        }
+      }
+      
+      // Remove the target pedestrian
+      newState.pedestrians = s.pedestrians.filter(p => p.id !== target.id);
+      newState.stealWindowActive = false;
+      newState.stealTarget = null;
+      
+      return newState;
+    });
+  }, [showEvent]);
+
+  // Take LSD action
+  const takeLSD = useCallback(() => {
+    setState(s => {
+      if (s.stats.lsd <= 0 || s.lsdTripActive || s.isGameOver || s.isPaused) return s;
+      
+      const newState = { ...s, stats: { ...s.stats } };
+      newState.stats.lsd = Math.max(0, newState.stats.lsd - 1);
+      newState.lsdTripActive = true;
+      newState.lsdTripTimeRemaining = 15 + Math.floor(Math.random() * 10); // 15-25 seconds
+      newState.stats.hope = Math.min(100, newState.stats.hope + 25);
+      newState.stats.warmth = Math.min(100, newState.stats.warmth + 10);
+      showEvent('The world shifts. Colors bleed. You feel... free.');
+      
+      return newState;
+    });
+  }, [showEvent]);
+
   const tick = useCallback(() => {
     setState(s => {
       if (s.isGameOver || s.isPaused) return s;
@@ -549,11 +716,52 @@ export function useGameState() {
         }
       }
       
+      // === LSD TRIP MECHANICS ===
+      if (s.lsdTripActive) {
+        newState.lsdTripTimeRemaining = Math.max(0, s.lsdTripTimeRemaining - 1);
+        
+        // During trip: hope boost, hunger/warmth stable, perception altered
+        newState.stats.hope = Math.min(100, newState.stats.hope + 0.6);
+        newState.stats.hunger = Math.min(100, newState.stats.hunger + 0.3); // Less hunger awareness
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.2);
+        
+        // Random trip events
+        if (Math.random() < 0.08) {
+          const tripEvent = Math.random();
+          if (tripEvent < 0.25) {
+            showEvent('The signs are speaking to you. Beautiful nonsense.');
+          } else if (tripEvent < 0.5) {
+            showEvent('Colors pulse. The city breathes.');
+          } else if (tripEvent < 0.7) {
+            showEvent('Time stretches. Seconds feel like hours.');
+          } else if (tripEvent < 0.85) {
+            showEvent('Everyone\'s face looks... familiar. Wrong.');
+          } else {
+            // Bad decision risk
+            if (Math.random() < 0.3 && s.stats.money > 0) {
+              const lost = Math.floor(Math.random() * Math.min(s.stats.money, 8));
+              newState.stats.money = Math.max(0, newState.stats.money - lost);
+              showEvent(`You gave away $${lost}. It felt right.`);
+            }
+          }
+        }
+        
+        // Trip ends
+        if (newState.lsdTripTimeRemaining <= 0) {
+          newState.lsdTripActive = false;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 15);
+          newState.stats.hunger = Math.max(0, newState.stats.hunger - 10);
+          showEvent('The trip fades. Reality crashes back. Cold. Hungry.');
+        }
+      }
+      
       // Warmth decay based on time/weather
       let warmthDecay = 0.8;
       if (newState.timeOfDay === 'night') warmthDecay = 1.5;
       if (newState.timeOfDay === 'dusk') warmthDecay = 1.1;
       if (newState.isRaining) warmthDecay += 0.8;
+      // LSD reduces awareness of cold
+      if (s.lsdTripActive) warmthDecay *= 0.3;
       newState.stats.warmth = Math.max(0, newState.stats.warmth - warmthDecay);
       
       // Dog passive effects
@@ -853,6 +1061,33 @@ export function useGameState() {
         }
       }
       
+      // LSD acquisition events - district based
+      const lsdChance = districtConfig.lsdFrequency * 0.012;
+      if (Math.random() < lsdChance && !s.lsdTripActive) {
+        const lsdRoll = Math.random();
+        if (lsdRoll < 0.3 && s.stats.money >= 8) {
+          // Buy acid
+          newState.stats.money -= 8;
+          newState.stats.lsd += 1;
+          showEvent('Someone sold you a tab. Small and powerful.');
+        } else if (lsdRoll < 0.5) {
+          // Free trip
+          newState.stats.lsd += 1;
+          showEvent('A stranger pressed something into your hand. "Expand your mind."');
+        } else if (lsdRoll < 0.65 && s.stats.money >= 5) {
+          // Trade for acid
+          newState.stats.money -= 5;
+          newState.stats.lsd += 1;
+          newState.stats.hope = Math.min(100, newState.stats.hope + 3);
+          showEvent('Got a hit in exchange for helping move some boxes.');
+        }
+      }
+      
+      // Clear violence flag
+      if (s.recentViolence && newState.stats.survivalTime % 30 === 0) {
+        newState.recentViolence = false;
+      }
+      
       // Desperation actions availability
       const desperationAvailable: DesperationAction[] = [];
       if (newState.stats.hunger < 25 || newState.stats.warmth < 25 || newState.stats.money <= 0) {
@@ -876,6 +1111,13 @@ export function useGameState() {
       if (stealWindowActive) {
         desperationAvailable.push('purse-steal');
       }
+      
+      // Pedestrian actions available when near target
+      const pedestrianActionAvailable: PedestrianAction[] = [];
+      if (stealWindowActive && s.stealTarget) {
+        pedestrianActionAvailable.push('steal', 'pitch', 'trade', 'hit');
+      }
+      newState.pedestrianActionAvailable = pedestrianActionAvailable;
       
       newState.desperationAvailable = desperationAvailable;
       
@@ -907,9 +1149,11 @@ export function useGameState() {
     restartGame,
     performAction,
     performDesperationAction,
+    performPedestrianAction,
     handleCarEncounter,
     ignoreCarEncounter,
     attemptPurseSteal,
+    takeLSD,
     tick,
   };
 }
