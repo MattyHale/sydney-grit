@@ -2255,6 +2255,59 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
           </div>
         );
 
+      case 'vc':
+        // Australian VC office - sleek corporate building
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a2025' }} />
+            {/* Glass facade */}
+            <div className="absolute top-1 left-0.5 right-0.5 bottom-12" style={{ background: '#0a1520', border: '1px solid #2a4050' }}>
+              {/* Window grid */}
+              <div className="absolute top-1 left-1 w-2 h-2" style={{ background: pal.windowGlow, opacity: 0.2 }} />
+              <div className="absolute top-1 right-1 w-2 h-2" style={{ background: pal.windowGlow, opacity: 0.3 }} />
+              <div className="absolute top-4 left-1 w-2 h-2" style={{ background: pal.windowGlow, opacity: 0.25 }} />
+              <div className="absolute top-4 right-1 w-2 h-2" style={{ background: pal.windowGlow, opacity: 0.15 }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-10" style={{ background: '#0a0f15', border: '2px solid #3a4a5a' }}>
+              <div className="absolute inset-1" style={{ background: pal.windowGlow, opacity: 0.1 }} />
+            </div>
+            {/* VC firm signage */}
+            <div className={`absolute bottom-11 left-0.5 right-0.5 h-4 flex items-center justify-center text-[3px] font-bold ${signageClass}`} style={{ background: '#1a1a2a', color: '#88aacc', border: '1px solid #3a4a6a' }}>
+              {scrambleText(sign || 'VENTURES')}
+            </div>
+            {isNight && (
+              <div className="absolute bottom-11 left-0 right-0 h-4 opacity-30" style={{ boxShadow: '0 0 8px #4488cc' }} />
+            )}
+          </div>
+        );
+
+      case 'startuphub':
+        // Australian startup hub / accelerator
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151a20' }} />
+            {/* Open plan windows showing activity */}
+            <div className="absolute top-1 left-0.5 right-0.5 h-10" style={{ background: '#0a1015', border: '1px solid #2a3540' }}>
+              {/* People silhouettes working */}
+              <div className="absolute bottom-1 left-1 w-1 h-2 rounded-t" style={{ background: '#2a3a4a' }} />
+              <div className="absolute bottom-1 left-3 w-1 h-1.5 rounded-t" style={{ background: '#2a3a4a' }} />
+              <div className="absolute bottom-1 right-1 w-1 h-2 rounded-t" style={{ background: '#2a3a4a' }} />
+              {/* Whiteboard */}
+              <div className="absolute top-1 right-1 w-3 h-2" style={{ background: '#e8e8d8', opacity: 0.3 }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-9" style={{ background: '#0a1015', border: '2px solid #4a5a6a' }}>
+              <div className="absolute inset-1" style={{ background: pal.windowGlow, opacity: 0.15 }} />
+            </div>
+            {/* Hub signage */}
+            <div className={`absolute bottom-10 left-0.5 right-0.5 h-3 flex items-center justify-center text-[3px] font-bold ${signageClass}`} style={{ background: '#1a2a1a', color: '#88cc88', border: '1px solid #4a6a4a' }}>
+              {scrambleText(sign || 'TECH HUB')}
+            </div>
+            {isNight && (
+              <div className="absolute bottom-10 left-0 right-0 h-3 opacity-40" style={{ boxShadow: '0 0 6px #44cc44' }} />
+            )}
+          </div>
+        );
+
       case 'shop':
       default:
         return (
@@ -2267,6 +2320,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               {/* Mannequin or product */}
               <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-2 h-4 rounded-t" style={{ background: '#3a3a3a' }} />
             </div>
+            {/* Building signage from district */}
             <div className={`absolute bottom-13 left-0.5 right-0.5 h-3 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#2a2a2a', color: '#9bbc0f' }}>
               {scrambleText(sign || 'SHOP')}
             </div>
@@ -2563,21 +2617,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       >
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: palette.kerb }} />
         
-        {/* Zone indicators */}
-        {HOTSPOTS.map((hotspot) => {
-          const isInZone = playerX >= hotspot.x && playerX <= hotspot.x + hotspot.width;
-          if (!isInZone) return null;
-          
-          return (
-            <div
-              key={`zone-${hotspot.zone}`}
-              className="absolute top-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[7px] font-bold animate-pulse"
-              style={{ background: '#0f1a0f', color: '#9bbc0f', border: '1px solid #8bac0f' }}
-            >
-              ↑ {hotspot.label}
-            </div>
-          );
-        })}
+        {/* Zone indicators removed - signage is on buildings now */}
       </div>
 
       {/* LAYER 4: Kerb - 2% */}
