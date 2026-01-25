@@ -7,7 +7,7 @@ interface PedestrianProps {
   actionsAvailable?: PedestrianAction[];
 }
 
-// Visual configs for each archetype - distinct silhouettes, no faces
+// Visual configs for each archetype - distinct adult silhouettes
 const ARCHETYPE_STYLES: Record<string, { 
   bodyColor: string; 
   headColor: string; 
@@ -21,85 +21,94 @@ const ARCHETYPE_STYLES: Record<string, {
   walkSpeed: number;
   // Unique silhouette elements
   shoulderWidth?: number;
-  hairStyle?: 'bald' | 'short' | 'long' | 'curly' | 'mohawk' | 'grey' | 'spiky' | 'big';
-  bodyShape?: 'thin' | 'average' | 'wide' | 'hunched';
+  hairStyle?: 'bald' | 'short' | 'long' | 'curly' | 'mohawk' | 'grey' | 'spiky' | 'big' | 'receding' | 'beard';
+  bodyShape?: 'thin' | 'average' | 'wide' | 'hunched' | 'stocky';
   // Special visual elements
   hasSkirt?: boolean;
   hasFishnets?: boolean;
   hasTie?: boolean;
   hasStuds?: boolean;
   hasHood?: boolean;
+  hasFacialHair?: 'stubble' | 'beard' | 'mustache';
+  hasWrinkles?: boolean;
 }> = {
   businessman: { 
     bodyColor: '#1a1a2a', // Dark pinstripe suit
     headColor: '#6a6a5a', 
     accessory: 'briefcase', 
-    height: 23,
-    bodyWidth: 5,
+    height: 25, // Taller adult
+    bodyWidth: 6,
     walkSpeed: 180,
-    shoulderWidth: 7,
-    hairStyle: 'short',
-    bodyShape: 'wide',
+    shoulderWidth: 8,
+    hairStyle: 'receding',
+    bodyShape: 'stocky',
     hasTie: true,
+    hasFacialHair: 'stubble',
   },
   clubber: { 
     bodyColor: '#5a2a5a', // Bright purple/pink
     headColor: '#6a5a5a', 
     accessory: 'none', 
-    height: 20,
-    bodyWidth: 4,
+    height: 22,
+    bodyWidth: 5,
     stance: 'relaxed',
     walkSpeed: 160,
     hairStyle: 'mohawk',
     bodyShape: 'thin',
+    hasFacialHair: 'stubble',
   },
   tourist: { 
     bodyColor: '#5a7a5a', // Khaki/green
     headColor: '#7a7a6a', 
     accessory: 'camera', 
-    height: 19,
-    bodyWidth: 5,
+    height: 23,
+    bodyWidth: 6,
     hasHat: true,
     walkSpeed: 280,
     hairStyle: 'short',
-    bodyShape: 'wide',
+    bodyShape: 'stocky',
+    hasFacialHair: 'mustache',
   },
   pensioner: { 
     bodyColor: '#5a5a5a', // Grey
     headColor: '#9a9a9a', // Grey hair
     accessory: 'cane', 
-    height: 16, // Shorter, hunched
-    bodyWidth: 4,
+    height: 19, // Shorter, hunched
+    bodyWidth: 5,
     walkSpeed: 450,
     hairStyle: 'grey',
     bodyShape: 'hunched',
+    hasWrinkles: true,
   },
   backpacker: { 
     bodyColor: '#4a5a4a', // Earthy
     headColor: '#6a5a4a', 
     accessory: 'backpack', 
-    height: 21,
-    bodyWidth: 4,
+    height: 23,
+    bodyWidth: 5,
     walkSpeed: 200,
     hairStyle: 'long',
     bodyShape: 'thin',
+    hasFacialHair: 'beard',
   },
   junkie: { 
     bodyColor: '#2a2a2a', // Dark, worn
     headColor: '#4a4a3a', 
     accessory: 'none', 
-    height: 17, // Hunched
-    bodyWidth: 3, // Thin
+    height: 20, // Hunched adult
+    bodyWidth: 4, // Thin
     stance: 'hunched',
     walkSpeed: 380,
     hairStyle: 'bald',
     bodyShape: 'hunched',
+    hasFacialHair: 'stubble',
+    hasWrinkles: true,
   },
   sexworker: { 
     bodyColor: '#8a2a4a', // Hot pink/red mini
     headColor: '#7a6a6a', 
     accessory: 'purse', 
-    height: 21,
+    height: 22,
     bodyWidth: 4,
     hasHeels: true,
     hasSkirt: true,
@@ -113,45 +122,49 @@ const ARCHETYPE_STYLES: Record<string, {
     bodyColor: '#3a3a5a', // Casual blue
     headColor: '#5a5a5a', 
     accessory: 'bag', 
-    height: 19,
-    bodyWidth: 4,
+    height: 21,
+    bodyWidth: 5,
     walkSpeed: 180,
     hairStyle: 'curly',
     bodyShape: 'average',
+    hasFacialHair: 'stubble',
   },
   cop: {
     bodyColor: '#1a2a3a', // Dark blue uniform
     headColor: '#5a5a5a',
     accessory: 'radio',
-    height: 23,
-    bodyWidth: 6,
+    height: 26, // Tall authority figure
+    bodyWidth: 7,
     hasHat: true,
     walkSpeed: 200,
-    shoulderWidth: 7,
+    shoulderWidth: 8,
     hairStyle: 'short',
-    bodyShape: 'wide',
+    bodyShape: 'stocky',
+    hasFacialHair: 'mustache',
   },
   punk: {
     bodyColor: '#1a1a1a', // Black leather
     headColor: '#5a5a4a',
     accessory: 'none',
-    height: 20,
-    bodyWidth: 4,
+    height: 22,
+    bodyWidth: 5,
     walkSpeed: 150,
     hairStyle: 'spiky',
     bodyShape: 'thin',
     hasStuds: true,
+    hasFacialHair: 'stubble',
   },
   dealer: {
     bodyColor: '#2a2a3a', // Dark hoodie
     headColor: '#4a4a4a',
     accessory: 'hood',
-    height: 21,
-    bodyWidth: 5,
-    walkSpeed: 300, // Slow, lurking
-    hairStyle: 'bald', // Hood covers hair
-    bodyShape: 'average',
+    height: 23,
+    bodyWidth: 6,
+    walkSpeed: 300,
+    hairStyle: 'bald',
+    bodyShape: 'stocky',
     hasHood: true,
+    hasFacialHair: 'stubble',
   },
 };
 
@@ -186,27 +199,38 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
           </>
         );
       case 'mohawk':
-        return <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-3 rounded-t" style={{ background: '#8a2a6a' }} />;
+        return <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-2 h-4 rounded-t" style={{ background: '#8a2a6a' }} />;
       case 'curly':
         return <div className="absolute -top-1 left-0 right-0 h-2.5 rounded-t" style={{ background: '#4a3a2a', borderRadius: '50% 50% 0 0' }} />;
       case 'spiky':
-        // Punk spiky hair
         return (
           <>
-            <div className="absolute -top-2 left-0 w-1 h-3 rotate-[-20deg]" style={{ background: '#1a1a1a' }} />
-            <div className="absolute -top-2.5 left-1.5 w-1 h-3.5" style={{ background: '#1a1a1a' }} />
-            <div className="absolute -top-2 right-0 w-1 h-3 rotate-[20deg]" style={{ background: '#1a1a1a' }} />
+            <div className="absolute -top-2.5 left-0 w-1.5 h-4 rotate-[-20deg]" style={{ background: '#1a1a1a' }} />
+            <div className="absolute -top-3 left-2 w-1.5 h-4.5" style={{ background: '#1a1a1a' }} />
+            <div className="absolute -top-2.5 right-0 w-1.5 h-4 rotate-[20deg]" style={{ background: '#1a1a1a' }} />
           </>
         );
       case 'big':
-        // Big 80s/90s hair for sex workers
+        // Big 80s/90s hair
         return (
           <>
-            <div className="absolute -top-1.5 -left-1 right-[-4px] h-4 rounded-t" style={{ background: '#4a2a2a' }} />
-            <div className="absolute top-0 -left-1.5 w-2 h-3 rounded" style={{ background: '#4a2a2a' }} />
-            <div className="absolute top-0 -right-1.5 w-2 h-3 rounded" style={{ background: '#4a2a2a' }} />
+            <div className="absolute -top-2 -left-1 right-[-4px] h-5 rounded-t" style={{ background: '#4a2a2a' }} />
+            <div className="absolute top-0 -left-2 w-2.5 h-4 rounded" style={{ background: '#4a2a2a' }} />
+            <div className="absolute top-0 -right-2 w-2.5 h-4 rounded" style={{ background: '#4a2a2a' }} />
           </>
         );
+      case 'receding':
+        // Receding hairline - clearly adult male
+        return (
+          <>
+            <div className="absolute -top-0.5 left-1.5 right-1.5 h-1.5 rounded-t" style={{ background: '#3a3a3a' }} />
+            <div className="absolute -top-0.5 left-0 w-1 h-1 rounded-tl" style={{ background: style.headColor }} />
+            <div className="absolute -top-0.5 right-0 w-1 h-1 rounded-tr" style={{ background: style.headColor }} />
+          </>
+        );
+      case 'beard':
+        // Just the top hair, beard rendered separately
+        return <div className="absolute -top-0.5 left-0.5 right-0.5 h-2 rounded-t" style={{ background: '#3a2a2a' }} />;
       case 'short':
       default:
         return <div className="absolute -top-0.5 left-0.5 right-0.5 h-1.5 rounded-t" style={{ background: '#3a3a3a' }} />;
@@ -288,21 +312,49 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
         
         {/* Head */}
         <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full border"
           style={{ 
             background: style.headColor, 
             borderColor: '#2a2a2a',
-            opacity: style.hasHood ? 0.6 : 1, // Shadowed face under hood
+            opacity: style.hasHood ? 0.6 : 1,
           }}
         >
           {/* Hair */}
           {!style.hasHood && renderHair()}
+          
+          {/* Facial hair - makes them clearly adult */}
+          {style.hasFacialHair === 'stubble' && (
+            <div 
+              className="absolute bottom-0.5 left-0.5 right-0.5 h-1.5 rounded-b opacity-40"
+              style={{ background: '#2a2a2a' }}
+            />
+          )}
+          {style.hasFacialHair === 'beard' && (
+            <div 
+              className="absolute bottom-[-2px] left-0 right-0 h-2.5 rounded-b"
+              style={{ background: '#3a2a2a', border: '1px solid #2a1a1a' }}
+            />
+          )}
+          {style.hasFacialHair === 'mustache' && (
+            <div 
+              className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-2.5 h-1 rounded"
+              style={{ background: '#3a2a2a' }}
+            />
+          )}
+          
+          {/* Wrinkles for older characters */}
+          {style.hasWrinkles && (
+            <>
+              <div className="absolute top-1 left-0.5 w-1 h-px" style={{ background: '#4a4a4a' }} />
+              <div className="absolute top-1.5 right-0.5 w-1 h-px" style={{ background: '#4a4a4a' }} />
+            </>
+          )}
         </div>
         
         {/* Neck for taller figures */}
         {style.height > 20 && (
           <div 
-            className="absolute top-[14px] left-1/2 -translate-x-1/2 w-1.5 h-1"
+            className="absolute top-[16px] left-1/2 -translate-x-1/2 w-2 h-1.5"
             style={{ background: style.headColor }}
           />
         )}
