@@ -8,6 +8,7 @@ interface StreetProps {
   servicesOpen: boolean;
   playerX: number;
   worldOffset?: number;
+  isTripping?: boolean;
 }
 
 // Lerp helper
@@ -26,10 +27,51 @@ const lerpColor = (a: string, b: string, t: number) => {
   return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${bl.toString(16).padStart(2,'0')}`;
 };
 
-export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, playerX, worldOffset = 0 }: StreetProps) {
+export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, playerX, worldOffset = 0, isTripping = false }: StreetProps) {
   const { current, next, blend } = getDistrictBlend(worldOffset);
   const currentConfig = DISTRICT_CONFIGS[current];
   const nextConfig = DISTRICT_CONFIGS[next];
+  
+  // LSD signage scrambling - replaces letters with similar-looking symbols
+  const scrambleText = (text: string): string => {
+    if (!isTripping) return text;
+    const scrambleMap: Record<string, string[]> = {
+      'A': ['∆', 'Λ', '4', 'A'],
+      'B': ['ß', '8', 'B', '฿'],
+      'C': ['(', '©', 'C', '<'],
+      'D': ['Ð', 'D', 'Ɖ'],
+      'E': ['3', 'Ξ', 'E', '€'],
+      'F': ['F', 'Ƒ'],
+      'G': ['G', '6', 'Ǥ'],
+      'H': ['#', 'H', 'Ħ'],
+      'I': ['1', '!', 'I', '|'],
+      'K': ['K', 'ĸ'],
+      'L': ['L', '1', '|'],
+      'M': ['M', 'Ɯ'],
+      'N': ['И', 'N', 'Ñ'],
+      'O': ['0', 'Ø', 'O', '◊'],
+      'P': ['P', 'Þ'],
+      'R': ['R', 'Я'],
+      'S': ['$', '5', 'S', '§'],
+      'T': ['†', 'T', '7'],
+      'U': ['U', 'Ü', 'µ'],
+      'V': ['V', '√'],
+      'W': ['W', 'Ψ'],
+      'X': ['X', '×', '✕'],
+      'Y': ['Y', '¥'],
+      'Z': ['Z', '2'],
+    };
+    
+    // Only scramble ~40% of the time per character for "glitchy" effect
+    return text.split('').map(char => {
+      const upper = char.toUpperCase();
+      if (scrambleMap[upper] && Math.random() < 0.4) {
+        const options = scrambleMap[upper];
+        return options[Math.floor(Math.random() * options.length)];
+      }
+      return char;
+    }).join('');
+  };
   
   // Blended values
   const neonIntensity = lerp(currentConfig.neonIntensity, nextConfig.neonIntensity, blend);
@@ -145,6 +187,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
     const sign = signage[index % signage.length] || '';
     const isEven = index % 2 === 0;
     const buildingColor = isEven ? pal.building : pal.buildingAlt;
+    const signageClass = isTripping ? 'signage-glitch' : '';
     
     switch (type) {
       case 'services':
@@ -159,8 +202,8 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-10 border-2" style={{ background: servicesOpen ? pal.windowGlow : '#0a0f0a', borderColor: '#8bac0f' }}>
               {servicesOpen && <div className="absolute inset-1 animate-pulse" style={{ background: '#8bac0f', opacity: 0.7 }} />}
             </div>
-            <div className="absolute bottom-11 left-1/2 -translate-x-1/2 px-1 text-[5px] font-bold" style={{ background: '#1a1a1a', color: '#9bbc0f', border: '1px solid #8bac0f' }}>
-              SERVICES
+            <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 px-1 text-[5px] font-bold ${signageClass}`} style={{ background: '#1a1a1a', color: '#9bbc0f', border: '1px solid #8bac0f' }}>
+              {scrambleText('SERVICES')}
             </div>
           </div>
         );
@@ -179,8 +222,8 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
                 <div className="absolute top-1.5 left-0 w-4 h-1" style={{ background: '#4a6a4a' }} />
               </div>
             </div>
-            <div className="absolute bottom-13 left-1/2 -translate-x-1/2 px-1 text-[5px] font-bold" style={{ background: '#1a1a1a', color: '#8bac0f' }}>
-              SHELTER
+            <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 px-1 text-[5px] font-bold ${signageClass}`} style={{ background: '#1a1a1a', color: '#8bac0f' }}>
+              {scrambleText('SHELTER')}
             </div>
           </div>
         );
@@ -201,8 +244,8 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
                   <div className="w-2 h-2 rounded-full mx-auto" style={{ background: pal.neonPrimary, boxShadow: `0 0 4px ${pal.neonPrimary}` }} />
                   <div className="w-1 h-3 mx-auto" style={{ background: pal.neonPrimary, boxShadow: `0 0 3px ${pal.neonPrimary}` }} />
                 </div>
-                <div className="absolute bottom-19 left-1/2 -translate-x-1/2 px-1 py-0.5 text-[5px] animate-pulse font-bold" style={{ color: pal.neonPrimary, textShadow: `0 0 6px ${pal.neonPrimary}` }}>
-                  GIRLS
+                <div className={`absolute bottom-19 left-1/2 -translate-x-1/2 px-1 py-0.5 text-[5px] animate-pulse font-bold ${signageClass}`} style={{ color: pal.neonPrimary, textShadow: `0 0 6px ${pal.neonPrimary}` }}>
+                  {scrambleText('GIRLS')}
                 </div>
                 <div className="absolute top-0 left-0 right-0 h-1" style={{ background: pal.neonPrimary, boxShadow: `0 0 8px ${pal.neonPrimary}` }} />
               </>
@@ -218,8 +261,8 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-9" style={{ background: '#0f0a08', border: '2px solid #3a2a2a' }} />
             {isNight && neonIntensity > 0.2 && (
               <>
-                <div className="absolute bottom-11 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] animate-pulse font-bold" style={{ color: '#ffaa44', textShadow: '0 0 4px #ffaa44' }}>
-                  BAR
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] animate-pulse font-bold ${signageClass}`} style={{ color: '#ffaa44', textShadow: '0 0 4px #ffaa44' }}>
+                  {scrambleText('BAR')}
                 </div>
                 {/* Beer glass neon */}
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-4 rounded-b border" style={{ borderColor: '#ffaa44', boxShadow: '0 0 3px #ffaa4466' }} />
@@ -238,7 +281,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             <div className="absolute top-5 left-0.5 w-2 h-3" style={{ background: pal.windowGlow, opacity: 0.3 }} />
             <div className="absolute top-5 right-0.5 w-2 h-3" style={{ background: pal.windowGlow, opacity: 0.15 }} />
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#2a3a2a', border: '1px solid #4a5a4a' }} />
-            <div className="absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5" style={{ background: '#1a1a1a', color: '#8a8a6a' }}>HOSTEL</div>
+            <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5 ${signageClass}`} style={{ background: '#1a1a1a', color: '#8a8a6a' }}>{scrambleText('HOSTEL')}</div>
             {/* Backpack icon */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2 h-3 rounded" style={{ background: '#4a5a3a' }} />
           </div>
@@ -257,7 +300,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
                 <div className="absolute top-0.5 left-1 w-2 h-4 rounded" style={{ background: '#6a4a2a' }} />
               </div>
             </div>
-            <div className="absolute bottom-13 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1" style={{ color: '#ffcc44', textShadow: isNight ? '0 0 3px #ffaa44' : 'none' }}>KEBAB</div>
+            <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1 ${signageClass}`} style={{ color: '#ffcc44', textShadow: isNight ? '0 0 3px #ffaa44' : 'none' }}>{scrambleText('KEBAB')}</div>
             {isNight && (
               <>
                 <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-10 h-1" style={{ background: '#ffaa44', boxShadow: '0 0 6px #ffaa44' }} />
@@ -281,7 +324,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               <div className="absolute top-1 left-1 w-2 h-2 rounded-full" style={{ background: '#8a6a4a' }} />
               <div className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: '#6a5a3a' }} />
             </div>
-            <div className="absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5" style={{ color: '#ffcc66' }}>{sign || 'FOOD'}</div>
+            <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5 ${signageClass}`} style={{ color: '#ffcc66' }}>{scrambleText(sign || 'FOOD')}</div>
             {isNight && <div className="absolute bottom-0 left-0 right-0 h-5 opacity-25" style={{ background: 'linear-gradient(0deg, #ffaa4444 0%, transparent 100%)' }} />}
             {/* Lantern */}
             {warmth > 0.7 && (
@@ -300,7 +343,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               {/* Steam */}
               {isNight && <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-4 opacity-30 animate-pulse" style={{ background: 'linear-gradient(0deg, #ffffff33 0%, transparent 100%)' }} />}
             </div>
-            <div className="absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5" style={{ background: '#1a1a1a', color: '#aaba8a' }}>SOUP</div>
+            <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5 ${signageClass}`} style={{ background: '#1a1a1a', color: '#aaba8a' }}>{scrambleText('SOUP')}</div>
           </div>
         );
         
@@ -319,7 +362,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               <div className="absolute top-1 left-2 w-px h-6" style={{ background: '#4a4a3a' }} />
               <div className="absolute top-1 left-4 w-px h-6" style={{ background: '#4a4a3a' }} />
             </div>
-            <div className="absolute bottom-13 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1" style={{ color: '#aaaa44', textShadow: isNight ? '0 0 2px #aaaa44' : 'none' }}>CASH</div>
+            <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1 ${signageClass}`} style={{ color: '#aaaa44', textShadow: isNight ? '0 0 2px #aaaa44' : 'none' }}>{scrambleText('CASH')}</div>
             {isNight && <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-8 h-0.5 animate-pulse" style={{ background: '#aaaa44' }} />}
             {/* Three balls pawn symbol */}
             <div className="absolute top-2 left-1/2 -translate-x-1/2 flex gap-0.5">
@@ -343,7 +386,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
                 <div className="absolute bottom-0 right-0.5 w-1 h-2" style={{ background: '#5a5a3a' }} />
               </div>
             </div>
-            <div className="absolute bottom-13 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5" style={{ color: '#aa6644' }}>BOTTLE-O</div>
+            <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5 ${signageClass}`} style={{ color: '#aa6644' }}>{scrambleText('BOTTLE-O')}</div>
             {isNight && <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-10 h-0.5" style={{ background: '#aa6644' }} />}
           </div>
         );
@@ -360,7 +403,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               </div>
             </div>
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-9" style={{ background: '#15151a', border: '1px solid #2a2a35' }} />
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-[6px] font-bold px-1 py-0.5" style={{ background: '#1a1a2a', color: '#4488ff', border: '1px solid #2244aa' }}>TAB</div>
+            <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[6px] font-bold px-1 py-0.5 ${signageClass}`} style={{ background: '#1a1a2a', color: '#4488ff', border: '1px solid #2244aa' }}>{scrambleText('TAB')}</div>
             {isNight && <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-0.5" style={{ background: '#4488ff', boxShadow: '0 0 4px #4488ff' }} />}
           </div>
         );
@@ -379,7 +422,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5" style={{ color: '#8a8a6a' }}>NEWS</div>
+            <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5 ${signageClass}`} style={{ color: '#8a8a6a' }}>{scrambleText('NEWS')}</div>
           </div>
         );
         
@@ -399,7 +442,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             <div className="absolute bottom-0 left-0 right-0 h-8" style={{ background: '#202020' }}>
               <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-5" style={{ background: '#151515', border: '1px solid #2a2a2a' }} />
             </div>
-            <div className="absolute bottom-9 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1" style={{ color: '#888888', background: '#1a1a1a' }}>TRAINS</div>
+            <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1 ${signageClass}`} style={{ color: '#888888', background: '#1a1a1a' }}>{scrambleText('TRAINS')}</div>
             {isNight && <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1.5" style={{ background: '#aaaaaa22' }} />}
           </div>
         );
@@ -415,7 +458,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               <div className="absolute top-1 left-0.5 right-0.5 h-1" style={{ background: '#5a6a5a' }} />
               <div className="absolute top-3 left-0.5 right-0.5 h-1" style={{ background: '#5a6a5a' }} />
             </div>
-            <div className="absolute bottom-13 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5" style={{ color: '#66aa66' }}>24HR</div>
+            <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5 ${signageClass}`} style={{ color: '#66aa66' }}>{scrambleText('24HR')}</div>
             {isNight && <div className="absolute bottom-0 left-0 right-0 h-4 opacity-30" style={{ background: 'linear-gradient(0deg, #aaffaa33 0%, transparent 100%)' }} />}
           </div>
         );
@@ -451,8 +494,8 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             </div>
             {isNight && neonIntensity > 0.5 && (
               <>
-                <div className="absolute bottom-11 left-1/2 -translate-x-1/2 text-[5px] animate-pulse font-bold" style={{ color: '#ff44ff', textShadow: '0 0 6px #ff44ff' }}>
-                  CLUB
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[5px] animate-pulse font-bold ${signageClass}`} style={{ color: '#ff44ff', textShadow: '0 0 6px #ff44ff' }}>
+                  {scrambleText('CLUB')}
                 </div>
                 <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #ff44ff, #44ffff, #ff44ff)', boxShadow: '0 0 8px #ff44ff' }} />
                 {/* Disco lights */}
@@ -530,7 +573,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             </div>
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-7" style={{ background: '#0f0808', border: '1px solid #2a1a1a' }} />
             {isNight && (
-              <div className="absolute bottom-9 left-1/2 -translate-x-1/2 text-[5px] animate-pulse" style={{ color: '#ff6666', textShadow: '0 0 4px #ff666666' }}>MOTEL</div>
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[5px] animate-pulse ${signageClass}`} style={{ color: '#ff6666', textShadow: '0 0 4px #ff666666' }}>{scrambleText('MOTEL')}</div>
             )}
           </div>
         );
@@ -547,8 +590,8 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
               {/* Mannequin or product */}
               <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-2 h-4 rounded-t" style={{ background: '#3a3a3a' }} />
             </div>
-            <div className="absolute bottom-13 left-0.5 right-0.5 h-3 flex items-center justify-center text-[4px] font-bold" style={{ background: '#2a2a2a', color: '#9bbc0f' }}>
-              {sign || 'SHOP'}
+            <div className={`absolute bottom-13 left-0.5 right-0.5 h-3 flex items-center justify-center text-[4px] font-bold ${signageClass}`} style={{ background: '#2a2a2a', color: '#9bbc0f' }}>
+              {scrambleText(sign || 'SHOP')}
             </div>
           </div>
         );

@@ -28,22 +28,37 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
       {/* CRT Scanlines overlay */}
       <div className="absolute inset-0 pointer-events-none z-10 scanlines opacity-20" />
       
-      {/* LSD trip overlay - chromatic aberration and color shift */}
+      {/* LSD trip overlay - enhanced chromatic aberration and color shift */}
       {isTripping && (
         <>
+          {/* Chromatic aberration layer */}
           <div 
-            className="absolute inset-0 pointer-events-none z-20 animate-pulse"
+            className="absolute inset-0 pointer-events-none z-25 chromatic-aberration"
             style={{ 
-              background: `radial-gradient(ellipse at center, transparent 20%, rgba(150, 100, 255, 0.15) 60%, rgba(100, 200, 255, 0.1) 100%)`,
-              mixBlendMode: 'overlay',
-              animation: 'pulse 2s ease-in-out infinite',
+              background: 'transparent',
+              mixBlendMode: 'screen',
             }}
           />
+          {/* Pulsing color gradient */}
+          <div 
+            className="absolute inset-0 pointer-events-none z-20 hue-cycle"
+            style={{ 
+              background: `radial-gradient(ellipse at center, transparent 10%, rgba(150, 100, 255, 0.12) 40%, rgba(100, 200, 255, 0.08) 70%, rgba(255, 150, 200, 0.1) 100%)`,
+              mixBlendMode: 'overlay',
+            }}
+          />
+          {/* Vignette with color bleeding */}
           <div 
             className="absolute inset-0 pointer-events-none z-20"
             style={{ 
-              boxShadow: 'inset 0 0 60px rgba(150, 100, 255, 0.3), inset 0 0 120px rgba(100, 200, 150, 0.15)',
-              filter: 'hue-rotate(15deg)',
+              boxShadow: 'inset 0 0 80px rgba(150, 100, 255, 0.35), inset 0 0 150px rgba(100, 200, 150, 0.2), inset 0 0 40px rgba(255, 100, 200, 0.15)',
+            }}
+          />
+          {/* RGB split ghost layers */}
+          <div 
+            className="absolute inset-0 pointer-events-none z-19"
+            style={{ 
+              background: 'linear-gradient(90deg, rgba(255, 0, 100, 0.03) 0%, transparent 3%, transparent 97%, rgba(0, 255, 200, 0.03) 100%)',
             }}
           />
         </>
@@ -87,15 +102,18 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
         </div>
       )}
       
-      {/* Street background and hotspots */}
-      <Street 
-        timeOfDay={state.timeOfDay}
-        isRaining={state.isRaining}
-        shelterOpen={state.shelterOpen}
-        servicesOpen={state.servicesOpen}
-        playerX={state.playerX}
-        worldOffset={state.worldOffset}
-      />
+      {/* Street background and hotspots - with wavy effect during trip */}
+      <div className={isTripping ? 'lsd-wave world-breathe' : ''}>
+        <Street 
+          timeOfDay={state.timeOfDay}
+          isRaining={state.isRaining}
+          shelterOpen={state.shelterOpen}
+          servicesOpen={state.servicesOpen}
+          playerX={state.playerX}
+          worldOffset={state.worldOffset}
+          isTripping={isTripping}
+        />
+      </div>
       
       {/* Ibis near bins */}
       <Ibis 
@@ -103,23 +121,25 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
         isActive={state.ibis.isActive}
       />
       
-      {/* Cars on the road */}
+      {/* Cars on the road - wobble during trip */}
       {state.cars.map(car => (
-        <Car 
-          key={car.id}
-          x={car.x}
-          isStopped={car.isStopped}
-          variant={car.variant}
-        />
+        <div key={car.id} className={isTripping ? 'chromatic-aberration' : ''}>
+          <Car 
+            x={car.x}
+            isStopped={car.isStopped}
+            variant={car.variant}
+          />
+        </div>
       ))}
       
-      {/* Pedestrians */}
+      {/* Pedestrians - wobble and chromatic shift during trip */}
       {state.pedestrians.map(ped => (
-        <Pedestrian 
-          key={ped.id}
-          pedestrian={ped}
-          playerX={state.playerX}
-        />
+        <div key={ped.id} className={isTripping ? 'sprite-wobble chromatic-aberration' : ''} style={isTripping ? { animationDelay: `${ped.id * 0.2}s` } : {}}>
+          <Pedestrian 
+            pedestrian={ped}
+            playerX={state.playerX}
+          />
+        </div>
       ))}
       
       {/* Police officer during sweeps */}
