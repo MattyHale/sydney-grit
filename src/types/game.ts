@@ -24,6 +24,7 @@ export type PedestrianAction = 'steal' | 'pitch' | 'trade' | 'hit';
 
 export type PedestrianArchetype =
   | 'businessman' 
+  | 'officeWorker'
   | 'clubber' 
   | 'tourist' 
   | 'pensioner' 
@@ -31,7 +32,13 @@ export type PedestrianArchetype =
   | 'junkie' 
   | 'sexworker' 
   | 'student'
+  | 'queerElder'
+  | 'auntie'
+  | 'uncle'
+  | 'hoon'
   | 'cop'
+  | 'security'
+  | 'busker'
   | 'punk'
   | 'dealer'
   | 'vc'           // Venture capitalist
@@ -156,6 +163,7 @@ export const HOTSPOTS: Hotspot[] = [
 
 export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
   'businessman',
+  'officeWorker',
   'clubber', 
   'tourist',
   'pensioner',
@@ -163,7 +171,13 @@ export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
   'junkie',
   'sexworker',
   'student',
+  'queerElder',
+  'auntie',
+  'uncle',
+  'hoon',
   'cop',
+  'security',
+  'busker',
   'punk',
   'dealer',
   'vc',
@@ -173,6 +187,7 @@ export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
 // Outcome biases per archetype
 export const ARCHETYPE_STEAL_BIAS: Record<PedestrianArchetype, { moneyRange: [number, number]; shoutChance: number; kindnessChance: number }> = {
   businessman: { moneyRange: [50, 200], shoutChance: 0.4, kindnessChance: 0.05 },
+  officeWorker: { moneyRange: [30, 120], shoutChance: 0.35, kindnessChance: 0.08 },
   clubber: { moneyRange: [20, 80], shoutChance: 0.15, kindnessChance: 0.1 },
   tourist: { moneyRange: [100, 300], shoutChance: 0.5, kindnessChance: 0.08 },
   pensioner: { moneyRange: [10, 50], shoutChance: 0.6, kindnessChance: 0.15 },
@@ -180,7 +195,13 @@ export const ARCHETYPE_STEAL_BIAS: Record<PedestrianArchetype, { moneyRange: [nu
   junkie: { moneyRange: [0, 20], shoutChance: 0.1, kindnessChance: 0.02 },
   sexworker: { moneyRange: [30, 100], shoutChance: 0.1, kindnessChance: 0.08 },
   student: { moneyRange: [10, 40], shoutChance: 0.25, kindnessChance: 0.2 },
+  queerElder: { moneyRange: [20, 80], shoutChance: 0.2, kindnessChance: 0.2 },
+  auntie: { moneyRange: [40, 120], shoutChance: 0.35, kindnessChance: 0.15 },
+  uncle: { moneyRange: [30, 100], shoutChance: 0.3, kindnessChance: 0.12 },
+  hoon: { moneyRange: [20, 90], shoutChance: 0.2, kindnessChance: 0.05 },
   cop: { moneyRange: [0, 0], shoutChance: 0.95, kindnessChance: 0.0 },
+  security: { moneyRange: [0, 10], shoutChance: 0.8, kindnessChance: 0.02 },
+  busker: { moneyRange: [5, 25], shoutChance: 0.1, kindnessChance: 0.25 },
   punk: { moneyRange: [5, 30], shoutChance: 0.05, kindnessChance: 0.15 },
   dealer: { moneyRange: [200, 500], shoutChance: 0.8, kindnessChance: 0.0 },
   vc: { moneyRange: [500, 2000], shoutChance: 0.6, kindnessChance: 0.1 }, // VCs carry lots of cash
@@ -210,6 +231,7 @@ export const ARCHETYPE_ACTION_BIAS: Record<PedestrianArchetype, {
   fightBack: number;
 }> = {
   businessman: { pitchSuccess: 0.4, tradeWilling: 0.1, fightBack: 0.2 },
+  officeWorker: { pitchSuccess: 0.3, tradeWilling: 0.15, fightBack: 0.2 },
   clubber: { pitchSuccess: 0.2, tradeWilling: 0.3, fightBack: 0.4 },
   tourist: { pitchSuccess: 0.3, tradeWilling: 0.15, fightBack: 0.1 },
   pensioner: { pitchSuccess: 0.15, tradeWilling: 0.05, fightBack: 0.05 },
@@ -217,7 +239,13 @@ export const ARCHETYPE_ACTION_BIAS: Record<PedestrianArchetype, {
   junkie: { pitchSuccess: 0.05, tradeWilling: 0.4, fightBack: 0.5 },
   sexworker: { pitchSuccess: 0.1, tradeWilling: 0.6, fightBack: 0.3 },
   student: { pitchSuccess: 0.35, tradeWilling: 0.15, fightBack: 0.2 },
+  queerElder: { pitchSuccess: 0.2, tradeWilling: 0.2, fightBack: 0.2 },
+  auntie: { pitchSuccess: 0.2, tradeWilling: 0.25, fightBack: 0.25 },
+  uncle: { pitchSuccess: 0.2, tradeWilling: 0.2, fightBack: 0.3 },
+  hoon: { pitchSuccess: 0.05, tradeWilling: 0.1, fightBack: 0.7 },
   cop: { pitchSuccess: 0.0, tradeWilling: 0.0, fightBack: 0.95 },
+  security: { pitchSuccess: 0.05, tradeWilling: 0.0, fightBack: 0.8 },
+  busker: { pitchSuccess: 0.25, tradeWilling: 0.35, fightBack: 0.2 },
   punk: { pitchSuccess: 0.15, tradeWilling: 0.35, fightBack: 0.6 },
   dealer: { pitchSuccess: 0.0, tradeWilling: 1.0, fightBack: 0.8 },
   vc: { pitchSuccess: 0.5, tradeWilling: 0.0, fightBack: 0.1 },      // VCs love pitches

@@ -1331,7 +1331,7 @@ export function useGameState() {
       const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
       
       // === IBIS SYSTEM ===
-      // Ibis appears near bins - more frequent in Redfern
+      // Ibis appears near bins - frequency varies by district
       const ibisChance = districtConfig.ibisFrequency;
       const shouldHaveIbis = (newState.stats.survivalTime % 60) > 20 && (newState.stats.survivalTime % 60) < 40;
       if (shouldHaveIbis && !s.ibis.isActive && Math.random() < ibisChance) {
@@ -1388,8 +1388,8 @@ export function useGameState() {
       }
       
       // === DEALER SPAWN SYSTEM ===
-      // Dealers spawn in alleys (zone 36-44) in Cross and Redfern only
-      const isDealerDistrict = s.currentDistrict === 'cross' || s.currentDistrict === 'redfern';
+      // Dealers spawn in alleys (zone 36-44) in higher-frequency districts
+      const isDealerDistrict = districtConfig.dealerFrequency > 0.3;
       const dealerSpawnChance = districtConfig.dealerFrequency * 0.08;
       const hasDealer = updatedPeds.some(p => p.archetype === 'dealer');
       
