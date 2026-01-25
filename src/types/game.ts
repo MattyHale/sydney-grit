@@ -139,16 +139,17 @@ export interface Hotspot {
 }
 
 export const HOTSPOTS: Hotspot[] = [
-  { zone: 'vc-firm', x: 5, width: 8, label: 'VC' },
-  { zone: 'cafe', x: 14, width: 7, label: 'Cafe' },
-  { zone: 'bar', x: 22, width: 8, label: 'Bar' },
-  { zone: 'alley', x: 31, width: 6, label: 'Alley' },
-  { zone: 'strip-club', x: 38, width: 9, label: 'Club' },
-  { zone: 'food-vendor', x: 48, width: 8, label: 'Dining' },
-  { zone: 'services', x: 57, width: 10, label: 'Hub' },
-  { zone: 'pawn', x: 68, width: 8, label: 'Pawn' },
-  { zone: 'shelter', x: 77, width: 8, label: 'Hotel' },
-  { zone: 'sleep', x: 86, width: 8, label: 'Office' },
+  { zone: 'bins', x: 3, width: 5, label: 'Bins' },
+  { zone: 'vc-firm', x: 10, width: 8, label: 'VC' },
+  { zone: 'cafe', x: 19, width: 7, label: 'Cafe' },
+  { zone: 'bar', x: 27, width: 8, label: 'Bar' },
+  { zone: 'alley', x: 36, width: 6, label: 'Alley' },
+  { zone: 'strip-club', x: 43, width: 9, label: 'Club' },
+  { zone: 'food-vendor', x: 53, width: 8, label: 'Dining' },
+  { zone: 'services', x: 62, width: 10, label: 'Hub' },
+  { zone: 'pawn', x: 73, width: 8, label: 'Pawn' },
+  { zone: 'shelter', x: 82, width: 8, label: 'Hotel' },
+  { zone: 'sleep', x: 91, width: 8, label: 'Office' },
 ];
 
 export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
@@ -185,17 +186,17 @@ export const ARCHETYPE_STEAL_BIAS: Record<PedestrianArchetype, { moneyRange: [nu
 };
 
 export const INITIAL_STATS: GameStats = {
-  hunger: 70,        // Energy level
-  warmth: 80,        // Confidence
-  hope: 60,          // Investor confidence
+  hunger: 50,        // Energy level - lower start, need coffee/food
+  warmth: 60,        // Confidence
+  hope: 40,          // Investor confidence - low, need validation
   cocaine: 0,
   lsd: 0,
-  money: 5000,       // Starting runway (in dollars, displayed as $5K)
+  money: 200,        // Starting runway - barely anything, need to scrounge!
   survivalTime: 0,
   hasWatch: true,
   hasLaptop: true,
   hasPhone: true,
-  burnRate: 500,     // Losing $500/tick (monthly burn)
+  burnRate: 50,      // Low burn at bootstrap
   fundingStage: 'bootstrap',
 };
 
