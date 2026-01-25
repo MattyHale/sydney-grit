@@ -46,43 +46,42 @@ export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
         transform: `translateX(-50%) ${direction === 'left' ? 'scaleX(-1)' : ''}`,
       }}
     >
-      {/* Shadow - grounds the player */}
+      {/* Shadow */}
       <div 
         className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full opacity-40"
         style={{ background: '#0a0a0a', filter: 'blur(1px)' }}
       />
       
-      {/* Sega-style chibi baby sprite */}
+      {/* Sega chibi businessman sprite */}
       <div className={`relative transition-all duration-75`}>
         {state === 'collapsed' ? (
-          // Collapsed - lying flat
+          // Collapsed - lying flat in suit
           <div className="relative w-14 h-6">
-            {/* Body lying flat */}
+            {/* Body lying flat - suit visible */}
             <div 
               className="absolute bottom-0 left-0 w-6 h-4 rounded"
-              style={{ background: '#e8b89d' }}
+              style={{ background: '#2a2a3a', border: '1px solid #1a1a2a' }}
             />
             {/* Big head on side */}
             <div 
               className="absolute bottom-0 right-0 w-8 h-6 rounded-full"
-              style={{ background: '#ffcdb8', border: '2px solid #e8b89d' }}
+              style={{ background: '#ffcdb8', border: '2px solid #e8a888' }}
             >
-              {/* Closed eye */}
               <div className="absolute top-2 right-2 w-1.5 h-0.5 rounded" style={{ background: '#2a2a2a' }} />
             </div>
           </div>
         ) : state === 'ducking' ? (
-          // Ducking - scrunched up ball
+          // Ducking - scrunched up
           <div className="relative w-10 h-8">
-            {/* Curled body */}
+            {/* Curled body in suit */}
             <div 
               className="absolute bottom-0 left-1 w-8 h-5 rounded-full"
-              style={{ background: '#e8b89d' }}
+              style={{ background: '#2a2a3a', border: '1px solid #1a1a2a' }}
             />
             {/* Big head tucked */}
             <div 
               className="absolute top-0 left-0 w-9 h-7 rounded-full"
-              style={{ background: '#ffcdb8', border: '2px solid #e8b89d' }}
+              style={{ background: '#ffcdb8', border: '2px solid #e8a888' }}
             >
               {/* Worried eyes */}
               <div className="absolute top-2 left-2 w-2 h-2 rounded-full" style={{ background: '#ffffff' }}>
@@ -91,9 +90,9 @@ export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
             </div>
           </div>
         ) : (
-          // Standing/walking - classic Sega chibi proportions
+          // Standing/walking - chibi businessman in suit
           <div className="relative w-12 h-14">
-            {/* HUGE round head - Sega baby style */}
+            {/* HUGE round head */}
             <div 
               className="absolute top-0 left-1/2 -translate-x-1/2 w-11 h-10 rounded-full"
               style={{ 
@@ -102,29 +101,26 @@ export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
                 boxShadow: isHigh ? '0 0 8px rgba(255, 100, 150, 0.6)' : 'none',
               }}
             >
-              {/* Hair tuft on top */}
+              {/* Slick businessman hair */}
               <div 
-                className="absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-3"
-                style={{ 
-                  background: '#4a3a2a',
-                  borderRadius: '50% 50% 30% 30%',
-                }}
+                className="absolute -top-0.5 left-2 right-2 h-2 rounded-t"
+                style={{ background: '#2a2a2a' }}
+              />
+              {/* Receding temples */}
+              <div 
+                className="absolute -top-0.5 left-0.5 w-2 h-2 rounded-tl"
+                style={{ background: '#ffcdb8' }}
               />
               <div 
-                className="absolute -top-0.5 left-2 w-2 h-2 rotate-[-20deg]"
-                style={{ background: '#4a3a2a', borderRadius: '50%' }}
-              />
-              <div 
-                className="absolute -top-0.5 right-2 w-2 h-2 rotate-[20deg]"
-                style={{ background: '#4a3a2a', borderRadius: '50%' }}
+                className="absolute -top-0.5 right-0.5 w-2 h-2 rounded-tr"
+                style={{ background: '#ffcdb8' }}
               />
               
-              {/* Big round eyes - Sega style */}
+              {/* Big round eyes */}
               <div 
                 className="absolute top-3 left-1.5 w-3 h-3 rounded-full"
                 style={{ background: '#ffffff', border: '1px solid #cccccc' }}
               >
-                {/* Pupil - dilated when high */}
                 <div 
                   className="absolute rounded-full"
                   style={{ 
@@ -136,7 +132,6 @@ export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
                     transition: 'all 0.3s',
                   }}
                 />
-                {/* Shine */}
                 <div className="absolute top-0.5 left-0.5 w-1 h-1 rounded-full" style={{ background: '#ffffff' }} />
               </div>
               <div 
@@ -167,63 +162,97 @@ export function Player({ x, direction, state, cocaineLevel = 0 }: PlayerProps) {
                 style={{ background: '#ff9999' }}
               />
               
-              {/* Small mouth - expression changes */}
+              {/* Confident smile */}
               <div 
-                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-2 h-1 rounded-b-full"
+                className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-1.5 rounded-b-full"
                 style={{ background: isHigh ? '#ff6666' : '#cc8888' }}
               />
             </div>
             
-            {/* Tiny body - classic chibi proportions */}
+            {/* SUIT JACKET - tiny body */}
             <div 
-              className="absolute top-9 left-1/2 -translate-x-1/2 w-5 h-3 rounded"
-              style={{ background: '#e8b89d' }}
-            />
+              className="absolute top-9 left-1/2 -translate-x-1/2 w-6 h-4 rounded"
+              style={{ background: '#2a2a3a', border: '1px solid #1a1a2a' }}
+            >
+              {/* White shirt collar */}
+              <div 
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-1.5"
+                style={{ background: '#ffffff', borderRadius: '0 0 2px 2px' }}
+              />
+              {/* Red tie */}
+              <div 
+                className="absolute top-1 left-1/2 -translate-x-1/2 w-1 h-3"
+                style={{ background: '#cc3333' }}
+              />
+              {/* Suit lapels */}
+              <div className="absolute top-0 left-0.5 w-1.5 h-2.5 rotate-[15deg]" style={{ background: '#3a3a4a' }} />
+              <div className="absolute top-0 right-0.5 w-1.5 h-2.5 rotate-[-15deg]" style={{ background: '#3a3a4a' }} />
+            </div>
             
-            {/* Stubby arms - animated when walking/high */}
+            {/* Suit arms */}
             <div 
-              className="absolute top-9 left-1 w-2 h-2.5 rounded-full origin-top transition-transform"
+              className="absolute top-9 left-0.5 w-2 h-3 rounded-full origin-top transition-transform"
               style={{ 
-                background: '#ffcdb8',
-                border: '1px solid #e8a888',
+                background: '#2a2a3a',
+                border: '1px solid #1a1a2a',
                 transform: state === 'walking' 
                   ? `rotate(${(walkFrame % 2 === 0 ? 30 : -30) + (isHigh ? jitterX * 8 : 0)}deg)` 
                   : `rotate(${10 + (isHigh ? jitterX * 5 : 0)}deg)`,
               }}
-            />
+            >
+              {/* Hand */}
+              <div className="absolute -bottom-1 left-0 w-2 h-1.5 rounded-full" style={{ background: '#ffcdb8' }} />
+            </div>
             <div 
-              className="absolute top-9 right-1 w-2 h-2.5 rounded-full origin-top transition-transform"
+              className="absolute top-9 right-0.5 w-2 h-3 rounded-full origin-top transition-transform"
               style={{ 
-                background: '#ffcdb8',
-                border: '1px solid #e8a888',
+                background: '#2a2a3a',
+                border: '1px solid #1a1a2a',
                 transform: state === 'walking' 
                   ? `rotate(${(walkFrame % 2 === 0 ? -30 : 30) + (isHigh ? -jitterX * 8 : 0)}deg)` 
                   : `rotate(${-10 + (isHigh ? -jitterX * 5 : 0)}deg)`,
               }}
-            />
+            >
+              {/* Hand */}
+              <div className="absolute -bottom-1 left-0 w-2 h-1.5 rounded-full" style={{ background: '#ffcdb8' }} />
+            </div>
             
-            {/* Tiny stubby legs - rapid waddle animation */}
+            {/* Suit pants legs */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
               <div 
-                className="w-2 h-2.5 rounded-b-full transition-transform"
+                className="w-2 h-3 rounded-b transition-transform"
                 style={{ 
-                  background: '#ffcdb8',
-                  border: '1px solid #e8a888',
+                  background: '#2a2a3a',
+                  border: '1px solid #1a1a2a',
                   transform: state === 'walking' 
                     ? `translateY(${walkFrame % 2 === 0 ? 0 : 2}px) rotate(${walkFrame % 2 === 0 ? -10 : 10}deg)` 
                     : 'translateY(0)',
                 }}
-              />
+              >
+                {/* Dress shoe */}
+                <div className="absolute -bottom-0.5 left-0 w-2.5 h-1" style={{ background: '#1a1a1a', borderRadius: '0 0 2px 2px' }} />
+              </div>
               <div 
-                className="w-2 h-2.5 rounded-b-full transition-transform"
+                className="w-2 h-3 rounded-b transition-transform"
                 style={{ 
-                  background: '#ffcdb8',
-                  border: '1px solid #e8a888',
+                  background: '#2a2a3a',
+                  border: '1px solid #1a1a2a',
                   transform: state === 'walking' 
                     ? `translateY(${walkFrame % 2 === 1 ? 0 : 2}px) rotate(${walkFrame % 2 === 1 ? -10 : 10}deg)` 
                     : 'translateY(0)',
                 }}
-              />
+              >
+                {/* Dress shoe */}
+                <div className="absolute -bottom-0.5 left-0 w-2.5 h-1" style={{ background: '#1a1a1a', borderRadius: '0 0 2px 2px' }} />
+              </div>
+            </div>
+            
+            {/* Briefcase accessory */}
+            <div 
+              className="absolute top-10 -right-3 w-4 h-3 rounded-sm"
+              style={{ background: '#5a4a3a', border: '1px solid #4a3a2a' }}
+            >
+              <div className="absolute top-0.5 left-1/2 -translate-x-1/2 w-2 h-0.5" style={{ background: '#3a2a1a' }} />
             </div>
           </div>
         )}
