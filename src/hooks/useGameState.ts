@@ -421,13 +421,21 @@ export function useGameState() {
       newState.stats.hunger = Math.max(0, newState.stats.hunger - 1.5);
       newState.stats.hope = Math.max(0, newState.stats.hope - 0.3 - (s.permanentHopeLoss * 0.01));
       
-      // Cocaine withdrawal - if high, it decays and causes penalties
+      // Cocaine effects - when high, hope boost but accelerated hunger drain
+      if (s.stats.cocaine > 30) {
+        // High on coke - feel invincible but burning through energy
+        newState.stats.hope = Math.min(100, newState.stats.hope + 0.4);
+        newState.stats.hunger = Math.max(0, newState.stats.hunger - 0.8); // Extra hunger drain
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.2); // Feel warmer
+      }
+      
+      // Cocaine decay
       if (s.stats.cocaine > 0) {
         newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 0.5);
-        // Withdrawal effects when coming down
-        if (s.stats.cocaine > 50 && newState.stats.cocaine <= 50) {
-          newState.stats.hope = Math.max(0, newState.stats.hope - 8);
-          newState.stats.hunger = Math.max(0, newState.stats.hunger - 10);
+        // Withdrawal effects when crashing below 30
+        if (s.stats.cocaine > 30 && newState.stats.cocaine <= 30) {
+          newState.stats.hope = Math.max(0, newState.stats.hope - 12);
+          newState.stats.hunger = Math.max(0, newState.stats.hunger - 15);
           showEvent('The crash hits. Everything feels empty.');
         }
       }
@@ -675,16 +683,46 @@ export function useGameState() {
       // Random events
       if (Math.random() < 0.02) {
         const eventRoll = Math.random();
-        if (eventRoll < 0.3) {
+        if (eventRoll < 0.25) {
           newState.stats.hope = Math.min(100, newState.stats.hope + 5);
           newState.stats.hunger = Math.min(100, newState.stats.hunger + 5);
           showEvent('A stranger bought you a coffee.');
-        } else if (eventRoll < 0.4 && newState.timeOfDay === 'night') {
+        } else if (eventRoll < 0.35 && newState.timeOfDay === 'night') {
           showEvent('You were attacked. Everything went dark.');
           setTimeout(() => triggerGameOver('Violence on the street.'), 1500);
-        } else if (eventRoll < 0.5 && newState.stats.warmth < 30) {
+        } else if (eventRoll < 0.45 && newState.stats.warmth < 30) {
           newState.stats.hunger = Math.max(0, newState.stats.hunger - 20);
           showEvent('You got sick from the cold.');
+        }
+      }
+      
+      // Dealer random events - district based
+      const dealerChance = districtConfig.dealerFrequency * 0.015;
+      if (Math.random() < dealerChance && newState.timeOfDay !== 'dawn') {
+        const dealerRoll = Math.random();
+        if (dealerRoll < 0.4 && s.stats.money >= 10) {
+          // Dealer offers coke for money
+          newState.stats.money -= 10;
+          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 35);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+          showEvent('A dealer approached. You scored. Everything feels possible.');
+        } else if (dealerRoll < 0.6) {
+          // Free sample / pity hit
+          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 20);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+          showEvent('Someone passed you a taste. The world sharpens.');
+        } else if (dealerRoll < 0.75 && s.stats.money >= 5) {
+          // Cheaper deal, lower quality
+          newState.stats.money -= 5;
+          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 15);
+          showEvent('Got some gear cheap. Might be cut with something.');
+        } else {
+          // Dealer scam / bad deal
+          if (s.stats.money >= 8) {
+            newState.stats.money -= 8;
+            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+            showEvent('Dealer took your money and vanished.');
+          }
         }
       }
       
