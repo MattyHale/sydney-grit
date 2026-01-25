@@ -2,111 +2,159 @@ import { useEffect, useRef, useCallback } from 'react';
 import { District } from '@/types/districts';
 
 interface AmbientAudioConfig {
-  // Oscillator settings
   baseFrequency: number;
   oscillatorType: OscillatorType;
   gainLevel: number;
-  // Secondary layer
   secondaryFrequency?: number;
   secondaryGain?: number;
-  // Noise settings
   noiseType: 'pink' | 'brown' | 'white' | 'none';
   noiseGain: number;
   noiseFilterFreq: number;
-  // Modulation
   lfoFrequency: number;
   lfoDepth: number;
+  // Character descriptors for reference
+  description: string;
 }
 
+// Per-district soundscape configs based on patch spec
 const DISTRICT_AUDIO_CONFIGS: Record<District, AmbientAudioConfig> = {
   cross: {
-    // Neon hum - soft 60Hz electrical hum
+    // Distant sirens, muffled club bass, cars
     baseFrequency: 60,
     oscillatorType: 'sine',
-    gainLevel: 0.015,
+    gainLevel: 0.018,
     secondaryFrequency: 120,
-    secondaryGain: 0.008,
+    secondaryGain: 0.01,
     noiseType: 'pink',
-    noiseGain: 0.012,
-    noiseFilterFreq: 300,
-    lfoFrequency: 0.2,
-    lfoDepth: 0.15,
+    noiseGain: 0.015,
+    noiseFilterFreq: 350,
+    lfoFrequency: 0.25,
+    lfoDepth: 0.18,
+    description: 'neon hum + club bass + sirens',
   },
   oxford: {
-    // Similar neon hum but slightly different character
+    // Crowd chatter + muffled pop music
     baseFrequency: 55,
     oscillatorType: 'sine',
     gainLevel: 0.012,
     secondaryFrequency: 110,
-    secondaryGain: 0.006,
-    noiseType: 'pink',
-    noiseGain: 0.015,
-    noiseFilterFreq: 400,
-    lfoFrequency: 0.15,
-    lfoDepth: 0.1,
-  },
-  cbd: {
-    // HVAC hum - low rumble
-    baseFrequency: 45,
-    oscillatorType: 'sine',
-    gainLevel: 0.02,
-    secondaryFrequency: 90,
-    secondaryGain: 0.01,
-    noiseType: 'brown',
-    noiseGain: 0.025,
-    noiseFilterFreq: 150,
-    lfoFrequency: 0.08,
-    lfoDepth: 0.1,
-  },
-  chinatown: {
-    // Busy ambient - slightly higher frequency activity
-    baseFrequency: 120,
-    oscillatorType: 'sine',
-    gainLevel: 0.008,
-    secondaryFrequency: 240,
-    secondaryGain: 0.004,
+    secondaryGain: 0.007,
     noiseType: 'pink',
     noiseGain: 0.018,
-    noiseFilterFreq: 800,
-    lfoFrequency: 0.8,
-    lfoDepth: 0.25,
+    noiseFilterFreq: 500,
+    lfoFrequency: 0.3,
+    lfoDepth: 0.12,
+    description: 'crowd chatter + pop leak',
+  },
+  cbd: {
+    // Traffic, bus air brakes, HVAC hum
+    baseFrequency: 45,
+    oscillatorType: 'sine',
+    gainLevel: 0.022,
+    secondaryFrequency: 90,
+    secondaryGain: 0.012,
+    noiseType: 'brown',
+    noiseGain: 0.028,
+    noiseFilterFreq: 150,
+    lfoFrequency: 0.06,
+    lfoDepth: 0.08,
+    description: 'traffic + bus brakes + HVAC',
+  },
+  chinatown: {
+    // Kitchen clatter, sizzling, chatter
+    baseFrequency: 130,
+    oscillatorType: 'sine',
+    gainLevel: 0.008,
+    secondaryFrequency: 260,
+    secondaryGain: 0.004,
+    noiseType: 'pink',
+    noiseGain: 0.022,
+    noiseFilterFreq: 900,
+    lfoFrequency: 1.0,
+    lfoDepth: 0.3,
+    description: 'kitchen clang + steam hiss',
   },
   central: {
-    // Station rumble - deep drone
+    // PA chimes, train brakes, echo
     baseFrequency: 40,
     oscillatorType: 'sine',
-    gainLevel: 0.018,
+    gainLevel: 0.02,
     secondaryFrequency: 80,
+    secondaryGain: 0.012,
+    noiseType: 'brown',
+    noiseGain: 0.035,
+    noiseFilterFreq: 180,
+    lfoFrequency: 0.04,
+    lfoDepth: 0.1,
+    description: 'station chime + platform echo',
+  },
+  surryHills: {
+    // Light traffic, dogs, café clatter
+    baseFrequency: 70,
+    oscillatorType: 'sine',
+    gainLevel: 0.01,
+    secondaryFrequency: 140,
+    secondaryGain: 0.005,
+    noiseType: 'pink',
+    noiseGain: 0.012,
+    noiseFilterFreq: 400,
+    lfoFrequency: 0.2,
+    lfoDepth: 0.1,
+    description: 'café murmur + small dogs',
+  },
+  cabramatta: {
+    // Market chatter, grill sizzle, scooters
+    baseFrequency: 110,
+    oscillatorType: 'sine',
+    gainLevel: 0.012,
+    secondaryFrequency: 220,
+    secondaryGain: 0.006,
+    noiseType: 'pink',
+    noiseGain: 0.025,
+    noiseFilterFreq: 700,
+    lfoFrequency: 0.7,
+    lfoDepth: 0.22,
+    description: 'market chatter + grill sizzle',
+  },
+  parramatta: {
+    // TV sports, pokies chime
+    baseFrequency: 85,
+    oscillatorType: 'sine',
+    gainLevel: 0.015,
+    secondaryFrequency: 170,
+    secondaryGain: 0.008,
+    noiseType: 'pink',
+    noiseGain: 0.018,
+    noiseFilterFreq: 450,
+    lfoFrequency: 0.4,
+    lfoDepth: 0.15,
+    description: 'TV sports + pokies chime',
+  },
+  mountDruitt: {
+    // Cars, servo beeps, distant dogs
+    baseFrequency: 50,
+    oscillatorType: 'sine',
+    gainLevel: 0.018,
+    secondaryFrequency: 100,
     secondaryGain: 0.01,
     noiseType: 'brown',
     noiseGain: 0.03,
     noiseFilterFreq: 200,
-    lfoFrequency: 0.05,
+    lfoFrequency: 0.08,
     lfoDepth: 0.12,
+    description: 'cars + servo beeps + dogs',
   },
   redfern: {
-    // Sparse, eerie ambient
-    baseFrequency: 30,
+    // Sparse, eerie ambient - distant dogs
+    baseFrequency: 32,
     oscillatorType: 'sine',
-    gainLevel: 0.015,
+    gainLevel: 0.016,
     noiseType: 'brown',
-    noiseGain: 0.035,
-    noiseFilterFreq: 100,
-    lfoFrequency: 0.03,
+    noiseGain: 0.04,
+    noiseFilterFreq: 90,
+    lfoFrequency: 0.025,
     lfoDepth: 0.2,
-  },
-  cabramatta: {
-    // Busy market vibe with Southeast Asian character - woks, chatter
-    baseFrequency: 100,
-    oscillatorType: 'sine',
-    gainLevel: 0.01,
-    secondaryFrequency: 200,
-    secondaryGain: 0.005,
-    noiseType: 'pink',
-    noiseGain: 0.022,
-    noiseFilterFreq: 600,
-    lfoFrequency: 0.6,
-    lfoDepth: 0.2,
+    description: 'eerie low drone + distant dogs',
   },
 };
 
@@ -128,13 +176,12 @@ export function useAmbientAudio(
   const isInitializedRef = useRef(false);
   const currentDistrictRef = useRef<District>(currentDistrict);
 
-  // Create smooth noise buffer with crossfade for seamless looping
   const createNoiseBuffer = useCallback((ctx: AudioContext, type: 'pink' | 'brown' | 'white') => {
-    const duration = 4; // Longer buffer for smoother looping
+    const duration = 4;
     const bufferSize = ctx.sampleRate * duration;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
-    const fadeLength = ctx.sampleRate * 0.1; // 100ms crossfade
+    const fadeLength = ctx.sampleRate * 0.1;
     
     if (type === 'white') {
       for (let i = 0; i < bufferSize; i++) {
@@ -153,7 +200,7 @@ export function useAmbientAudio(
         data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.08;
         b6 = white * 0.115926;
       }
-    } else { // brown - very smooth
+    } else {
       let lastOut = 0;
       for (let i = 0; i < bufferSize; i++) {
         const white = Math.random() * 2 - 1;
@@ -163,7 +210,6 @@ export function useAmbientAudio(
       }
     }
     
-    // Apply crossfade at loop point for seamless looping
     for (let i = 0; i < fadeLength; i++) {
       const fadeIn = i / fadeLength;
       const fadeOut = 1 - fadeIn;
@@ -176,7 +222,6 @@ export function useAmbientAudio(
     return buffer;
   }, []);
 
-  // Initialize audio context
   const initAudio = useCallback(() => {
     if (isInitializedRef.current) return;
     
@@ -191,7 +236,6 @@ export function useAmbientAudio(
     }
   }, []);
 
-  // Update audio based on district
   const updateDistrictAudio = useCallback((district: District) => {
     const ctx = audioContextRef.current;
     const masterGain = masterGainRef.current;
@@ -200,7 +244,6 @@ export function useAmbientAudio(
     const config = DISTRICT_AUDIO_CONFIGS[district];
     const now = ctx.currentTime;
 
-    // Clean up existing nodes with fade out
     const cleanupNode = (node: OscillatorNode | AudioBufferSourceNode | null) => {
       if (node) {
         try { node.stop(now + 0.1); } catch {}
@@ -212,11 +255,9 @@ export function useAmbientAudio(
     cleanupNode(noiseSourceRef.current);
     cleanupNode(lfoRef.current);
 
-    // Small delay for cleanup
     setTimeout(() => {
       if (!ctx || ctx.state === 'closed') return;
       
-      // Create main oscillator
       oscillatorRef.current = ctx.createOscillator();
       oscillatorRef.current.type = config.oscillatorType;
       oscillatorRef.current.frequency.value = config.baseFrequency;
@@ -224,7 +265,6 @@ export function useAmbientAudio(
       const oscGain = ctx.createGain();
       oscGain.gain.value = config.gainLevel;
       
-      // Gentle LFO modulation
       lfoRef.current = ctx.createOscillator();
       lfoRef.current.type = 'sine';
       lfoRef.current.frequency.value = config.lfoFrequency;
@@ -241,7 +281,6 @@ export function useAmbientAudio(
       oscillatorRef.current.start();
       lfoRef.current.start();
 
-      // Secondary oscillator (harmonic)
       if (config.secondaryFrequency) {
         secondaryOscRef.current = ctx.createOscillator();
         secondaryOscRef.current.type = config.oscillatorType;
@@ -255,7 +294,6 @@ export function useAmbientAudio(
         secondaryOscRef.current.start();
       }
 
-      // Noise layer with smooth filter
       if (config.noiseType !== 'none') {
         const noiseBuffer = createNoiseBuffer(ctx, config.noiseType);
         noiseSourceRef.current = ctx.createBufferSource();
@@ -265,7 +303,6 @@ export function useAmbientAudio(
         const noiseGain = ctx.createGain();
         noiseGain.gain.value = config.noiseGain;
         
-        // Smoother filter with lower Q
         const noiseFilter = ctx.createBiquadFilter();
         noiseFilter.type = 'lowpass';
         noiseFilter.frequency.value = config.noiseFilterFreq;
@@ -279,7 +316,6 @@ export function useAmbientAudio(
     }, 150);
   }, [createNoiseBuffer]);
 
-  // Rain sound
   const updateRainSound = useCallback((raining: boolean) => {
     const ctx = audioContextRef.current;
     const masterGain = masterGainRef.current;
@@ -299,7 +335,6 @@ export function useAmbientAudio(
       const rainGain = ctx.createGain();
       rainGain.gain.value = 0.05;
       
-      // Gentle rain filter
       const rainFilter = ctx.createBiquadFilter();
       rainFilter.type = 'bandpass';
       rainFilter.frequency.value = 1200;
@@ -312,7 +347,6 @@ export function useAmbientAudio(
     }
   }, [createNoiseBuffer]);
 
-  // Handle time of day volume
   useEffect(() => {
     if (!masterGainRef.current) return;
     
@@ -321,7 +355,6 @@ export function useAmbientAudio(
     masterGainRef.current.gain.setTargetAtTime(baseVolume * nightBoost, audioContextRef.current?.currentTime || 0, 0.3);
   }, [timeOfDay]);
 
-  // Handle pause/game over/mute
   useEffect(() => {
     if (!masterGainRef.current || !audioContextRef.current) return;
     
@@ -329,7 +362,6 @@ export function useAmbientAudio(
     masterGainRef.current.gain.setTargetAtTime(targetGain, audioContextRef.current.currentTime, 0.2);
   }, [isPaused, isGameOver, isMuted]);
 
-  // Handle district change
   useEffect(() => {
     if (currentDistrictRef.current !== currentDistrict && isInitializedRef.current) {
       currentDistrictRef.current = currentDistrict;
@@ -337,14 +369,12 @@ export function useAmbientAudio(
     }
   }, [currentDistrict, updateDistrictAudio]);
 
-  // Handle rain
   useEffect(() => {
     if (isInitializedRef.current) {
       updateRainSound(isRaining);
     }
   }, [isRaining, updateRainSound]);
 
-  // Initialize on user interaction
   useEffect(() => {
     const handleInteraction = () => {
       if (!isInitializedRef.current) {
@@ -369,7 +399,6 @@ export function useAmbientAudio(
     };
   }, [initAudio, updateDistrictAudio, updateRainSound, currentDistrict, isRaining]);
 
-  // Cleanup
   useEffect(() => {
     return () => {
       if (audioContextRef.current) {
