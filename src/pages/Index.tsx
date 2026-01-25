@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useMemo, useRef } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useControls } from '@/hooks/useControls';
 import { useAmbientAudio } from '@/hooks/useAmbientAudio';
@@ -6,17 +6,9 @@ import { HUD } from '@/components/game/HUD';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { Controls } from '@/components/game/Controls';
 import { TitleScreen } from '@/components/game/TitleScreen';
-import { resolveButtonActions } from '@/utils/resolveButtonActions';
-import { ResolvedButtons } from '@/types/game';
-
-// Lock duration in ms - buttons stay stable for this long after appearing
-const BUTTON_LOCK_DURATION = 500;
 
 const Index = () => {
   const [isMuted, setIsMuted] = useState(false);
-  const [lockedButtons, setLockedButtons] = useState<ResolvedButtons | null>(null);
-  const lockTimeoutRef = useRef<number | null>(null);
-  const lastButtonsRef = useRef<string>('');
   
   const {
     state,
@@ -27,49 +19,13 @@ const Index = () => {
     startGame,
     restartGame,
     performAction,
-    performDesperationAction,
     performPedestrianAction,
     handleCarEncounter,
     ignoreCarEncounter,
-    attemptPurseSteal,
     buyFromDealer,
-    takeLSD,
+    sellDrugs,
     tick,
   } = useGameState();
-
-  // Resolve button actions based on current state
-  const freshButtons = useMemo(() => resolveButtonActions(state), [state]);
-  
-  // Button locking: when buttons change significantly, lock them for a brief period
-  // This prevents mid-press swaps where you see one action but execute another
-  useEffect(() => {
-    const currentKey = `${freshButtons.A.type}:${freshButtons.A.action}|${freshButtons.B.type}:${freshButtons.B.action}|${freshButtons.C.type}:${freshButtons.C.action}`;
-    
-    // If buttons changed, update lock
-    if (currentKey !== lastButtonsRef.current) {
-      lastButtonsRef.current = currentKey;
-      setLockedButtons(freshButtons);
-      
-      // Clear existing timeout
-      if (lockTimeoutRef.current) {
-        clearTimeout(lockTimeoutRef.current);
-      }
-      
-      // Set new timeout to unlock
-      lockTimeoutRef.current = window.setTimeout(() => {
-        setLockedButtons(null);
-      }, BUTTON_LOCK_DURATION);
-    }
-    
-    return () => {
-      if (lockTimeoutRef.current) {
-        clearTimeout(lockTimeoutRef.current);
-      }
-    };
-  }, [freshButtons]);
-
-  // Use locked buttons if available, otherwise fresh
-  const resolvedButtons = lockedButtons || freshButtons;
 
   // Ambient audio per district
   useAmbientAudio(
@@ -85,7 +41,7 @@ const Index = () => {
     setIsMuted(prev => !prev);
   }, []);
 
-  // Handle interactions based on current zone or car encounter
+  // UP button - enters zones or approaches car
   const handleInteract = useCallback(() => {
     if (state.carEncounterActive) {
       handleCarEncounter();
@@ -94,7 +50,7 @@ const Index = () => {
     }
   }, [state.currentZone, state.carEncounterActive, performAction, handleCarEncounter]);
 
-  // Handle duck/down - also dismisses car encounter
+  // DOWN button - duck or dismiss car
   const handleDuck = useCallback((ducking: boolean) => {
     if (ducking && state.carEncounterActive) {
       ignoreCarEncounter();
@@ -102,67 +58,41 @@ const Index = () => {
     setDucking(ducking);
   }, [state.carEncounterActive, ignoreCarEncounter, setDucking]);
 
-  // Button handlers use the resolved actions for consistency
-  const handleButtonA = useCallback(() => {
-    const action = resolvedButtons.A;
-    switch (action.type) {
-      case 'car-encounter':
-        handleCarEncounter();
-        break;
-      case 'dealer':
-        buyFromDealer();
-        break;
-      case 'lsd':
-        takeLSD();
-        break;
-      case 'pedestrian':
-        if (action.action === 'steal') performPedestrianAction('steal');
-        break;
-      case 'desperation':
-        if (action.action) performDesperationAction(action.action as any);
-        break;
-      case 'zone':
-        if (action.action) performAction(action.action as any);
-        break;
-      default:
-        break;
+  // STEAL - attempt theft on nearby pedestrian
+  const handleSteal = useCallback(() => {
+    if (state.stealWindowActive && state.stealTarget) {
+      performPedestrianAction('steal');
     }
-  }, [resolvedButtons.A, handleCarEncounter, buyFromDealer, takeLSD, performPedestrianAction, performDesperationAction, performAction]);
+  }, [state.stealWindowActive, state.stealTarget, performPedestrianAction]);
 
-  const handleButtonB = useCallback(() => {
-    const action = resolvedButtons.B;
-    switch (action.type) {
-      case 'pedestrian':
-        if (action.action === 'pitch') performPedestrianAction('pitch');
-        break;
-      case 'steal':
-        attemptPurseSteal();
-        break;
-      case 'desperation':
-        if (action.action) performDesperationAction(action.action as any);
-        break;
-      default:
-        break;
+  // FUCK - sex work with nearby target
+  const handleFuck = useCallback(() => {
+    if (state.stealWindowActive && state.stealTarget) {
+      performPedestrianAction('trade');
+    } else if (state.carEncounterActive) {
+      handleCarEncounter();
     }
-  }, [resolvedButtons.B, performPedestrianAction, attemptPurseSteal, performDesperationAction]);
+  }, [state.stealWindowActive, state.stealTarget, state.carEncounterActive, performPedestrianAction, handleCarEncounter]);
 
-  const handleButtonC = useCallback(() => {
-    const action = resolvedButtons.C;
-    switch (action.type) {
-      case 'pedestrian':
-        if (action.action === 'trade') performPedestrianAction('trade');
-        else if (action.action === 'hit') performPedestrianAction('hit');
-        break;
-      case 'steal':
-        attemptPurseSteal();
-        break;
-      case 'desperation':
-        if (action.action) performDesperationAction(action.action as any);
-        break;
-      default:
-        break;
+  // BUY DRUGS - from dealer
+  const handleBuyDrugs = useCallback(() => {
+    if (state.stealWindowActive && state.stealTarget?.archetype === 'dealer') {
+      buyFromDealer();
     }
-  }, [resolvedButtons.C, performPedestrianAction, attemptPurseSteal, performDesperationAction]);
+  }, [state.stealWindowActive, state.stealTarget, buyFromDealer]);
+
+  // SELL DRUGS - to pedestrian
+  const handleSellDrugs = useCallback(() => {
+    if (state.stealWindowActive && state.stealTarget && state.stats.cocaine > 0) {
+      sellDrugs();
+    }
+  }, [state.stealWindowActive, state.stealTarget, state.stats.cocaine, sellDrugs]);
+
+  // Determine button availability
+  const canSteal = state.stealWindowActive && state.stealTarget !== null;
+  const canFuck = (state.stealWindowActive && state.stealTarget !== null) || state.carEncounterActive;
+  const canBuyDrugs = state.stealWindowActive && state.stealTarget?.archetype === 'dealer';
+  const canSellDrugs = state.stealWindowActive && state.stealTarget !== null && state.stats.cocaine > 0;
 
   // Set up keyboard controls
   useControls({
@@ -171,9 +101,10 @@ const Index = () => {
     onStopMove: stopWalking,
     onDuck: handleDuck,
     onInteract: handleInteract,
-    onButtonA: handleButtonA,
-    onButtonB: handleButtonB,
-    onButtonC: handleButtonC,
+    onSteal: handleSteal,
+    onFuck: handleFuck,
+    onBuyDrugs: handleBuyDrugs,
+    onSellDrugs: handleSellDrugs,
     onPause: togglePause,
     isPaused: state.isPaused,
     isGameOver: state.isGameOver,
@@ -213,17 +144,22 @@ const Index = () => {
         onRestart={restartGame}
       />
       
-      {/* Controls - D-pad and buttons at bottom */}
+      {/* Controls - D-pad and action buttons */}
       <Controls
         onLeft={() => updatePlayerPosition(-2)}
         onRight={() => updatePlayerPosition(2)}
         onUp={handleInteract}
         onDown={handleDuck}
         onStopMove={stopWalking}
-        onButtonA={handleButtonA}
-        onButtonB={handleButtonB}
-        onButtonC={handleButtonC}
-        resolvedButtons={resolvedButtons}
+        onSteal={handleSteal}
+        onFuck={handleFuck}
+        onBuyDrugs={handleBuyDrugs}
+        onSellDrugs={handleSellDrugs}
+        canSteal={canSteal}
+        canFuck={canFuck}
+        canBuyDrugs={canBuyDrugs}
+        canSellDrugs={canSellDrugs}
+        currentZone={state.currentZone}
       />
     </div>
   );

@@ -1,5 +1,4 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { HotspotZone, DesperationAction } from '@/types/game';
 
 interface UseControlsProps {
   onMoveLeft: () => void;
@@ -7,9 +6,10 @@ interface UseControlsProps {
   onStopMove: () => void;
   onDuck: (ducking: boolean) => void;
   onInteract: () => void;
-  onButtonA: () => void;
-  onButtonB: () => void;
-  onButtonC: () => void;
+  onSteal: () => void;
+  onFuck: () => void;
+  onBuyDrugs: () => void;
+  onSellDrugs: () => void;
   onPause: () => void;
   isPaused: boolean;
   isGameOver: boolean;
@@ -21,9 +21,10 @@ export function useControls({
   onStopMove,
   onDuck,
   onInteract,
-  onButtonA,
-  onButtonB,
-  onButtonC,
+  onSteal,
+  onFuck,
+  onBuyDrugs,
+  onSellDrugs,
   onPause,
   isPaused,
   isGameOver,
@@ -77,17 +78,26 @@ export function useControls({
         case 'ArrowDown':
           onDuck(true);
           break;
+        // Keyboard mappings for 4 action buttons
         case 'z':
         case 'Z':
-          onButtonA();
+        case '1':
+          onSteal();
           break;
         case 'x':
         case 'X':
-          onButtonB();
+        case '2':
+          onFuck();
           break;
         case 'c':
         case 'C':
-          onButtonC();
+        case '3':
+          onBuyDrugs();
+          break;
+        case 'v':
+        case 'V':
+        case '4':
+          onSellDrugs();
           break;
       }
     };
@@ -113,7 +123,7 @@ export function useControls({
         clearInterval(moveIntervalRef.current);
       }
     };
-  }, [isPaused, isGameOver, onPause, onInteract, onDuck, onButtonA, onButtonB, onButtonC, startMoving, stopMoving]);
+  }, [isPaused, isGameOver, onPause, onInteract, onDuck, onSteal, onFuck, onBuyDrugs, onSellDrugs, startMoving, stopMoving]);
 
   return { startMoving, stopMoving };
 }
