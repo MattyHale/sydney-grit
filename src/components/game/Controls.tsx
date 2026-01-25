@@ -10,13 +10,14 @@ interface ControlsProps {
   onFuck: () => void;
   onBuyDrugs: () => void;
   onSellDrugs: () => void;
-  // Availability indicators
   canSteal: boolean;
   canFuck: boolean;
   canBuyDrugs: boolean;
   canSellDrugs: boolean;
   // Zone info
   currentZone: string | null;
+  // Dog state for eat dog action
+  hasDog: boolean;
 }
 
 export function Controls({
@@ -34,6 +35,7 @@ export function Controls({
   canBuyDrugs,
   canSellDrugs,
   currentZone,
+  hasDog,
 }: ControlsProps) {
   const moveIntervalRef = useRef<number | null>(null);
 
@@ -57,6 +59,12 @@ export function Controls({
   // Zone label for UP button hint
   const getZoneHint = () => {
     if (!currentZone) return null;
+    
+    // Special case: Eat Dog at food vendors
+    if (currentZone === 'food-vendor' && hasDog) {
+      return '🐕 Sell Dog';
+    }
+    
     const labels: Record<string, string> = {
       'ask-help': 'Beg',
       'bins': 'Search',
@@ -64,6 +72,7 @@ export function Controls({
       'shelter': 'Enter',
       'sleep': 'Rest',
       'alley': 'Enter',
+      'food-vendor': 'Order',
     };
     return labels[currentZone] || 'Enter';
   };

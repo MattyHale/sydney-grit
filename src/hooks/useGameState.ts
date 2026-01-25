@@ -238,6 +238,37 @@ export function useGameState() {
           }
           break;
         }
+        case 'food-vendor': {
+          // Sell dog to food vendor for money and food
+          if (s.hasDog) {
+            newState.hasDog = false;
+            newState.dogHealth = 0;
+            newState.stats.money += 25;
+            newState.stats.hunger = Math.min(100, newState.stats.hunger + 50);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 45);
+            newState.permanentHopeLoss += 20;
+            newState.isPaused = true;
+            const messages = [
+              'The cook took your dog without questions. You got paid. You got fed.',
+              'They handed you cash and a bowl of something hot. You didn\'t ask what.',
+              'Your companion is gone. The money feels heavy in your pocket.',
+            ];
+            showEvent(messages[Math.floor(Math.random() * messages.length)]);
+            setTimeout(() => {
+              setState(prev => ({ ...prev, isPaused: false }));
+            }, 3000);
+          } else {
+            // Regular food purchase
+            if (s.stats.money >= 5) {
+              newState.stats.money -= 5;
+              newState.stats.hunger = Math.min(100, newState.stats.hunger + 30);
+              showEvent('You bought some cheap food. It was hot.');
+            } else {
+              showEvent('You can\'t afford anything here.');
+            }
+          }
+          break;
+        }
       }
       
       return newState;

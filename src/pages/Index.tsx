@@ -160,6 +160,7 @@ const Index = () => {
         canBuyDrugs={canBuyDrugs}
         canSellDrugs={canSellDrugs}
         currentZone={state.currentZone}
+        hasDog={state.hasDog}
       />
     </div>
   );
