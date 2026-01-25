@@ -99,7 +99,12 @@ export function useGameState() {
 
   const restartGame = useCallback(() => {
     dogLowHungerTimeRef.current = 0;
-    setState({ ...INITIAL_STATE });
+    setState({ ...INITIAL_STATE, screen: 'title' });
+  }, []);
+
+  const startGame = useCallback(() => {
+    dogLowHungerTimeRef.current = 0;
+    setState({ ...INITIAL_STATE, screen: 'playing' });
   }, []);
 
   const performAction = useCallback((zone: HotspotZone) => {
@@ -1237,6 +1242,7 @@ export function useGameState() {
     stopWalking,
     setDucking,
     togglePause,
+    startGame,
     restartGame,
     performAction,
     performDesperationAction,
