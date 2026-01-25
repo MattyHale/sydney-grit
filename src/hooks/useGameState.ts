@@ -387,6 +387,64 @@ export function useGameState() {
         }
       }
       
+      // Bins - essential early game scrounging!
+      if (shopType === 'bins') {
+        if (actionId === 'dig-shallow') {
+          if (s.stats.hunger >= 5) {
+            newState.stats.hunger = Math.max(0, newState.stats.hunger - 5);
+            const found = Math.floor(Math.random() * 30) + 20; // $20-50
+            newState.stats.money += found;
+            const messages = [
+              `Found $${found} in discarded receipts. Someone's expense account.`,
+              `Old invoices worth $${found}. Finder's keepers.`,
+              `$${found} cash in an envelope. Don't ask questions.`,
+            ];
+            showEvent(messages[Math.floor(Math.random() * messages.length)]);
+            showTransaction('money', `+$${found}`);
+          } else {
+            showEvent('Too exhausted to dig through rubbish.');
+          }
+        } else if (actionId === 'dig-deep') {
+          if (s.stats.hunger >= 15) {
+            newState.stats.hunger = Math.max(0, newState.stats.hunger - 15);
+            const found = Math.floor(Math.random() * 100) + 50; // $50-150
+            newState.stats.money += found;
+            // Chance to find something extra
+            if (Math.random() < 0.2) {
+              newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+              showEvent(`Jackpot! $${found} plus a working prototype someone tossed!`);
+              showTransaction('money', `+$${found}`);
+            } else {
+              const messages = [
+                `Deep in the bin: $${found}. Dignity is overrated.`,
+                `Found $${found} and some useful contacts. Someone's Rolodex.`,
+                `$${found} worth of scrap and cash. The hustle is real.`,
+              ];
+              showEvent(messages[Math.floor(Math.random() * messages.length)]);
+              showTransaction('money', `+$${found}`);
+            }
+          } else {
+            showEvent('Need more energy for a deep dive.');
+          }
+        } else if (actionId === 'scavenge') {
+          if (s.stats.hunger >= 10) {
+            newState.stats.hunger = Math.max(0, newState.stats.hunger - 10);
+            if (Math.random() < 0.4) {
+              const parts = Math.floor(Math.random() * 80) + 40; // $40-120
+              newState.stats.money += parts;
+              showEvent(`Found tech parts worth $${parts}. Flipped them on eBay.`);
+              showTransaction('money', `+$${parts}`);
+            } else {
+              newState.stats.hope = Math.min(100, newState.stats.hope + 3);
+              showEvent('Nothing useful. But you found a motivational poster. Ironic.');
+              showTransaction('hope', '+3');
+            }
+          } else {
+            showEvent('Too tired to scavenge.');
+          }
+        }
+      }
+      
       // Shelter (hotel) - rest
       if (shopType === 'shelter') {
         newState.stats.warmth = Math.min(100, newState.stats.warmth + 40);
@@ -403,8 +461,8 @@ export function useGameState() {
     setState(s => {
       if (s.isGameOver || s.isPaused) return s;
       
-      // Most zones now open shop interiors
-      const shopZones: HotspotZone[] = ['vc-firm', 'strip-club', 'bar', 'pawn', 'cafe', 'services', 'alley', 'food-vendor', 'shelter'];
+      // Most zones now open shop interiors (including bins!)
+      const shopZones: HotspotZone[] = ['vc-firm', 'strip-club', 'bar', 'pawn', 'cafe', 'services', 'alley', 'food-vendor', 'shelter', 'bins'];
       if (shopZones.includes(zone)) {
         return { ...s, inShop: true, currentShop: zone };
       }

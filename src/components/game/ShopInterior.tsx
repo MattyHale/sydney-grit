@@ -38,6 +38,17 @@ const STAGE_CONFIG: Record<FundingStage, { label: string; amount: string; succes
   'ipo': { label: 'Victory!', amount: '∞', successRate: 1, energyCost: 0, hopeLoss: 0 },
 };
 
+// Australian VC firm names by stage
+const AU_VC_NAMES: Record<FundingStage, string> = {
+  'bootstrap': 'Blackbird Ventures',
+  'seed': 'Square Peg Capital',
+  'series-a': 'AirTree Ventures',
+  'series-b': 'Main Sequence',
+  'series-c': 'Reinventure',
+  'series-d': 'Giant Leap',
+  'ipo': 'ASX',
+};
+
 const getVCOptions = (stage: FundingStage): ShopOption[] => {
   const nextStage = getNextStage(stage);
   const config = nextStage ? STAGE_CONFIG[stage] : null;
@@ -45,18 +56,18 @@ const getVCOptions = (stage: FundingStage): ShopOption[] => {
   const options: ShopOption[] = [];
   
   if (stage === 'ipo') {
-    options.push({ id: 'victory', label: '🎉 You Made It!', icon: '🏆', description: 'You took your company public. You won.' });
+    options.push({ id: 'victory', label: '🔔 Ring the Bell!', icon: '🏆', description: 'You\'re listing on the ASX. You bloody legend.' });
   } else if (config) {
     options.push({ 
       id: 'pitch-next', 
       label: config.label, 
       icon: stage === 'series-d' ? '🔔' : '🚀', 
       energyCost: config.energyCost,
-      description: `${Math.round(config.successRate * 100)}% chance for ${config.amount}. Uses ${config.energyCost} energy.`
+      description: `Pitch to ${AU_VC_NAMES[stage]}. ${Math.round(config.successRate * 100)}% chance for ${config.amount}.`
     });
   }
   
-  options.push({ id: 'network', label: 'Network', icon: '🤝', cost: 20, energyCost: 10, description: 'Meet founders, gain hope (-10 energy)' });
+  options.push({ id: 'network', label: 'Founder Drinks', icon: '🍺', cost: 20, energyCost: 10, description: 'Beers at Fishburners. Meet other founders.' });
   
   return options;
 };
@@ -113,14 +124,14 @@ const SHOP_CONFIGS: Record<string, {
     ],
   },
   'services': {
-    title: 'STARTUP HUB',
-    subtitle: 'Accelerator • Mentorship',
+    title: 'STONE & CHALK',
+    subtitle: 'Fishburners • Startmate • Sydney Startup Hub',
     bgColor: '#1a1a2a',
     accentColor: '#8844ff',
     options: [
-      { id: 'mentor', label: 'See Mentor', icon: '👨‍🏫', cost: 0, energyCost: 5, description: 'Free advice, +hope (-5 energy)' },
-      { id: 'workshop', label: 'Workshop', icon: '📊', cost: 50, energyCost: 15, description: 'Learn to pitch better' },
-      { id: 'apply', label: 'Apply to Program', icon: '📝', cost: 0, energyCost: 20, description: 'Long shot at funding' },
+      { id: 'mentor', label: 'See Mentor', icon: '👨‍🏫', cost: 0, energyCost: 5, description: 'Free advice from a Startmate mentor' },
+      { id: 'workshop', label: 'Pitch Practice', icon: '📊', cost: 50, energyCost: 15, description: 'Practice at Fishburners demo night' },
+      { id: 'apply', label: 'Apply to Startmate', icon: '📝', cost: 0, energyCost: 20, description: 'Long shot at $120K + mentorship' },
     ],
   },
   'alley': {
@@ -145,6 +156,17 @@ const SHOP_CONFIGS: Record<string, {
       { id: 'takeaway', label: 'UberEats', icon: '🥡', cost: 25, description: 'Quick food (+30 energy)' },
     ],
   },
+  'bins': {
+    title: 'DUMPSTER',
+    subtitle: 'Behind the Office • Smells Like Opportunity',
+    bgColor: '#1a1a0a',
+    accentColor: '#888844',
+    options: [
+      { id: 'dig-shallow', label: 'Quick Dig', icon: '🗑️', energyCost: 5, description: 'Fast search. Maybe find $20-50.' },
+      { id: 'dig-deep', label: 'Deep Dive', icon: '🔍', energyCost: 15, description: 'Thorough search. Find $50-150 or items.' },
+      { id: 'scavenge', label: 'Scavenge Parts', icon: '🔧', energyCost: 10, description: 'Look for tech parts to sell.' },
+    ],
+  },
 };
 
 export function ShopInterior({ shopType, money, energy, fundingStage, onAction, onExit }: ShopInteriorProps) {
@@ -154,8 +176,8 @@ export function ShopInterior({ shopType, money, energy, fundingStage, onAction, 
   const isVCFirm = shopType === 'vc-firm';
   const vcOptions = isVCFirm ? getVCOptions(fundingStage) : [];
   const config = isVCFirm ? {
-    title: 'VENTURE CAPITAL',
-    subtitle: fundingStage === 'ipo' ? 'Congratulations!' : `Current: ${fundingStage.toUpperCase()} → Next Round`,
+    title: AU_VC_NAMES[fundingStage].toUpperCase(),
+    subtitle: fundingStage === 'ipo' ? 'Australian Stock Exchange' : `Pitch for ${fundingStage.toUpperCase()} Round`,
     bgColor: '#1a1a2a',
     accentColor: '#4488ff',
     options: vcOptions,
