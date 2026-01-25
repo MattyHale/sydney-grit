@@ -22,8 +22,9 @@ const Index = () => {
     performPedestrianAction,
     handleCarEncounter,
     ignoreCarEncounter,
-    buyFromDealer,
+    buyDrugs,
     sellDrugs,
+    clearTransaction,
     tick,
   } = useGameState();
 
@@ -74,12 +75,10 @@ const Index = () => {
     }
   }, [state.stealWindowActive, state.stealTarget, state.carEncounterActive, performPedestrianAction, handleCarEncounter]);
 
-  // BUY DRUGS - from dealer
+  // BUY DRUGS - from dealer or in alley
   const handleBuyDrugs = useCallback(() => {
-    if (state.stealWindowActive && state.stealTarget?.archetype === 'dealer') {
-      buyFromDealer();
-    }
-  }, [state.stealWindowActive, state.stealTarget, buyFromDealer]);
+    buyDrugs();
+  }, [buyDrugs]);
 
   // SELL DRUGS - to pedestrian
   const handleSellDrugs = useCallback(() => {
@@ -91,7 +90,8 @@ const Index = () => {
   // Determine button availability
   const canSteal = state.stealWindowActive && state.stealTarget !== null;
   const canFuck = (state.stealWindowActive && state.stealTarget !== null) || state.carEncounterActive;
-  const canBuyDrugs = state.stealWindowActive && state.stealTarget?.archetype === 'dealer';
+  // Can buy drugs if in alley with dealer OR near a dealer pedestrian
+  const canBuyDrugs = (state.inAlley && state.dealerNearby) || (state.stealWindowActive && state.stealTarget?.archetype === 'dealer');
   const canSellDrugs = state.stealWindowActive && state.stealTarget !== null && state.stats.cocaine > 0;
 
   // Set up keyboard controls
@@ -142,6 +142,7 @@ const Index = () => {
         state={state}
         onPause={togglePause}
         onRestart={restartGame}
+        onClearTransaction={clearTransaction}
       />
       
       {/* Controls - D-pad and action buttons */}

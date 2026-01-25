@@ -58,6 +58,12 @@ export interface IbisState {
 
 export type GameScreen = 'title' | 'playing';
 
+export type TransactionType = 'money' | 'steal' | 'drugs' | 'hope' | 'fail' | 'danger';
+
+export interface TransactionFeedback {
+  type: TransactionType;
+  amount?: string;
+}
 export interface GameState {
   screen: GameScreen;
   stats: GameStats;
@@ -101,6 +107,11 @@ export interface GameState {
   // Action locking - prevents button swapping during press
   lockedButtons: ResolvedButtons | null;
   buttonLockTime: number;
+  // In alley - enables dealer actions
+  inAlley: boolean;
+  dealerNearby: boolean;
+  // Transaction feedback
+  lastTransaction: TransactionFeedback | null;
 }
 
 export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley' | 'food-vendor';
@@ -237,4 +248,7 @@ export const INITIAL_STATE: GameState = {
   pedestrianActionAvailable: [],
   lockedButtons: null,
   buttonLockTime: 0,
+  inAlley: false,
+  dealerNearby: false,
+  lastTransaction: null,
 };
