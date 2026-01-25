@@ -84,9 +84,9 @@ export interface GameState {
   currentDistrict: District;
 }
 
-export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep';
+export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley';
 
-export type DesperationAction = 'theft' | 'car' | 'sell' | 'dog-sacrifice' | 'purse-steal';
+export type DesperationAction = 'theft' | 'car' | 'sell' | 'dog-sacrifice' | 'purse-steal' | 'buy-coke';
 
 export interface Hotspot {
   zone: HotspotZone;
@@ -98,9 +98,10 @@ export interface Hotspot {
 export const HOTSPOTS: Hotspot[] = [
   { zone: 'ask-help', x: 10, width: 12, label: 'Street' },
   { zone: 'bins', x: 25, width: 10, label: 'Bins' },
-  { zone: 'services', x: 40, width: 12, label: 'Services' },
-  { zone: 'shelter', x: 55, width: 12, label: 'Shelter' },
-  { zone: 'sleep', x: 75, width: 15, label: 'Doorway' },
+  { zone: 'alley', x: 36, width: 8, label: 'Alley' },
+  { zone: 'services', x: 48, width: 12, label: 'Services' },
+  { zone: 'shelter', x: 62, width: 10, label: 'Shelter' },
+  { zone: 'sleep', x: 78, width: 12, label: 'Doorway' },
 ];
 
 export const PEDESTRIAN_ARCHETYPES: PedestrianArchetype[] = [
