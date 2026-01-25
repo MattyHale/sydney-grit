@@ -28,6 +28,7 @@ const ARCHETYPE_STYLES: Record<string, {
   hasFishnets?: boolean;
   hasTie?: boolean;
   hasStuds?: boolean;
+  hasHood?: boolean;
 }> = {
   businessman: { 
     bodyColor: '#1a1a2a', // Dark pinstripe suit
@@ -140,6 +141,17 @@ const ARCHETYPE_STYLES: Record<string, {
     hairStyle: 'spiky',
     bodyShape: 'thin',
     hasStuds: true,
+  },
+  dealer: {
+    bodyColor: '#2a2a3a', // Dark hoodie
+    headColor: '#4a4a4a',
+    accessory: 'hood',
+    height: 21,
+    bodyWidth: 5,
+    walkSpeed: 300, // Slow, lurking
+    hairStyle: 'bald', // Hood covers hair
+    bodyShape: 'average',
+    hasHood: true,
   },
 };
 
@@ -258,13 +270,33 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
           />
         )}
         
+        {/* Hood (dealer) */}
+        {style.hasHood && (
+          <>
+            {/* Hood shape - covers head */}
+            <div 
+              className="absolute -top-1 left-1/2 -translate-x-1/2 w-6 h-5 rounded-t-full"
+              style={{ background: '#1a1a2a', border: '1px solid #2a2a3a' }}
+            />
+            {/* Hood opening shadow */}
+            <div 
+              className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-2 rounded-b"
+              style={{ background: '#0a0a0f' }}
+            />
+          </>
+        )}
+        
         {/* Head */}
         <div 
           className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border"
-          style={{ background: style.headColor, borderColor: '#2a2a2a' }}
+          style={{ 
+            background: style.headColor, 
+            borderColor: '#2a2a2a',
+            opacity: style.hasHood ? 0.6 : 1, // Shadowed face under hood
+          }}
         >
           {/* Hair */}
-          {renderHair()}
+          {!style.hasHood && renderHair()}
         </div>
         
         {/* Neck for taller figures */}
@@ -447,8 +479,18 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
         )}
       </div>
       
-      {/* Action hints when close */}
-      {showActionHint && (
+      {/* Action hints when close - dealers show BUY */}
+      {showActionHint && pedestrian.archetype === 'dealer' && (
+        <div 
+          className="absolute -top-6 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[7px] animate-pulse rounded font-bold whitespace-nowrap"
+          style={{ background: '#1a1a2a', color: '#44ff44', border: '1px solid #22aa22' }}
+        >
+          💊 BUY
+        </div>
+      )}
+      
+      {/* Regular action hints for non-dealers */}
+      {showActionHint && pedestrian.archetype !== 'dealer' && (
         <div 
           className="absolute -top-5 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] animate-pulse rounded font-bold whitespace-nowrap"
           style={{ background: '#1a1a1a', color: '#9bbc0f', border: '1px solid #8bac0f' }}
