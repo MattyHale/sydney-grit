@@ -88,9 +88,10 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.8,
     dogFrequency: 0.3,
     ibisFrequency: 0.2,
-    dominantBlocks: ['stripclub', 'bourbon', 'brothel', 'hostel', 'motel', 'alley', 'club', 'bar', 'parlour'],
-    clutterTypes: ['neon', 'bottles', 'trash', 'posters', 'puddles', 'crates', 'smoke', 'dumpster'],
-    signage: ['THE BOURBON', 'GIRLS', 'LIVE', 'XXX', 'LANGTREES', '24HR', 'HOSTEL', 'MASSAGE', 'STILETTO', 'GATEWAY', 'SHOW'],
+    // Authentic Kings Cross 1991 venues
+    dominantBlocks: ['lesboys', 'bourbon', 'porkys', 'texasontap', 'stripclub', 'kinselas', 'alamode', 'tunnel', 'injectionroom', 'hostel', 'kebab'],
+    clutterTypes: ['neon', 'bottles', 'trash', 'posters', 'puddles', 'crates', 'smoke', 'dumpster', 'syringes'],
+    signage: ['LES BOYS', 'THE BOURBON', "PORKY'S", 'TEXAS ON TAP', 'TUNNEL', 'A LA MODE', 'KINSELAS', 'SHOWGIRLS', 'XXX', 'LOVE MACHINE', 'CAROUSEL', 'PINK PANTHER'],
   },
   oxford: {
     neonIntensity: 0.8,
@@ -123,9 +124,10 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.5,
     dogFrequency: 0.2,
     ibisFrequency: 0.3,
-    dominantBlocks: ['stonewall', 'exchange', 'qbar', 'kebab', 'club', 'bar', 'convenience'],
+    // Authentic Oxford St 1991 - Golden Mile gay scene
+    dominantBlocks: ['albury', 'midnight', 'gilligan', 'beresford', 'dco', 'kinselas', 'exchange', 'stonewall', 'taxi', 'flinders', 'kebab', 'cafe'],
     clutterTypes: ['bottles', 'kebabvan', 'posters', 'crates', 'busstop', 'neon', 'puddles', 'cone'],
-    signage: ['STONEWALL', 'EXCHANGE', 'Q BAR', 'KEBAB', 'DANCE', 'CLUB', 'PIZZA', 'DISCO', 'PUB'],
+    signage: ['THE ALBURY', 'MIDNIGHT SHIFT', "GILLIGAN'S", 'DCO', 'KINSELAS', 'BERESFORD', 'EXCHANGE', 'FLINDERS', 'TAXI CLUB', 'BEAUCHAMP'],
   },
   cbd: {
     neonIntensity: 0.3,
@@ -158,9 +160,10 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 1.0,
     dogFrequency: 0.1,
     ibisFrequency: 0.4,
-    dominantBlocks: ['services', 'shelter', 'frankies', 'jacksons', 'criterion', 'civic', 'office', 'newsagent', 'parlour'],
+    // Authentic Sydney CBD 1991
+    dominantBlocks: ['services', 'shelter', 'marblebarr', 'regent', 'state', 'forcesfood', 'qvb', 'wynyard', 'davidjones', 'civic', 'newsagent', 'parlour'],
     clutterTypes: ['newsrack', 'phonebooth', 'busstop', 'bins', 'crates', 'cone'],
-    signage: ["FRANKIE'S", 'JACKSONS', 'CRITERION', 'CIVIC', 'SERVICES', 'SHELTER', 'PAWN', 'WYNYARD', 'MASSAGE'],
+    signage: ['MARBLE BAR', 'REGENT', 'STATE THEATRE', 'FORCES CANTEEN', 'QVB', 'WYNYARD', 'DJ', 'GRACE BROS', 'CIVIC', 'GPO'],
   },
   chinatown: {
     neonIntensity: 0.6,
@@ -193,9 +196,10 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.4,
     dogFrequency: 0.1,
     ibisFrequency: 0.5,
-    dominantBlocks: ['goldencentury', 'bbqking', 'emperors', 'noodlebar', 'capitol', 'restaurant', 'shop', 'parlour'],
+    // Authentic Dixon St Chinatown 1991
+    dominantBlocks: ['goldencentury', 'bbqking', 'eastocean', 'marigold', 'hingfong', 'capitol', 'marketcity', 'paddy', 'goldshop', 'herbshop'],
     clutterTypes: ['crates', 'bins', 'steam', 'lanterns', 'bottles', 'dumpster'],
-    signage: ['GOLDEN CENTURY', 'BBQ KING', "EMPEROR'S", 'DIM SUM', 'YUM CHA', 'NOODLE', 'MASSAGE', '面'],
+    signage: ['GOLDEN CENTURY', 'BBQ KING', 'EAST OCEAN', 'MARIGOLD', 'HING FONG', 'CAPITOL', 'PADDY MARKETS', 'MARKET CITY', '金'],
   },
   central: {
     neonIntensity: 0.2,
@@ -228,9 +232,10 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 1.2,
     dogFrequency: 0.4,
     ibisFrequency: 0.6,
-    dominantBlocks: ['station', 'alley', 'bins', 'tab', 'newsagent', 'convenience', 'boarded', 'parlour'],
-    clutterTypes: ['trash', 'bottles', 'newsrack', 'phonebooth', 'busstop', 'puddles', 'dumpster', 'smoke'],
-    signage: ['CENTRAL', 'EDDY AVE', 'TAB', 'PLATFORM', 'TICKETS', 'EXIT', 'MASSAGE', 'BUSES'],
+    // Authentic Central Station / Eddy Ave 1991 - notorious drug area
+    dominantBlocks: ['centralstation', 'eddyave', 'railwaybuffet', 'salvation', 'derelict', 'boarded', 'alley', 'sexshop', 'redrooster', 'tab'],
+    clutterTypes: ['trash', 'bottles', 'newsrack', 'phonebooth', 'busstop', 'puddles', 'dumpster', 'smoke', 'syringes'],
+    signage: ['CENTRAL', 'EDDY AVE', 'RAILWAY BUFFET', 'SALVO', 'PLATFORM 1', 'CITY CIRCLE', 'RED ROOSTER', 'NEWSAGENT', 'TAB'],
   },
   redfern: {
     neonIntensity: 0.1,
@@ -263,9 +268,10 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.8,
     dogFrequency: 0.8,
     ibisFrequency: 0.9,
-    dominantBlocks: ['bins', 'hopetoun', 'dolphin', 'pawn', 'tab', 'boarded', 'alley', 'bottleo'],
+    // Authentic Redfern / The Block 1991 - Indigenous community, poverty
+    dominantBlocks: ['theblock', 'eveleigh', 'redfernstation', 'indigenous', 'hopetoun', 'courthouse', 'pawn', 'boarded', 'alley', 'bottleo'],
     clutterTypes: ['trash', 'bottles', 'crates', 'bins', 'puddles', 'posters', 'dumpster', 'smoke'],
-    signage: ['HOPETOUN', 'DOLPHIN', 'TAB', 'PAWN', 'CASH', 'THE BLOCK', 'BOTTLE-O', 'LOANS'],
+    signage: ['THE BLOCK', 'EVELEIGH ST', 'REDFERN', 'HOPETOUN', 'COURTHOUSE', 'LAND RIGHTS', 'BOTTLE-O', 'CASH LOANS', 'PAWN'],
   },
   cabramatta: {
     neonIntensity: 0.4,
@@ -298,9 +304,10 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 1.2,
     dogFrequency: 0.5,
     ibisFrequency: 0.3,
-    dominantBlocks: ['pho', 'goldshop', 'nightmarket', 'bakery', 'pawn', 'alley', 'boarded', 'arcade'],
-    clutterTypes: ['crates', 'bins', 'steam', 'trash', 'bottles', 'dumpster', 'puddles'],
-    signage: ['PHỞ', 'VÀNG', 'GOLD', 'BÁNH MÌ', 'TIỆM', 'ARCADE', 'MARKET', 'NOODLE'],
+    // Authentic Cabramatta 1991 - Vietnamese community, heroin capital of Australia
+    dominantBlocks: ['pho2000', 'thanbinh', 'goldshop', 'freedomplaza', 'cabrashops', 'herbalmed', 'arcade', 'butcher', 'fishmarket', 'alley'],
+    clutterTypes: ['crates', 'bins', 'steam', 'trash', 'bottles', 'dumpster', 'puddles', 'syringes'],
+    signage: ['PHỞ 2000', 'THÀNH BÌNH', 'VÀNG', 'FREEDOM PLAZA', 'TIỆM THUỐC', 'CABRA MALL', 'BÁNH MÌ', 'CÀ PHÊ', 'VÀNG 24K'],
   },
 };
 

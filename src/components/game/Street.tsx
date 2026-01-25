@@ -1293,7 +1293,954 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             </div>
           </div>
         );
-      
+
+      // === NEW AUTHENTIC KINGS CROSS 1991 VENUES ===
+      case 'lesboys':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#15051a' }} />
+            {/* Les Boys - legendary drag bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#1a0a20' }}>
+              <div className="absolute top-1 left-1 right-1 h-5" style={{ background: '#0a0510' }}>
+                {/* Mirror ball */}
+                {isNight && <div className="absolute top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full neon-flicker-fast" style={{ background: 'radial-gradient(circle, #ffffff 20%, #888888 50%, #444444 100%)' }} />}
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#0a0310', border: '2px solid #4a2a5a' }} />
+            {/* Drag queen silhouette */}
+            <div className="absolute bottom-1 left-0.5 w-2 h-3 rounded-t" style={{ background: '#2a1a30' }}>
+              <div className="absolute -top-1 left-0 right-0 h-2 rounded-full" style={{ background: '#4a3a50' }} />
+            </div>
+            {isNight && neonIntensity > 0.5 && (
+              <>
+                <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[4px] font-bold neon-flicker-slow ${signageClass}`} style={{ color: '#ff44ff', textShadow: '0 0 8px #ff44ff' }}>
+                  {scrambleText('LES BOYS')}
+                </div>
+                <div className="absolute top-0 left-0 right-0 h-1 neon-buzz" style={{ background: 'linear-gradient(90deg, #ff44ff, #44ffff, #ff44ff)', boxShadow: '0 0 10px #ff44ff' }} />
+              </>
+            )}
+          </div>
+        );
+
+      case 'porkys':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a0810' }} />
+            {/* Porky's - infamous Cross nightclub */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#150510' }}>
+              <div className="absolute top-1 left-1 right-1 h-4" style={{ background: '#0a0308' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-9" style={{ background: '#0a0306', border: '2px solid #4a1a2a' }}>
+              {/* Velvet rope */}
+              <div className="absolute -left-1 top-2 bottom-2 w-0.5" style={{ background: '#aa2244' }} />
+            </div>
+            {/* Bouncer */}
+            <div className="absolute bottom-1 right-0.5 w-3 h-4 rounded-t" style={{ background: '#0a0508' }}>
+              <div className="w-2 h-2 rounded-full mx-auto mt-0.5" style={{ background: '#151010' }} />
+            </div>
+            {isNight && (
+              <>
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[5px] font-bold neon-flicker-slow ${signageClass}`} style={{ color: '#ff6688', textShadow: '0 0 6px #ff6688' }}>
+                  {scrambleText("PORKY'S")}
+                </div>
+                <div className="absolute top-0 left-0 right-0 h-0.5 neon-buzz" style={{ background: '#ff6688', boxShadow: '0 0 8px #ff6688' }} />
+              </>
+            )}
+          </div>
+        );
+
+      case 'texasontap':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1508' }} />
+            {/* Texas on Tap - American bar in the Cross */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#201810' }}>
+              <div className="absolute inset-1" style={{ background: '#ffaa4411' }} />
+              {/* Country music vibe */}
+              <div className="absolute top-2 left-1 w-3 h-3" style={{ background: '#3a2a1a', borderRadius: '0 50% 50% 0' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#0f0a05', border: '1px solid #4a3a25' }} />
+            {isNight && (
+              <>
+                <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[3px] font-bold ${signageClass}`} style={{ color: '#ffaa44', textShadow: '0 0 4px #ffaa44' }}>
+                  {scrambleText('TEXAS ON TAP')}
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-4 opacity-20" style={{ background: 'linear-gradient(0deg, #ffaa4444 0%, transparent 100%)' }} />
+              </>
+            )}
+          </div>
+        );
+
+      case 'tunnel':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#050510' }} />
+            {/* The Tunnel - underground club */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#080810' }}>
+              {/* Tunnel entrance */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-6 rounded-t-full" style={{ background: '#030308', border: '2px solid #2a2a3a' }} />
+            </div>
+            {/* Steps going down */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-4">
+              <div className="absolute bottom-0 w-full h-1" style={{ background: '#1a1a2a' }} />
+              <div className="absolute bottom-1 w-full h-1" style={{ background: '#151520' }} />
+              <div className="absolute bottom-2 w-full h-1" style={{ background: '#101018' }} />
+            </div>
+            {isNight && (
+              <>
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[5px] font-bold neon-flicker-fast ${signageClass}`} style={{ color: '#44aaff', textShadow: '0 0 6px #44aaff' }}>
+                  {scrambleText('TUNNEL')}
+                </div>
+                {/* Laser leak from entrance */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-4 h-3 opacity-30" style={{ background: 'linear-gradient(0deg, #44aaff33 0%, transparent 100%)' }} />
+              </>
+            )}
+          </div>
+        );
+
+      case 'kinselas':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151520' }} />
+            {/* Kinselas - converted funeral parlour */}
+            <div className="absolute top-0 left-0 right-0 h-6" style={{ background: '#1a1a25' }}>
+              {/* Art deco facade */}
+              <div className="absolute inset-0.5 border" style={{ borderColor: '#3a3a4a' }} />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#101018' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8" style={{ background: '#0a0a10', border: '2px solid #2a2a35' }}>
+              {/* Grand entrance */}
+              <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: '#3a3a4a' }} />
+            </div>
+            {isNight && (
+              <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#aaaaff', textShadow: '0 0 4px #8888ff' }}>
+                {scrambleText('KINSELAS')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'alamode':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1015' }} />
+            {/* A La Mode - late night cafe */}
+            <div className="absolute bottom-0 left-0 right-0 h-11" style={{ background: '#201520' }}>
+              <div className="absolute inset-1" style={{ background: '#ffcc4411' }} />
+              {/* Coffee cup silhouettes */}
+              <div className="absolute top-2 left-1 w-2 h-2 rounded-t" style={{ background: '#3a2a30' }} />
+              <div className="absolute top-2 right-1 w-2 h-2 rounded-t" style={{ background: '#3a2a30' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#100810', border: '1px solid #3a2a35' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ffcc88' }}>
+                {scrambleText('A LA MODE')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'injectionroom':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#0a0a08' }} />
+            {/* Dark alley / injection spot - grim Cross reality */}
+            <div className="absolute left-0 top-0 bottom-0 w-2" style={{ background: '#151510' }} />
+            <div className="absolute right-0 top-0 bottom-0 w-2" style={{ background: '#151510' }} />
+            {/* Mattress on ground */}
+            <div className="absolute bottom-0 left-2 w-5 h-2" style={{ background: '#2a2520' }} />
+            {/* Figure hunched over */}
+            <div className="absolute bottom-2 left-3 w-2 h-2 rounded-t" style={{ background: '#1a1515' }} />
+            {/* Syringe on ground */}
+            <div className="absolute bottom-0.5 right-3 w-1.5 h-0.5 rotate-45" style={{ background: '#666666' }} />
+            {/* Graffiti */}
+            <div className="absolute top-4 left-2.5 text-[3px]" style={{ color: '#4a3a3a', opacity: 0.5 }}>RIP</div>
+          </div>
+        );
+
+      // === NEW AUTHENTIC OXFORD ST 1991 VENUES ===
+      case 'albury':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#15101a' }} />
+            {/* The Albury Hotel - iconic gay pub */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#1a1520' }}>
+              <div className="absolute top-1 left-1 right-1 h-5" style={{ background: '#100815' }}>
+                {/* Crowd silhouettes */}
+                <div className="absolute bottom-0 left-1 w-1 h-2 rounded-t" style={{ background: '#252530' }} />
+                <div className="absolute bottom-0 left-3 w-1 h-2.5 rounded-t" style={{ background: '#252530' }} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#0a0510', border: '1px solid #3a2a40' }} />
+            {isNight && (
+              <>
+                <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ff88ff', textShadow: '0 0 4px #ff66ff' }}>
+                  {scrambleText('THE ALBURY')}
+                </div>
+                <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: '#ff88ff', boxShadow: '0 0 6px #ff66ff' }} />
+              </>
+            )}
+          </div>
+        );
+
+      case 'midnight':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#0a0815' }} />
+            {/* Midnight Shift - legendary dance club */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#0f0a18' }}>
+              {/* Strobe light effect */}
+              {isNight && <div className="absolute top-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full neon-flicker-fast" style={{ background: '#ffffff', animationDuration: '0.15s' }} />}
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-9" style={{ background: '#050510', border: '2px solid #2a1a3a' }} />
+            {/* Queue */}
+            <div className="absolute bottom-1 left-0 flex gap-0.5">
+              <div className="w-1 h-2 rounded-t" style={{ background: '#1a1525' }} />
+              <div className="w-1 h-2.5 rounded-t" style={{ background: '#1a1525' }} />
+            </div>
+            {isNight && neonIntensity > 0.4 && (
+              <>
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[3px] font-bold neon-buzz ${signageClass}`} style={{ color: '#44ffff', textShadow: '0 0 6px #44ffff' }}>
+                  {scrambleText('MIDNIGHT SHIFT')}
+                </div>
+                <div className="absolute top-0 left-0 right-0 h-1 animate-pulse" style={{ background: 'linear-gradient(90deg, #ff44ff, #44ffff, #ffff44)', boxShadow: '0 0 10px #44ffff' }} />
+              </>
+            )}
+          </div>
+        );
+
+      case 'gilligan':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#101515' }} />
+            {/* Gilligan's - Oxford St bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-11" style={{ background: '#151a1a' }}>
+              <div className="absolute inset-1" style={{ background: '#44aa4411' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-7" style={{ background: '#0a1010', border: '1px solid #2a3a3a' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#44aa88' }}>
+                {scrambleText("GILLIGAN'S")}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'beresford':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151510' }} />
+            {/* Beresford Hotel */}
+            <div className="absolute top-0 left-0 right-0 h-5" style={{ background: '#1a1a15' }}>
+              {/* Rooftop bar silhouettes */}
+              <div className="absolute bottom-0 left-1 right-1 h-2 flex gap-0.5">
+                <div className="w-1 h-1.5 rounded-t" style={{ background: '#252520' }} />
+                <div className="w-1 h-1 rounded-t" style={{ background: '#252520' }} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#101510' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#0a0f0a', border: '1px solid #2a3a2a' }} />
+            {isNight && (
+              <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#88aa44' }}>
+                {scrambleText('BERESFORD')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'dco':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#0a0a15' }} />
+            {/* DCO - Dance Club Oxford */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#0f0f1a' }}>
+              {/* Disco lights */}
+              {isNight && (
+                <>
+                  <div className="absolute top-2 left-2 w-1 h-1 rounded-full neon-flicker-fast" style={{ background: '#ff44ff' }} />
+                  <div className="absolute top-3 right-2 w-1 h-1 rounded-full neon-flicker-fast" style={{ background: '#44ffff', animationDelay: '0.2s' }} />
+                </>
+              )}
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#050510', border: '2px solid #3a2a4a' }} />
+            {isNight && neonIntensity > 0.5 && (
+              <>
+                <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[6px] font-bold neon-buzz ${signageClass}`} style={{ color: '#ff44ff', textShadow: '0 0 8px #ff44ff' }}>
+                  {scrambleText('DCO')}
+                </div>
+                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #ff44ff, #44ffff, #ff44ff)', boxShadow: '0 0 8px #ff44ff' }} />
+              </>
+            )}
+          </div>
+        );
+
+      case 'flinders':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#15100a' }} />
+            {/* Flinders Hotel */}
+            <div className="absolute bottom-0 left-0 right-0 h-11" style={{ background: '#1a1510' }}>
+              <div className="absolute inset-1" style={{ background: '#ffaa4411' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#0f0a08', border: '1px solid #3a2a20' }} />
+            {isNight && (
+              <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ffaa66' }}>
+                {scrambleText('FLINDERS')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'taxi':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#101015' }} />
+            {/* Taxi Club - late night institution */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#15151a' }}>
+              <div className="absolute inset-1" style={{ background: '#ffcc4411' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-9" style={{ background: '#0a0a10', border: '1px solid #2a2a35' }} />
+            {/* Taxis out front */}
+            <div className="absolute bottom-1 right-0 w-4 h-2 rounded-t" style={{ background: '#4a4a25' }} />
+            {isNight && (
+              <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ffcc44', textShadow: '0 0 4px #ffaa44' }}>
+                {scrambleText('TAXI CLUB')}
+              </div>
+            )}
+          </div>
+        );
+
+      // === NEW AUTHENTIC CBD 1991 VENUES ===
+      case 'marblebarr':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#15100a' }} />
+            {/* Marble Bar - heritage basement bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#1a1510' }}>
+              {/* Ornate facade */}
+              <div className="absolute top-0 left-0 right-0 h-2" style={{ background: '#2a2015', borderBottom: '1px solid #3a3025' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#0f0a08', border: '2px solid #4a3a2a' }}>
+              {/* Steps down */}
+              <div className="absolute bottom-0 w-full h-2" style={{ background: '#1a1510' }} />
+            </div>
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ccaa66' }}>
+                {scrambleText('MARBLE BAR')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'regent':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1515' }} />
+            {/* Regent Theatre - grand cinema */}
+            <div className="absolute top-0 left-0 right-0 h-6" style={{ background: '#201a1a' }}>
+              {/* Poster displays */}
+              <div className="absolute top-0.5 left-0.5 w-3 h-4" style={{ background: '#3a2a30', border: '1px solid #4a3a40' }} />
+              <div className="absolute top-0.5 right-0.5 w-3 h-4" style={{ background: '#2a3030', border: '1px solid #3a4040' }} />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ background: '#151010' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-7" style={{ background: '#0a0808', border: '2px solid #3a2a2a' }}>
+              <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: '#4a3a3a' }} />
+            </div>
+            {isNight && (
+              <>
+                <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[5px] font-bold ${signageClass}`} style={{ color: '#ffaa44', textShadow: '0 0 4px #ff8822' }}>
+                  {scrambleText('REGENT')}
+                </div>
+                {/* Marquee lights */}
+                <div className="absolute bottom-10 left-1 w-1 h-1 rounded-full animate-pulse" style={{ background: '#ffcc44' }} />
+                <div className="absolute bottom-10 right-1 w-1 h-1 rounded-full animate-pulse" style={{ background: '#ffcc44', animationDelay: '0.3s' }} />
+              </>
+            )}
+          </div>
+        );
+
+      case 'state':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151015' }} />
+            {/* State Theatre - grand heritage venue */}
+            <div className="absolute top-0 left-0 right-0 h-8" style={{ background: '#1a1520' }}>
+              {/* Gothic arches */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-4 rounded-t-full" style={{ background: '#251a25', border: '1px solid #352a35' }} />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ background: '#100a10' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-7" style={{ background: '#0a0508', border: '2px solid #3a2a35' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ffcc88', textShadow: '0 0 4px #ffaa66' }}>
+                {scrambleText('STATE THEATRE')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'forcesfood':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151515' }} />
+            {/* Forces Canteen - cheap food for homeless */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#1a1a1a' }}>
+              <div className="absolute inset-1" style={{ background: '#aaaaaa11' }} />
+              {/* Counter */}
+              <div className="absolute top-2 left-0.5 right-0.5 h-1" style={{ background: '#3a3a3a' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#101010', border: '1px solid #2a2a2a' }} />
+            {/* Queue of homeless */}
+            <div className="absolute bottom-1 left-0 flex gap-0.5">
+              <div className="w-1.5 h-2 rounded-t" style={{ background: '#1a1a1a' }} />
+              <div className="w-1.5 h-2.5 rounded-t" style={{ background: '#1a1a1a' }} />
+            </div>
+            <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[3px] font-bold ${signageClass}`} style={{ color: '#888888' }}>
+              {scrambleText('FORCES CANTEEN')}
+            </div>
+          </div>
+        );
+
+      case 'qvb':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1510' }} />
+            {/* QVB - Queen Victoria Building */}
+            <div className="absolute top-0 left-0 right-0 h-6" style={{ background: '#201a15' }}>
+              {/* Romanesque arches */}
+              <div className="absolute top-0 left-1 w-2 h-3 rounded-t-full" style={{ background: '#2a2520', border: '1px solid #3a3530' }} />
+              <div className="absolute top-0 right-1 w-2 h-3 rounded-t-full" style={{ background: '#2a2520', border: '1px solid #3a3530' }} />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ background: '#151010' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-6" style={{ background: '#0f0a08', border: '1px solid #3a3025' }} />
+            {isNight && (
+              <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[5px] font-bold ${signageClass}`} style={{ color: '#ccaa66' }}>
+                {scrambleText('QVB')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'wynyard':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151515' }} />
+            {/* Wynyard Station */}
+            <div className="absolute top-0 left-0 right-0 h-5" style={{ background: '#1a1a1a' }} />
+            <div className="absolute top-5 left-0 right-0 h-1" style={{ background: '#2a2a2a' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ background: '#101010' }}>
+              {/* Tunnel entrance */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-5 rounded-t" style={{ background: '#0a0a0a', border: '1px solid #252525' }} />
+            </div>
+            <div className={`absolute bottom-7 left-1/2 -translate-x-1/2 text-[5px] font-bold ${signageClass}`} style={{ color: '#888888' }}>
+              {scrambleText('WYNYARD')}
+            </div>
+          </div>
+        );
+
+      case 'davidjones':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151510' }} />
+            {/* David Jones department store */}
+            <div className="absolute top-0 left-0 right-0 h-4" style={{ background: '#1a1a15' }}>
+              {/* Display windows */}
+              <div className="absolute inset-0.5 flex gap-0.5">
+                <div className="flex-1" style={{ background: '#ffcc4422' }} />
+                <div className="flex-1" style={{ background: '#ffcc4422' }} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#101510' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8" style={{ background: '#0a0f0a', border: '1px solid #2a3a2a' }} />
+            <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[5px] font-bold ${signageClass}`} style={{ color: '#1a1a1a', background: '#e8e8e0', padding: '0 2px' }}>
+              {scrambleText('DJ')}
+            </div>
+          </div>
+        );
+
+      // === NEW AUTHENTIC CHINATOWN 1991 VENUES ===
+      case 'eastocean':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1515' }} />
+            {/* East Ocean - yum cha institution */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#201a1a' }}>
+              <div className="absolute inset-1" style={{ background: '#ff888811' }} />
+              {/* Red lanterns */}
+              <div className="absolute top-0 left-1 w-1.5 h-2 rounded" style={{ background: '#cc2222', boxShadow: isNight ? '0 0 3px #cc222266' : 'none' }} />
+              <div className="absolute top-0 right-1 w-1.5 h-2 rounded" style={{ background: '#cc2222', boxShadow: isNight ? '0 0 3px #cc222266' : 'none' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#150a0a', border: '1px solid #3a2020' }} />
+            {isNight && (
+              <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ff6644' }}>
+                {scrambleText('EAST OCEAN')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'marigold':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1510' }} />
+            {/* Marigold - yum cha palace */}
+            <div className="absolute top-0 left-0 right-0 h-4" style={{ background: '#2a1515', borderBottom: '1px solid #3a2525' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#201510' }}>
+              <div className="absolute inset-1" style={{ background: '#ffaa4422' }} />
+              {/* Trolley silhouettes */}
+              <div className="absolute top-2 left-1 w-2 h-3 rounded-t" style={{ background: '#2a2520' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-8" style={{ background: '#150a08', border: '1px solid #3a2a20' }} />
+            {isNight && (
+              <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ffcc44' }}>
+                {scrambleText('MARIGOLD')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'hingfong':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151510' }} />
+            {/* Hing Fong - late night restaurant */}
+            <div className="absolute bottom-0 left-0 right-0 h-11" style={{ background: '#1a1a15' }}>
+              <div className="absolute inset-1" style={{ background: '#ffcc6622' }} />
+              {/* Steaming woks */}
+              {isNight && <div className="absolute -top-2 left-2 w-3 h-3 opacity-25 animate-pulse" style={{ background: 'linear-gradient(0deg, #ffffff33 0%, transparent 100%)' }} />}
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-7" style={{ background: '#100f0a', border: '1px solid #2a2a20' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ffaa66' }}>
+                {scrambleText('HING FONG')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'marketcity':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151515' }} />
+            {/* Market City - shopping mall */}
+            <div className="absolute top-0 left-0 right-0 h-5" style={{ background: '#1a1a1a' }}>
+              <div className="absolute inset-0.5" style={{ background: '#2a2a2a' }} />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-9" style={{ background: '#101010' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-7" style={{ background: '#0a0a0a', border: '1px solid #252525' }} />
+            <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ff4444' }}>
+              {scrambleText('MARKET CITY')}
+            </div>
+          </div>
+        );
+
+      case 'paddy':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1a15' }} />
+            {/* Paddy's Markets */}
+            <div className="absolute top-0 left-0 right-0 h-4" style={{ background: '#3a2a20', borderBottom: '1px solid #4a3a30' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#201a15' }}>
+              {/* Market stalls */}
+              <div className="absolute top-1 left-0.5 right-0.5 h-5 grid grid-cols-3 gap-0.5">
+                <div style={{ background: '#3a5a3a' }} />
+                <div style={{ background: '#5a4a3a' }} />
+                <div style={{ background: '#4a3a5a' }} />
+              </div>
+            </div>
+            <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#88aa66' }}>
+              {scrambleText("PADDY'S")}
+            </div>
+          </div>
+        );
+
+      case 'herbshop':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151510' }} />
+            {/* Traditional Chinese medicine shop */}
+            <div className="absolute bottom-0 left-0 right-0 h-11" style={{ background: '#1a1a15' }}>
+              {/* Herb drawers */}
+              <div className="absolute top-1 left-0.5 right-0.5 h-6 grid grid-cols-4 grid-rows-3 gap-px" style={{ background: '#2a2a20' }}>
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} style={{ background: '#3a3a30' }} />
+                ))}
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-6" style={{ background: '#100f0a', border: '1px solid #2a2a20' }} />
+            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#88aa44' }}>
+              {scrambleText('藥材')}
+            </div>
+          </div>
+        );
+
+      // === NEW AUTHENTIC CENTRAL 1991 VENUES ===
+      case 'centralstation':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151515' }} />
+            {/* Central Station - grand terminus */}
+            <div className="absolute top-0 left-0 right-0 h-6" style={{ background: '#1a1a1a' }}>
+              {/* Clock tower silhouette */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-5" style={{ background: '#252525' }}>
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: '#3a3a3a' }} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ background: '#101010' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-6 rounded-t" style={{ background: '#0a0a0a', border: '1px solid #252525' }} />
+            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#888888' }}>
+              {scrambleText('CENTRAL')}
+            </div>
+          </div>
+        );
+
+      case 'eddyave':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#0a0a08' }} />
+            {/* Eddy Ave - notorious drug strip */}
+            <div className="absolute left-0 top-0 bottom-0 w-2" style={{ background: '#151510' }} />
+            <div className="absolute right-0 top-0 bottom-0 w-2" style={{ background: '#151510' }} />
+            {/* Huddle of junkies */}
+            <div className="absolute bottom-1 left-2 flex gap-0.5">
+              <div className="w-1.5 h-2 rounded-t" style={{ background: '#1a1515' }} />
+              <div className="w-1.5 h-2.5 rounded-t" style={{ background: '#151a15' }} />
+              <div className="w-1.5 h-2 rounded-t" style={{ background: '#15151a' }} />
+            </div>
+            {/* Syringe */}
+            <div className="absolute bottom-0.5 right-3 w-1.5 h-0.5 rotate-30" style={{ background: '#555555' }} />
+            {/* Graffiti */}
+            <div className="absolute top-3 left-2.5 text-[3px]" style={{ color: '#4a3a3a', opacity: 0.5 }}>EDDY</div>
+          </div>
+        );
+
+      case 'railwaybuffet':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151510' }} />
+            {/* Railway Buffet - old station cafe */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#1a1a15' }}>
+              <div className="absolute inset-1" style={{ background: '#ffaa4411' }} />
+              {/* Counter */}
+              <div className="absolute top-2 left-0.5 right-0.5 h-1" style={{ background: '#3a3a30' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#100f0a', border: '1px solid #2a2a20' }} />
+            <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[3px] font-bold ${signageClass}`} style={{ color: '#aa8844' }}>
+              {scrambleText('RAILWAY BUFFET')}
+            </div>
+          </div>
+        );
+
+      case 'salvation':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151015' }} />
+            {/* Salvation Army - charity services */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#1a1520' }}>
+              {/* Red shield */}
+              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-4 h-4" style={{ background: '#aa2222', borderRadius: '0 0 50% 50%' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-6" style={{ background: '#100810', border: '1px solid #2a1a25' }} />
+            {/* Queue of homeless */}
+            <div className="absolute bottom-1 left-0 flex gap-0.5">
+              <div className="w-1.5 h-2.5 rounded-t" style={{ background: '#1a1a1a' }} />
+              <div className="w-1.5 h-2 rounded-t" style={{ background: '#1a1a1a' }} />
+            </div>
+            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#aa4444' }}>
+              {scrambleText('SALVO')}
+            </div>
+          </div>
+        );
+
+      case 'derelict':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#0a0a08' }} />
+            {/* Derelict building */}
+            <div className="absolute top-1 left-1 right-1 h-10" style={{ background: '#101010' }}>
+              {/* Broken windows */}
+              <div className="absolute top-1 left-1 w-2 h-2" style={{ background: '#050505', border: '1px solid #1a1a1a' }} />
+              <div className="absolute top-1 right-1 w-2 h-2" style={{ background: '#080808', border: '1px solid #1a1a1a' }} />
+              <div className="absolute top-5 left-1 w-2 h-2" style={{ background: '#080805', border: '1px solid #1a1a1a' }} />
+            </div>
+            {/* Rubble */}
+            <div className="absolute bottom-0 left-1 w-3 h-1.5" style={{ background: '#1a1a15' }} />
+            <div className="absolute bottom-0 right-2 w-2 h-1" style={{ background: '#151510' }} />
+            {/* Graffiti */}
+            <div className="absolute top-8 left-2 text-[3px] rotate-6" style={{ color: '#4a4a3a', opacity: 0.4 }}>91</div>
+          </div>
+        );
+
+      case 'sexshop':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a0810' }} />
+            {/* Adult shop */}
+            <div className="absolute bottom-0 left-0 right-0 h-11" style={{ background: '#150510' }}>
+              {/* Blacked out windows */}
+              <div className="absolute top-1 left-1 right-1 h-5" style={{ background: '#050308' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-7" style={{ background: '#0a0306', border: '1px solid #3a1a2a' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[5px] font-bold neon-flicker-slow ${signageClass}`} style={{ color: '#ff4466', textShadow: '0 0 4px #ff4466' }}>
+                {scrambleText('XXX')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'redrooster':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1010' }} />
+            {/* Red Rooster - late night fast food */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#201510' }}>
+              <div className="absolute inset-1" style={{ background: '#ff442211' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#150a08', border: '1px solid #3a2020' }} />
+            {/* Rooster logo */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full" style={{ background: '#aa2222' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ff4422' }}>
+                {scrambleText('RED ROOSTER')}
+              </div>
+            )}
+          </div>
+        );
+
+      // === NEW AUTHENTIC REDFERN 1991 VENUES ===
+      case 'theblock':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#0a0a08' }} />
+            {/* The Block - Indigenous housing */}
+            <div className="absolute top-1 left-1 right-1 h-10" style={{ background: '#101010' }}>
+              {/* Run-down terrace row */}
+              <div className="absolute top-0 left-0 w-3 h-8" style={{ background: '#151510', borderRight: '1px solid #1a1a15' }} />
+              <div className="absolute top-0 left-3 w-3 h-8" style={{ background: '#121210', borderRight: '1px solid #1a1a15' }} />
+              {/* Aboriginal flag colors */}
+              <div className="absolute top-1 left-1 w-2 h-1" style={{ background: '#cc0000' }} />
+              <div className="absolute top-2 left-1 w-2 h-1" style={{ background: '#000000' }} />
+              <div className="absolute top-3 left-1 w-2 h-0.5" style={{ background: '#ffcc00' }} />
+            </div>
+            {/* People gathered */}
+            <div className="absolute bottom-1 left-1 flex gap-0.5">
+              <div className="w-1.5 h-2.5 rounded-t" style={{ background: '#151510' }} />
+              <div className="w-1.5 h-2 rounded-t" style={{ background: '#151510' }} />
+            </div>
+            {/* Graffiti */}
+            <div className="absolute top-12 right-1 text-[2px]" style={{ color: '#5a4a3a', opacity: 0.5 }}>LAND RIGHTS</div>
+          </div>
+        );
+
+      case 'eveleigh':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#101010' }} />
+            {/* Eveleigh St - main Block street */}
+            <div className="absolute top-1 left-0.5 right-0.5 h-8" style={{ background: '#0a0a0a' }}>
+              {/* Street lamp */}
+              <div className="absolute top-0 left-1 w-0.5 h-6" style={{ background: '#3a3a3a' }} />
+              {isNight && <div className="absolute top-0 left-0.5 w-1.5 h-1.5 rounded-full" style={{ background: '#ffaa44', boxShadow: '0 0 4px #ffaa4466' }} />}
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-6" style={{ background: '#0f0f0f' }} />
+            {/* Dog */}
+            <div className="absolute bottom-1 right-2 w-2 h-1.5" style={{ background: '#2a2520' }} />
+          </div>
+        );
+
+      case 'redfernstation':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#121212' }} />
+            {/* Redfern Station */}
+            <div className="absolute top-0 left-0 right-0 h-5" style={{ background: '#1a1a1a' }} />
+            <div className="absolute top-5 left-0 right-0 h-1" style={{ background: '#252525' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ background: '#0a0a0a' }}>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-5" style={{ background: '#080808', border: '1px solid #1a1a1a' }} />
+            </div>
+            <div className={`absolute bottom-7 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#666666' }}>
+              {scrambleText('REDFERN')}
+            </div>
+          </div>
+        );
+
+      case 'indigenous':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#0f0f0a' }} />
+            {/* Indigenous community center */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#151510' }}>
+              {/* Aboriginal art on wall */}
+              <div className="absolute top-1 left-1 w-4 h-3" style={{ background: '#2a1a10', border: '1px solid #3a2a20' }}>
+                <div className="absolute top-0.5 left-0.5 w-1 h-1 rounded-full" style={{ background: '#cc8844' }} />
+                <div className="absolute top-1 right-0.5 w-1 h-1 rounded-full" style={{ background: '#884422' }} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-6" style={{ background: '#0a0a08', border: '1px solid #2a2a20' }} />
+            {/* Flag */}
+            <div className="absolute top-1 right-1 w-3 h-2">
+              <div className="w-full h-1" style={{ background: '#000000' }} />
+              <div className="w-full h-0.5" style={{ background: '#cc0000' }} />
+              <div className="absolute top-0.5 left-1 w-1 h-0.5 rounded-full" style={{ background: '#ffcc00' }} />
+            </div>
+          </div>
+        );
+
+      case 'courthouse':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#15151a' }} />
+            {/* Redfern Courthouse */}
+            <div className="absolute top-0 left-0 right-0 h-6" style={{ background: '#1a1a20' }}>
+              {/* Columns */}
+              <div className="absolute top-0 left-1 w-1.5 h-5" style={{ background: '#252530' }} />
+              <div className="absolute top-0 right-1 w-1.5 h-5" style={{ background: '#252530' }} />
+              {/* Pediment */}
+              <div className="absolute top-0 left-0 right-0 h-2" style={{ background: '#202025', clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-8" style={{ background: '#101015' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-6" style={{ background: '#0a0a10', border: '1px solid #2a2a35' }} />
+            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#888888' }}>
+              {scrambleText('COURT')}
+            </div>
+          </div>
+        );
+
+      // === NEW AUTHENTIC CABRAMATTA 1991 VENUES ===
+      case 'pho2000':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1510' }} />
+            {/* Pho 2000 - famous Cabra pho shop */}
+            <div className="absolute bottom-0 left-0 right-0 h-11" style={{ background: '#201a10' }}>
+              <div className="absolute inset-1" style={{ background: '#ffcc6633' }} />
+              {/* Giant pho bowl steam */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-4 h-2 rounded-t-full" style={{ background: '#5a4a3a' }}>
+                {isNight && <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-4 opacity-40 animate-pulse" style={{ background: 'linear-gradient(0deg, #ffffff44 0%, transparent 100%)' }} />}
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#150a05', border: '1px solid #3a2a15' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ffcc44' }}>
+                {scrambleText('PHỞ 2000')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'thanbinh':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151510' }} />
+            {/* Thanh Binh - Vietnamese restaurant */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#1a1a10' }}>
+              <div className="absolute inset-1" style={{ background: '#ffaa4422' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-7" style={{ background: '#100f08', border: '1px solid #2a2a15' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ffaa66' }}>
+                {scrambleText('THÀNH BÌNH')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'freedomplaza':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151515' }} />
+            {/* Freedom Plaza - Cabramatta shopping center */}
+            <div className="absolute top-0 left-0 right-0 h-5" style={{ background: '#1a1a1a' }}>
+              <div className="absolute inset-0.5" style={{ background: '#252525' }} />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-9" style={{ background: '#101010' }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-7" style={{ background: '#0a0a0a', border: '1px solid #252525' }} />
+            {/* Elderly Vietnamese */}
+            <div className="absolute bottom-1 left-0 flex gap-0.5">
+              <div className="w-1.5 h-2 rounded-t" style={{ background: '#1a1a15' }} />
+              <div className="w-1.5 h-2.5 rounded-t" style={{ background: '#1a1a15' }} />
+            </div>
+            <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[3px] font-bold ${signageClass}`} style={{ color: '#ff6644' }}>
+              {scrambleText('FREEDOM PLAZA')}
+            </div>
+          </div>
+        );
+
+      case 'cabrashops':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#151510' }} />
+            {/* Generic Cabra shop row */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#1a1a10' }}>
+              {/* Produce boxes */}
+              <div className="absolute bottom-0 left-0.5 w-3 h-3" style={{ background: '#3a4a2a' }} />
+              <div className="absolute bottom-0 right-0.5 w-3 h-2" style={{ background: '#5a4a3a' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-7" style={{ background: '#100f08', border: '1px solid #2a2a15' }} />
+            <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#88aa44' }}>
+              {scrambleText('TIỆM')}
+            </div>
+          </div>
+        );
+
+      case 'herbalmed':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#101510' }} />
+            {/* Vietnamese herbal medicine */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#151a15' }}>
+              {/* Herb jars */}
+              <div className="absolute top-1 left-0.5 right-0.5 h-5 grid grid-cols-3 gap-0.5">
+                <div style={{ background: '#3a4a3a' }} />
+                <div style={{ background: '#4a5a3a' }} />
+                <div style={{ background: '#3a5a4a' }} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-6" style={{ background: '#0a100a', border: '1px solid #2a3a2a' }} />
+            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#66aa44' }}>
+              {scrambleText('THUỐC')}
+            </div>
+          </div>
+        );
+
+      case 'butcher':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1010' }} />
+            {/* Asian butcher */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#201515' }}>
+              {/* Hanging ducks */}
+              <div className="absolute top-1 left-1 w-2 h-4" style={{ background: '#6a4a3a' }} />
+              <div className="absolute top-1 right-1 w-2 h-4" style={{ background: '#5a3a2a' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-7" style={{ background: '#150808', border: '1px solid #3a2020' }} />
+            {isNight && (
+              <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#ff6644' }}>
+                {scrambleText('THỊT')}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'fishmarket':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#101515' }} />
+            {/* Fish market */}
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#151a1a' }}>
+              {/* Ice trays with fish */}
+              <div className="absolute top-1 left-0.5 right-0.5 h-4" style={{ background: '#3a5a6a' }}>
+                <div className="absolute bottom-0.5 left-0.5 w-3 h-1.5 rotate-12" style={{ background: '#6a7a8a' }} />
+                <div className="absolute bottom-0.5 right-0.5 w-2.5 h-1 -rotate-6" style={{ background: '#5a6a7a' }} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-6" style={{ background: '#0a1010', border: '1px solid #2a3535' }} />
+            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#44aaaa' }}>
+              {scrambleText('CÁ')}
+            </div>
+          </div>
+        );
+
       case 'shop':
       default:
         return (
