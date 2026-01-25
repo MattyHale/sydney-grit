@@ -22,6 +22,7 @@ export interface DistrictConfig {
   theftMultiplier: number;
   kindnessMultiplier: number;
   dangerMultiplier: number;
+  dealerFrequency: number; // 0-1 chance of dealer events
   
   // Environment
   policeFrequency: number;
@@ -60,6 +61,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     theftMultiplier: 0.8,
     kindnessMultiplier: 0.4,
     dangerMultiplier: 0.7,
+    dealerFrequency: 0.9,
     policeFrequency: 0.8,
     dogFrequency: 0.3,
     ibisFrequency: 0.2,
@@ -88,6 +90,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     theftMultiplier: 0.6,
     kindnessMultiplier: 0.7,
     dangerMultiplier: 0.5,
+    dealerFrequency: 0.4,
     policeFrequency: 0.5,
     dogFrequency: 0.2,
     ibisFrequency: 0.3,
@@ -116,6 +119,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     theftMultiplier: 0.5,
     kindnessMultiplier: 0.5,
     dangerMultiplier: 0.3,
+    dealerFrequency: 0.1,
     policeFrequency: 1.0,
     dogFrequency: 0.1,
     ibisFrequency: 0.4,
@@ -144,6 +148,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     theftMultiplier: 0.4,
     kindnessMultiplier: 0.8,
     dangerMultiplier: 0.2,
+    dealerFrequency: 0.15,
     policeFrequency: 0.4,
     dogFrequency: 0.1,
     ibisFrequency: 0.5,
@@ -172,6 +177,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     theftMultiplier: 1.5,
     kindnessMultiplier: 0.2,
     dangerMultiplier: 0.9,
+    dealerFrequency: 0.6,
     policeFrequency: 1.2,
     dogFrequency: 0.4,
     ibisFrequency: 0.6,
@@ -200,6 +206,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     theftMultiplier: 1.2,
     kindnessMultiplier: 0.1,
     dangerMultiplier: 1.0,
+    dealerFrequency: 0.85,
     policeFrequency: 0.8,
     dogFrequency: 0.8,
     ibisFrequency: 0.9,
