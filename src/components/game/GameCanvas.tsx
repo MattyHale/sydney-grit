@@ -2,6 +2,7 @@ import { GameState } from '@/types/game';
 import { Street } from './Street';
 import { Player } from './Player';
 import { Dog } from './Dog';
+import { Car } from './Car';
 import { TextOverlay } from './TextOverlay';
 import { PauseButton } from './PauseButton';
 import { PauseOverlay } from './PauseOverlay';
@@ -27,6 +28,16 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
         servicesOpen={state.servicesOpen}
         playerX={state.playerX}
       />
+      
+      {/* Cars on the road */}
+      {state.cars.map(car => (
+        <Car 
+          key={car.id}
+          x={car.x}
+          isStopped={car.isStopped}
+          variant={car.variant}
+        />
+      ))}
       
       {/* Dog companion */}
       <Dog 
