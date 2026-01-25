@@ -144,18 +144,6 @@ const DISTRICT_AUDIO_CONFIGS: Record<District, AmbientAudioConfig> = {
     lfoDepth: 0.12,
     description: 'cars + servo beeps + dogs',
   },
-  redfern: {
-    // Sparse, eerie ambient - distant dogs
-    baseFrequency: 32,
-    oscillatorType: 'sine',
-    gainLevel: 0.016,
-    noiseType: 'brown',
-    noiseGain: 0.04,
-    noiseFilterFreq: 90,
-    lfoFrequency: 0.025,
-    lfoDepth: 0.2,
-    description: 'eerie low drone + distant dogs',
-  },
 };
 
 export function useAmbientAudio(
