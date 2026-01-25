@@ -38,7 +38,8 @@ export function resolveButtonActions(state: GameState): ResolvedButtons {
     desperationAvailable,
   } = state;
 
-  const dealerNearby = stealTarget?.archetype === 'dealer';
+  // Dealer requires both stealTarget being a dealer AND stealWindowActive (in range)
+  const dealerNearby = stealWindowActive && stealTarget?.archetype === 'dealer';
   const canTakeLSD = stats.lsd > 0 && !lsdTripActive && currentZone === 'alley';
 
   // Start with defaults
