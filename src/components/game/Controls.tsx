@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import { DesperationAction } from '@/types/game';
+import { DesperationAction, PedestrianAction } from '@/types/game';
 
 interface ControlsProps {
   onLeft: () => void;
@@ -13,6 +13,7 @@ interface ControlsProps {
   desperationActions: DesperationAction[];
   carEncounterActive?: boolean;
   stealWindowActive?: boolean;
+  pedestrianActions?: PedestrianAction[];
 }
 
 export function Controls({
@@ -27,6 +28,7 @@ export function Controls({
   desperationActions,
   carEncounterActive,
   stealWindowActive,
+  pedestrianActions = [],
 }: ControlsProps) {
   const moveIntervalRef = useRef<number | null>(null);
 
@@ -48,6 +50,16 @@ export function Controls({
   }, [onStopMove]);
 
   const getButtonLabel = (button: 'A' | 'B' | 'C'): string => {
+    // Pedestrian actions take priority
+    if (pedestrianActions.length > 0) {
+      if (button === 'A' && pedestrianActions.includes('steal')) return '🤏';
+      if (button === 'B' && pedestrianActions.includes('pitch')) return '📢';
+      if (button === 'C') {
+        if (pedestrianActions.includes('trade')) return '💋';
+        if (pedestrianActions.includes('hit')) return '👊';
+      }
+    }
+    
     const index = button === 'A' ? 0 : button === 'B' ? 1 : 2;
     if (desperationActions[index]) {
       switch (desperationActions[index]) {
@@ -55,6 +67,8 @@ export function Controls({
         case 'car': return '🚗';
         case 'sell': return '📦';
         case 'dog-sacrifice': return '🐕';
+        case 'buy-coke': return '❄️';
+        case 'purse-steal': return '👛';
       }
     }
     return button;
@@ -121,8 +135,16 @@ export function Controls({
         </div>
       )}
 
-      {/* Steal hint */}
-      {stealWindowActive && !carEncounterActive && (
+      {/* Pedestrian action hints */}
+      {pedestrianActions.length > 0 && !carEncounterActive && (
+        <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-gb-light">
+          <span>👤 Target nearby</span>
+          <span>A:steal B:pitch C:trade/hit</span>
+        </div>
+      )}
+
+      {/* Steal hint - only if no pedestrian actions */}
+      {stealWindowActive && !carEncounterActive && pedestrianActions.length === 0 && (
         <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-[#ff6666] animate-pulse">
           <span>👛 Steal opportunity</span>
           <span>B or C: grab purse</span>
@@ -130,7 +152,7 @@ export function Controls({
       )}
 
       {/* Desperation hints */}
-      {desperationActions.length > 0 && !carEncounterActive && !stealWindowActive && (
+      {desperationActions.length > 0 && !carEncounterActive && !stealWindowActive && pedestrianActions.length === 0 && (
         <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex gap-2 text-[9px] sm:text-[8px] text-gb-lightest">
           {desperationActions.map((action, i) => (
             <span key={action} className="bg-gb-dark px-2 py-1 animate-pulse rounded">

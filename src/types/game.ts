@@ -5,9 +5,13 @@ export interface GameStats {
   warmth: number;
   hope: number;
   cocaine: number;
+  lsd: number;
   money: number;
   survivalTime: number;
 }
+
+// Pedestrian action types
+export type PedestrianAction = 'steal' | 'pitch' | 'trade' | 'hit';
 
 export type PedestrianArchetype =
   | 'businessman' 
@@ -77,11 +81,17 @@ export interface GameState {
   stealTarget: PedestrianState | null;
   recentTheft: boolean;
   recentCarEncounter: boolean;
+  recentViolence: boolean;
   police: PoliceState;
   ibis: IbisState;
   permanentHopeLoss: number;
-  worldOffset: number; // For infinite scrolling
+  worldOffset: number;
   currentDistrict: District;
+  // LSD state
+  lsdTripActive: boolean;
+  lsdTripTimeRemaining: number;
+  // Pedestrian action window
+  pedestrianActionAvailable: PedestrianAction[];
 }
 
 export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley';
@@ -132,8 +142,25 @@ export const INITIAL_STATS: GameStats = {
   warmth: 70,
   hope: 60,
   cocaine: 0,
+  lsd: 0,
   money: 5,
   survivalTime: 0,
+};
+
+// Archetype response to pedestrian actions
+export const ARCHETYPE_ACTION_BIAS: Record<PedestrianArchetype, {
+  pitchSuccess: number;
+  tradeWilling: number;
+  fightBack: number;
+}> = {
+  businessman: { pitchSuccess: 0.4, tradeWilling: 0.1, fightBack: 0.2 },
+  clubber: { pitchSuccess: 0.2, tradeWilling: 0.3, fightBack: 0.4 },
+  tourist: { pitchSuccess: 0.3, tradeWilling: 0.15, fightBack: 0.1 },
+  pensioner: { pitchSuccess: 0.15, tradeWilling: 0.05, fightBack: 0.05 },
+  backpacker: { pitchSuccess: 0.25, tradeWilling: 0.2, fightBack: 0.15 },
+  junkie: { pitchSuccess: 0.05, tradeWilling: 0.4, fightBack: 0.5 },
+  sexworker: { pitchSuccess: 0.1, tradeWilling: 0.6, fightBack: 0.3 },
+  student: { pitchSuccess: 0.35, tradeWilling: 0.15, fightBack: 0.2 },
 };
 
 export const INITIAL_STATE: GameState = {
@@ -164,9 +191,13 @@ export const INITIAL_STATE: GameState = {
   stealTarget: null,
   recentTheft: false,
   recentCarEncounter: false,
+  recentViolence: false,
   police: { x: -20, isActive: false, direction: 'right' },
   ibis: { x: 27, isActive: false, hasEaten: false },
   permanentHopeLoss: 0,
   worldOffset: 0,
   currentDistrict: 'cross',
+  lsdTripActive: false,
+  lsdTripTimeRemaining: 0,
+  pedestrianActionAvailable: [],
 };
