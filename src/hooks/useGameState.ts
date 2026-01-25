@@ -186,11 +186,23 @@ export function useGameState() {
             const formatted = config.amount >= 1000000 ? `$${config.amount / 1000000}M` : `$${config.amount / 1000}K`;
             showEvent(`${nextStage.toUpperCase()} CLOSED! ${formatted} in the bank!`);
             showTransaction('money', `+${formatted}`);
+            
+            // Victory condition - reached IPO!
+            if (nextStage === 'ipo') {
+              newState.isVictory = true;
+              newState.isPaused = true;
+              showEvent('🔔 YOU RANG THE BELL! IPO COMPLETE!');
+            }
           } else {
             newState.stats.hope = Math.max(0, newState.stats.hope - config.hopeLoss);
             showEvent('"We\'ll pass. Not a fit for our portfolio."');
             showTransaction('fail', 'Rejected');
           }
+        } else if (actionId === 'ring-bell') {
+          // This is the IPO action - ring the bell for victory!
+          newState.isVictory = true;
+          newState.isPaused = true;
+          showEvent('🔔 YOU RANG THE BELL! IPO COMPLETE!');
         } else if (actionId === 'network') {
           if (s.stats.money >= 20 && s.stats.hunger >= 10) {
             newState.stats.money -= 20;
