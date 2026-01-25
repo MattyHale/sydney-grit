@@ -7,164 +7,161 @@ interface PedestrianProps {
   actionsAvailable?: PedestrianAction[];
 }
 
-// Visual configs for each archetype - distinct adult silhouettes
+// Chibi style configs for each archetype - Sega Mega Drive aesthetic
 const ARCHETYPE_STYLES: Record<string, { 
-  bodyColor: string; 
-  headColor: string; 
-  accessory?: string; 
-  height: number;
-  bodyWidth: number;
-  hasHeels?: boolean;
-  hasHat?: boolean;
-  hasBag?: boolean;
-  stance?: string;
+  skinColor: string;
+  skinBorder: string;
+  bodyColor: string;
+  bodyBorder: string;
+  hairColor: string;
+  hairStyle: 'bald' | 'short' | 'long' | 'mohawk' | 'grey' | 'spiky' | 'big' | 'curly' | 'slick';
+  eyeColor: string;
+  cheekColor: string;
   walkSpeed: number;
-  // Unique silhouette elements
-  shoulderWidth?: number;
-  hairStyle?: 'bald' | 'short' | 'long' | 'curly' | 'mohawk' | 'grey' | 'spiky' | 'big' | 'receding' | 'beard';
-  bodyShape?: 'thin' | 'average' | 'wide' | 'hunched' | 'stocky';
-  // Special visual elements
-  hasSkirt?: boolean;
-  hasFishnets?: boolean;
-  hasTie?: boolean;
-  hasStuds?: boolean;
-  hasHood?: boolean;
-  hasFacialHair?: 'stubble' | 'beard' | 'mustache';
-  hasWrinkles?: boolean;
+  accessory?: string;
+  hasMustache?: boolean;
+  hasBeard?: boolean;
+  hasGlasses?: boolean;
+  hasHat?: boolean;
+  hatColor?: string;
+  isPig?: boolean; // For cops
 }> = {
   businessman: { 
-    bodyColor: '#1a1a2a', // Dark pinstripe suit
-    headColor: '#6a6a5a', 
-    accessory: 'briefcase', 
-    height: 25, // Taller adult
-    bodyWidth: 6,
+    skinColor: '#ffcdb8',
+    skinBorder: '#e8a888',
+    bodyColor: '#2a2a3a',
+    bodyBorder: '#1a1a2a',
+    hairColor: '#3a3a3a',
+    hairStyle: 'slick',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#ff999955',
     walkSpeed: 180,
-    shoulderWidth: 8,
-    hairStyle: 'receding',
-    bodyShape: 'stocky',
-    hasTie: true,
-    hasFacialHair: 'stubble',
+    accessory: 'briefcase',
+    hasMustache: true,
   },
   clubber: { 
-    bodyColor: '#5a2a5a', // Bright purple/pink
-    headColor: '#6a5a5a', 
-    accessory: 'none', 
-    height: 22,
-    bodyWidth: 5,
-    stance: 'relaxed',
-    walkSpeed: 160,
+    skinColor: '#e8c8a8',
+    skinBorder: '#d8a888',
+    bodyColor: '#8a2a8a',
+    bodyBorder: '#6a1a6a',
+    hairColor: '#ff44aa',
     hairStyle: 'mohawk',
-    bodyShape: 'thin',
-    hasFacialHair: 'stubble',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#ff66ff55',
+    walkSpeed: 140,
   },
   tourist: { 
-    bodyColor: '#5a7a5a', // Khaki/green
-    headColor: '#7a7a6a', 
-    accessory: 'camera', 
-    height: 23,
-    bodyWidth: 6,
-    hasHat: true,
-    walkSpeed: 280,
+    skinColor: '#ffd8c8',
+    skinBorder: '#e8b8a8',
+    bodyColor: '#4a7a4a',
+    bodyBorder: '#3a5a3a',
+    hairColor: '#5a4a3a',
     hairStyle: 'short',
-    bodyShape: 'stocky',
-    hasFacialHair: 'mustache',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#ff999955',
+    walkSpeed: 250,
+    accessory: 'camera',
+    hasHat: true,
+    hatColor: '#6a5a4a',
   },
   pensioner: { 
-    bodyColor: '#5a5a5a', // Grey
-    headColor: '#9a9a9a', // Grey hair
-    accessory: 'cane', 
-    height: 19, // Shorter, hunched
-    bodyWidth: 5,
-    walkSpeed: 450,
+    skinColor: '#e8d8c8',
+    skinBorder: '#c8b8a8',
+    bodyColor: '#6a6a6a',
+    bodyBorder: '#4a4a4a',
+    hairColor: '#aaaaaa',
     hairStyle: 'grey',
-    bodyShape: 'hunched',
-    hasWrinkles: true,
+    eyeColor: '#2a2a2a',
+    cheekColor: '#cc888855',
+    walkSpeed: 400,
+    accessory: 'cane',
+    hasGlasses: true,
   },
   backpacker: { 
-    bodyColor: '#4a5a4a', // Earthy
-    headColor: '#6a5a4a', 
-    accessory: 'backpack', 
-    height: 23,
-    bodyWidth: 5,
-    walkSpeed: 200,
+    skinColor: '#d8b898',
+    skinBorder: '#b89878',
+    bodyColor: '#5a6a4a',
+    bodyBorder: '#4a5a3a',
+    hairColor: '#4a3a2a',
     hairStyle: 'long',
-    bodyShape: 'thin',
-    hasFacialHair: 'beard',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#cc886655',
+    walkSpeed: 200,
+    accessory: 'backpack',
+    hasBeard: true,
   },
   junkie: { 
-    bodyColor: '#2a2a2a', // Dark, worn
-    headColor: '#4a4a3a', 
-    accessory: 'none', 
-    height: 20, // Hunched adult
-    bodyWidth: 4, // Thin
-    stance: 'hunched',
-    walkSpeed: 380,
+    skinColor: '#c8b898',
+    skinBorder: '#a89878',
+    bodyColor: '#3a3a3a',
+    bodyBorder: '#2a2a2a',
+    hairColor: '#4a4a3a',
     hairStyle: 'bald',
-    bodyShape: 'hunched',
-    hasFacialHair: 'stubble',
-    hasWrinkles: true,
+    eyeColor: '#3a2a2a',
+    cheekColor: '#88666644',
+    walkSpeed: 350,
   },
   sexworker: { 
-    bodyColor: '#8a2a4a', // Hot pink/red mini
-    headColor: '#7a6a6a', 
-    accessory: 'purse', 
-    height: 22,
-    bodyWidth: 4,
-    hasHeels: true,
-    hasSkirt: true,
-    hasFishnets: true,
-    stance: 'posed',
-    walkSpeed: 200,
+    skinColor: '#ffd0c0',
+    skinBorder: '#e8b0a0',
+    bodyColor: '#cc2266',
+    bodyBorder: '#aa1144',
+    hairColor: '#4a2a2a',
     hairStyle: 'big',
-    bodyShape: 'thin',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#ff77aa66',
+    walkSpeed: 180,
+    accessory: 'purse',
   },
   student: { 
-    bodyColor: '#3a3a5a', // Casual blue
-    headColor: '#5a5a5a', 
-    accessory: 'bag', 
-    height: 21,
-    bodyWidth: 5,
-    walkSpeed: 180,
+    skinColor: '#ffd8c8',
+    skinBorder: '#e8b8a8',
+    bodyColor: '#3a5a7a',
+    bodyBorder: '#2a4a6a',
+    hairColor: '#4a3a2a',
     hairStyle: 'curly',
-    bodyShape: 'average',
-    hasFacialHair: 'stubble',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#ff999955',
+    walkSpeed: 160,
+    accessory: 'bag',
   },
   cop: {
-    bodyColor: '#1a2a3a', // Dark blue uniform
-    headColor: '#5a5a5a',
-    accessory: 'radio',
-    height: 26, // Tall authority figure
-    bodyWidth: 7,
+    // PIG!
+    skinColor: '#ffb8b8',
+    skinBorder: '#e89898',
+    bodyColor: '#1a3a5a',
+    bodyBorder: '#0a2a4a',
+    hairColor: '#ffb8b8',
+    hairStyle: 'bald',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#ff888866',
+    walkSpeed: 180,
     hasHat: true,
-    walkSpeed: 200,
-    shoulderWidth: 8,
-    hairStyle: 'short',
-    bodyShape: 'stocky',
-    hasFacialHair: 'mustache',
+    hatColor: '#1a3a5a',
+    isPig: true,
   },
   punk: {
-    bodyColor: '#1a1a1a', // Black leather
-    headColor: '#5a5a4a',
-    accessory: 'none',
-    height: 22,
-    bodyWidth: 5,
-    walkSpeed: 150,
+    skinColor: '#e8c8a8',
+    skinBorder: '#c8a888',
+    bodyColor: '#1a1a1a',
+    bodyBorder: '#0a0a0a',
+    hairColor: '#1a1a1a',
     hairStyle: 'spiky',
-    bodyShape: 'thin',
-    hasStuds: true,
-    hasFacialHair: 'stubble',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#88666655',
+    walkSpeed: 130,
   },
   dealer: {
-    bodyColor: '#2a2a3a', // Dark hoodie
-    headColor: '#4a4a4a',
-    accessory: 'hood',
-    height: 23,
-    bodyWidth: 6,
-    walkSpeed: 300,
+    skinColor: '#d8b898',
+    skinBorder: '#b89878',
+    bodyColor: '#2a2a3a',
+    bodyBorder: '#1a1a2a',
+    hairColor: '#2a2a2a',
     hairStyle: 'bald',
-    bodyShape: 'stocky',
-    hasHood: true,
-    hasFacialHair: 'stubble',
+    eyeColor: '#1a1a1a',
+    cheekColor: '#88666644',
+    walkSpeed: 280,
+    accessory: 'hood',
   },
 };
 
@@ -183,355 +180,332 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
   const isNearPlayer = Math.abs(pedestrian.x - playerX) < 8;
   const showActionHint = isNearPlayer && pedestrian.canBeStolen && actionsAvailable.length > 0;
   
-  // Hair rendering based on style
+  // Render hair based on style
   const renderHair = () => {
+    if (style.isPig) return null; // Pigs don't have hair
+    
     switch (style.hairStyle) {
       case 'bald':
         return null;
       case 'grey':
-        return <div className="absolute -top-0.5 left-0 right-0 h-2 rounded-t" style={{ background: '#9a9a9a' }} />;
+        return (
+          <div 
+            className="absolute -top-1 left-0.5 right-0.5 h-3 rounded-t-full"
+            style={{ background: style.hairColor }}
+          />
+        );
       case 'long':
         return (
           <>
-            <div className="absolute -top-0.5 left-0 right-0 h-2 rounded-t" style={{ background: '#3a2a2a' }} />
-            <div className="absolute top-2 -left-0.5 w-1.5 h-3 rounded" style={{ background: '#3a2a2a' }} />
-            <div className="absolute top-2 -right-0.5 w-1.5 h-3 rounded" style={{ background: '#3a2a2a' }} />
+            <div className="absolute -top-1 left-0 right-0 h-3 rounded-t" style={{ background: style.hairColor }} />
+            <div className="absolute top-3 -left-1 w-2 h-4 rounded" style={{ background: style.hairColor }} />
+            <div className="absolute top-3 -right-1 w-2 h-4 rounded" style={{ background: style.hairColor }} />
           </>
         );
       case 'mohawk':
-        return <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-2 h-4 rounded-t" style={{ background: '#8a2a6a' }} />;
+        return (
+          <div 
+            className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-5 rounded-t"
+            style={{ background: style.hairColor }}
+          />
+        );
       case 'curly':
-        return <div className="absolute -top-1 left-0 right-0 h-2.5 rounded-t" style={{ background: '#4a3a2a', borderRadius: '50% 50% 0 0' }} />;
+        return (
+          <div 
+            className="absolute -top-1.5 -left-0.5 -right-0.5 h-4 rounded-t-full"
+            style={{ background: style.hairColor, borderRadius: '60% 60% 30% 30%' }}
+          />
+        );
       case 'spiky':
         return (
           <>
-            <div className="absolute -top-2.5 left-0 w-1.5 h-4 rotate-[-20deg]" style={{ background: '#1a1a1a' }} />
-            <div className="absolute -top-3 left-2 w-1.5 h-4.5" style={{ background: '#1a1a1a' }} />
-            <div className="absolute -top-2.5 right-0 w-1.5 h-4 rotate-[20deg]" style={{ background: '#1a1a1a' }} />
+            <div className="absolute -top-3 left-0.5 w-2 h-4 rotate-[-15deg]" style={{ background: style.hairColor }} />
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-2 h-5" style={{ background: style.hairColor }} />
+            <div className="absolute -top-3 right-0.5 w-2 h-4 rotate-[15deg]" style={{ background: style.hairColor }} />
           </>
         );
       case 'big':
-        // Big 80s/90s hair
         return (
           <>
-            <div className="absolute -top-2 -left-1 right-[-4px] h-5 rounded-t" style={{ background: '#4a2a2a' }} />
-            <div className="absolute top-0 -left-2 w-2.5 h-4 rounded" style={{ background: '#4a2a2a' }} />
-            <div className="absolute top-0 -right-2 w-2.5 h-4 rounded" style={{ background: '#4a2a2a' }} />
+            <div className="absolute -top-2 -left-1.5 right-[-6px] h-6 rounded-t-full" style={{ background: style.hairColor }} />
+            <div className="absolute top-1 -left-2.5 w-3 h-5 rounded" style={{ background: style.hairColor }} />
+            <div className="absolute top-1 -right-2.5 w-3 h-5 rounded" style={{ background: style.hairColor }} />
           </>
         );
-      case 'receding':
-        // Receding hairline - clearly adult male
+      case 'slick':
         return (
           <>
-            <div className="absolute -top-0.5 left-1.5 right-1.5 h-1.5 rounded-t" style={{ background: '#3a3a3a' }} />
-            <div className="absolute -top-0.5 left-0 w-1 h-1 rounded-tl" style={{ background: style.headColor }} />
-            <div className="absolute -top-0.5 right-0 w-1 h-1 rounded-tr" style={{ background: style.headColor }} />
+            <div className="absolute -top-0.5 left-1 right-1 h-2 rounded-t" style={{ background: style.hairColor }} />
+            {/* Receding temples */}
+            <div className="absolute -top-0.5 left-0 w-1.5 h-1.5 rounded-tl" style={{ background: style.skinColor }} />
+            <div className="absolute -top-0.5 right-0 w-1.5 h-1.5 rounded-tr" style={{ background: style.skinColor }} />
           </>
         );
-      case 'beard':
-        // Just the top hair, beard rendered separately
-        return <div className="absolute -top-0.5 left-0.5 right-0.5 h-2 rounded-t" style={{ background: '#3a2a2a' }} />;
       case 'short':
       default:
-        return <div className="absolute -top-0.5 left-0.5 right-0.5 h-1.5 rounded-t" style={{ background: '#3a3a3a' }} />;
+        return (
+          <div 
+            className="absolute -top-1 left-0.5 right-0.5 h-2.5 rounded-t"
+            style={{ background: style.hairColor }}
+          />
+        );
     }
   };
-  
-  // Body shape modifiers
-  const getBodyModifiers = () => {
-    switch (style.bodyShape) {
-      case 'thin':
-        return { bodyHeight: style.height - 14, widthMod: 0.8 };
-      case 'wide':
-        return { bodyHeight: style.height - 15, widthMod: 1.3 };
-      case 'hunched':
-        return { bodyHeight: style.height - 12, widthMod: 0.9, tilt: 10 };
-      default:
-        return { bodyHeight: style.height - 16, widthMod: 1 };
-    }
-  };
-  
-  const bodyMods = getBodyModifiers();
-  
+
   return (
     <div 
-      className="absolute transition-all duration-100 z-25"
+      className="absolute transition-all duration-75 z-25"
       style={{ 
         left: `${pedestrian.x}%`, 
         bottom: '46%',
         transform: `translateX(-50%) ${pedestrian.direction === 'left' ? 'scaleX(-1)' : ''}`,
-        opacity: isNearPlayer ? 1 : 0.85,
+        opacity: isNearPlayer ? 1 : 0.9,
       }}
     >
-      {/* Shadow - grounds pedestrian to footpath */}
+      {/* Shadow */}
       <div 
-        className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 rounded-full opacity-30"
-        style={{ 
-          background: '#0a0a0a', 
-          filter: 'blur(1px)',
-          width: `${(style.shoulderWidth || style.bodyWidth) * 1.5}px`,
-          height: '4px',
-        }}
+        className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full opacity-35"
+        style={{ background: '#0a0a0a', filter: 'blur(1px)' }}
       />
       
-      {/* Pedestrian sprite */}
-      <div 
-        className="relative" 
-        style={{ 
-          height: `${style.height}px`, 
-          width: '16px',
-          transform: bodyMods.tilt ? `rotate(${bodyMods.tilt}deg)` : undefined,
-        }}
-      >
-        {/* Hat (tourist, cop) */}
-        {style.hasHat && (
+      {/* Chibi sprite */}
+      <div className="relative w-12 h-14">
+        {/* Hat (if any) - render before head */}
+        {style.hasHat && !style.isPig && (
           <div 
-            className="absolute -top-2 left-1/2 -translate-x-1/2 w-5 h-2 rounded-t"
-            style={{ 
-              background: pedestrian.archetype === 'cop' ? '#1a2a3a' : '#5a5a4a',
-              borderBottom: pedestrian.archetype === 'cop' ? '1px solid #3a4a5a' : 'none',
-            }}
+            className="absolute -top-1 left-1/2 -translate-x-1/2 w-10 h-3 rounded-t z-10"
+            style={{ background: style.hatColor, border: `1px solid ${style.bodyBorder}` }}
           />
         )}
         
-        {/* Hood (dealer) */}
-        {style.hasHood && (
+        {/* Hood for dealer */}
+        {style.accessory === 'hood' && (
           <>
-            {/* Hood shape - covers head */}
             <div 
-              className="absolute -top-1 left-1/2 -translate-x-1/2 w-6 h-5 rounded-t-full"
-              style={{ background: '#1a1a2a', border: '1px solid #2a2a3a' }}
+              className="absolute -top-1 left-1/2 -translate-x-1/2 w-11 h-8 rounded-t-full z-10"
+              style={{ background: style.bodyColor, border: `2px solid ${style.bodyBorder}` }}
             />
-            {/* Hood opening shadow */}
             <div 
-              className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-2 rounded-b"
+              className="absolute top-2 left-1/2 -translate-x-1/2 w-5 h-3 rounded-b z-20"
               style={{ background: '#0a0a0f' }}
             />
           </>
         )}
         
-        {/* Head */}
+        {/* BIG HEAD - Sega chibi style */}
         <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full border"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-9 rounded-full"
           style={{ 
-            background: style.headColor, 
-            borderColor: '#2a2a2a',
-            opacity: style.hasHood ? 0.6 : 1,
+            background: style.isPig 
+              ? `linear-gradient(180deg, ${style.skinColor} 0%, #ffaaaa 100%)` 
+              : `linear-gradient(180deg, ${style.skinColor} 0%, ${style.skinBorder} 100%)`,
+            border: `2px solid ${style.skinBorder}`,
+            opacity: style.accessory === 'hood' ? 0.7 : 1,
           }}
         >
-          {/* Hair */}
-          {!style.hasHood && renderHair()}
+          {/* Hair (non-pigs) */}
+          {!style.isPig && style.accessory !== 'hood' && renderHair()}
           
-          {/* Facial hair - makes them clearly adult */}
-          {style.hasFacialHair === 'stubble' && (
-            <div 
-              className="absolute bottom-0.5 left-0.5 right-0.5 h-1.5 rounded-b opacity-40"
-              style={{ background: '#2a2a2a' }}
-            />
-          )}
-          {style.hasFacialHair === 'beard' && (
-            <div 
-              className="absolute bottom-[-2px] left-0 right-0 h-2.5 rounded-b"
-              style={{ background: '#3a2a2a', border: '1px solid #2a1a1a' }}
-            />
-          )}
-          {style.hasFacialHair === 'mustache' && (
-            <div 
-              className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-2.5 h-1 rounded"
-              style={{ background: '#3a2a2a' }}
-            />
-          )}
-          
-          {/* Wrinkles for older characters */}
-          {style.hasWrinkles && (
+          {/* PIG SNOUT */}
+          {style.isPig && (
             <>
-              <div className="absolute top-1 left-0.5 w-1 h-px" style={{ background: '#4a4a4a' }} />
-              <div className="absolute top-1.5 right-0.5 w-1 h-px" style={{ background: '#4a4a4a' }} />
+              {/* Pig ears */}
+              <div 
+                className="absolute -top-1 left-0 w-3 h-3 rotate-[-20deg] rounded-full"
+                style={{ background: style.skinColor, border: `1px solid ${style.skinBorder}` }}
+              />
+              <div 
+                className="absolute -top-1 right-0 w-3 h-3 rotate-[20deg] rounded-full"
+                style={{ background: style.skinColor, border: `1px solid ${style.skinBorder}` }}
+              />
+              {/* Snout */}
+              <div 
+                className="absolute bottom-1 left-1/2 -translate-x-1/2 w-5 h-3 rounded-full"
+                style={{ background: '#ffaaaa', border: `1px solid ${style.skinBorder}` }}
+              >
+                {/* Nostrils */}
+                <div className="absolute top-1 left-1 w-1 h-1 rounded-full" style={{ background: '#884444' }} />
+                <div className="absolute top-1 right-1 w-1 h-1 rounded-full" style={{ background: '#884444' }} />
+              </div>
+              {/* Cop hat on pig */}
+              <div 
+                className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 rounded-t"
+                style={{ background: style.hatColor, border: `1px solid ${style.bodyBorder}` }}
+              >
+                {/* Badge on hat */}
+                <div className="absolute top-0.5 left-1/2 -translate-x-1/2 w-2 h-1.5" style={{ background: '#ccaa44' }} />
+              </div>
             </>
           )}
+          
+          {/* Eyes */}
+          <div 
+            className="absolute top-2.5 left-1 w-2.5 h-2.5 rounded-full"
+            style={{ background: '#ffffff', border: '1px solid #cccccc' }}
+          >
+            <div 
+              className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full"
+              style={{ background: style.eyeColor }}
+            />
+            <div className="absolute top-0.5 left-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#ffffff' }} />
+          </div>
+          <div 
+            className="absolute top-2.5 right-1 w-2.5 h-2.5 rounded-full"
+            style={{ background: '#ffffff', border: '1px solid #cccccc' }}
+          >
+            <div 
+              className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full"
+              style={{ background: style.eyeColor }}
+            />
+            <div className="absolute top-0.5 left-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#ffffff' }} />
+          </div>
+          
+          {/* Glasses */}
+          {style.hasGlasses && (
+            <>
+              <div className="absolute top-2 left-0 w-3.5 h-3 rounded border-2" style={{ borderColor: '#4a4a4a', background: 'transparent' }} />
+              <div className="absolute top-2 right-0 w-3.5 h-3 rounded border-2" style={{ borderColor: '#4a4a4a', background: 'transparent' }} />
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-2 h-0.5" style={{ background: '#4a4a4a' }} />
+            </>
+          )}
+          
+          {/* Rosy cheeks */}
+          <div 
+            className="absolute top-4.5 left-0 w-2 h-1.5 rounded-full"
+            style={{ background: style.cheekColor }}
+          />
+          <div 
+            className="absolute top-4.5 right-0 w-2 h-1.5 rounded-full"
+            style={{ background: style.cheekColor }}
+          />
+          
+          {/* Mustache */}
+          {style.hasMustache && !style.isPig && (
+            <div 
+              className="absolute bottom-2 left-1/2 -translate-x-1/2 w-4 h-1.5 rounded"
+              style={{ background: style.hairColor }}
+            />
+          )}
+          
+          {/* Beard */}
+          {style.hasBeard && !style.isPig && (
+            <div 
+              className="absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-5 h-3 rounded-b"
+              style={{ background: style.hairColor }}
+            />
+          )}
+          
+          {/* Mouth (non-pigs) */}
+          {!style.isPig && (
+            <div 
+              className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1 rounded-b-full"
+              style={{ background: '#cc8888' }}
+            />
+          )}
         </div>
         
-        {/* Neck for taller figures */}
-        {style.height > 20 && (
-          <div 
-            className="absolute top-[16px] left-1/2 -translate-x-1/2 w-2 h-1.5"
-            style={{ background: style.headColor }}
-          />
-        )}
-        
-        {/* Body - varies by archetype */}
+        {/* Tiny body */}
         <div 
-          className="absolute left-1/2 -translate-x-1/2 rounded-sm border"
-          style={{ 
-            top: style.height > 20 ? '15px' : '14px',
-            width: `${style.bodyWidth * bodyMods.widthMod * 2.5}px`,
-            height: `${bodyMods.bodyHeight}px`,
-            background: style.bodyColor,
-            borderColor: '#1a1a1a',
-          }}
+          className="absolute top-8 left-1/2 -translate-x-1/2 w-6 h-4 rounded"
+          style={{ background: style.bodyColor, border: `1px solid ${style.bodyBorder}` }}
         >
-        {/* Cop badge */}
-        {pedestrian.archetype === 'cop' && (
-          <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-sm" style={{ background: '#8a8a4a' }} />
-        )}
-        
-        {/* Businessman tie */}
-        {style.hasTie && (
-          <div className="absolute top-0.5 left-1/2 -translate-x-1/2 w-1 h-4" style={{ background: '#8a3a3a' }} />
-        )}
-        
-        {/* Punk studs on jacket */}
-        {style.hasStuds && (
-          <>
-            <div className="absolute top-0.5 left-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#aaaaaa' }} />
-            <div className="absolute top-0.5 right-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#aaaaaa' }} />
-            <div className="absolute top-2 left-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#aaaaaa' }} />
-            <div className="absolute top-2 right-0.5 w-0.5 h-0.5 rounded-full" style={{ background: '#aaaaaa' }} />
-          </>
-        )}
-      </div>
-        
-        {/* Shoulders for wider builds */}
-        {(style.shoulderWidth || 0) > style.bodyWidth && (
-          <>
-            <div 
-              className="absolute rounded-t"
-              style={{ 
-                top: style.height > 20 ? '15px' : '14px',
-                left: '0px',
-                width: '3px',
-                height: '4px',
-                background: style.bodyColor,
-              }}
-            />
-            <div 
-              className="absolute rounded-t"
-              style={{ 
-                top: style.height > 20 ? '15px' : '14px',
-                right: '0px',
-                width: '3px',
-                height: '4px',
-                background: style.bodyColor,
-              }}
-            />
-          </>
-        )}
-        
-        {/* Skirt for sex workers */}
-        {style.hasSkirt && (
-          <div 
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{
-              top: style.height > 20 ? '18px' : '16px',
-              width: `${style.bodyWidth * bodyMods.widthMod * 3}px`,
-              height: '5px',
-              background: '#8a2a4a',
-              borderRadius: '0 0 3px 3px',
-            }}
-          />
-        )}
-        
-        {/* Legs - walking animation */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
-          {/* Fishnets pattern for sex workers */}
-          <div 
-            className="rounded-b transition-transform relative"
-            style={{ 
-              width: '3px',
-              height: style.hasHeels ? '7px' : '5px',
-              background: pedestrian.archetype === 'cop' ? '#1a2a3a' : 
-                         pedestrian.archetype === 'punk' ? '#1a1a1a' :
-                         pedestrian.archetype === 'sexworker' ? '#5a4a4a' : '#2a2a2a',
-              transform: `translateY(${walkFrame % 2 === 0 ? 0 : 1}px)`,
-            }}
-          >
-            {style.hasFishnets && (
-              <>
-                <div className="absolute top-1 left-0 right-0 h-px" style={{ background: '#1a1a1a55' }} />
-                <div className="absolute top-2.5 left-0 right-0 h-px" style={{ background: '#1a1a1a55' }} />
-              </>
-            )}
-          </div>
-          <div 
-            className="rounded-b transition-transform relative"
-            style={{ 
-              width: '3px',
-              height: style.hasHeels ? '7px' : '5px',
-              background: pedestrian.archetype === 'cop' ? '#1a2a3a' : 
-                         pedestrian.archetype === 'punk' ? '#1a1a1a' :
-                         pedestrian.archetype === 'sexworker' ? '#5a4a4a' : '#2a2a2a',
-              transform: `translateY(${walkFrame % 2 === 1 ? 0 : 1}px)`,
-            }}
-          >
-            {style.hasFishnets && (
-              <>
-                <div className="absolute top-1 left-0 right-0 h-px" style={{ background: '#1a1a1a55' }} />
-                <div className="absolute top-2.5 left-0 right-0 h-px" style={{ background: '#1a1a1a55' }} />
-              </>
-            )}
-          </div>
+          {/* Cop badge */}
+          {style.isPig && (
+            <div className="absolute top-0.5 left-0.5 w-2 h-2 rounded-sm" style={{ background: '#ccaa44' }} />
+          )}
+          {/* Tie for businessman */}
+          {pedestrian.archetype === 'businessman' && (
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-3" style={{ background: '#aa3333' }} />
+          )}
         </div>
         
-        {/* Heels - red stilettos for sex workers */}
-        {style.hasHeels && (
-          <>
-            <div className="absolute -bottom-1 left-[14px] w-1.5 h-2.5" style={{ background: '#cc3333' }} />
-            <div className="absolute -bottom-1 right-[14px] w-1.5 h-2.5" style={{ background: '#cc3333' }} />
-            {/* Thin heels */}
-            <div className="absolute -bottom-1 left-[15px] w-0.5 h-1" style={{ background: '#aa2222' }} />
-            <div className="absolute -bottom-1 right-[15px] w-0.5 h-1" style={{ background: '#aa2222' }} />
-          </>
-        )}
+        {/* Stubby arms */}
+        <div 
+          className="absolute top-8 left-0.5 w-2 h-3 rounded-full origin-top transition-transform"
+          style={{ 
+            background: style.skinColor,
+            border: `1px solid ${style.skinBorder}`,
+            transform: `rotate(${walkFrame % 2 === 0 ? 25 : -25}deg)`,
+          }}
+        />
+        <div 
+          className="absolute top-8 right-0.5 w-2 h-3 rounded-full origin-top transition-transform"
+          style={{ 
+            background: style.skinColor,
+            border: `1px solid ${style.skinBorder}`,
+            transform: `rotate(${walkFrame % 2 === 0 ? -25 : 25}deg)`,
+          }}
+        />
         
-        {/* Punk boots */}
-        {pedestrian.archetype === 'punk' && (
-          <>
-            <div className="absolute -bottom-0.5 left-[13px] w-2 h-2" style={{ background: '#1a1a1a', border: '1px solid #3a3a3a' }} />
-            <div className="absolute -bottom-0.5 right-[13px] w-2 h-2" style={{ background: '#1a1a1a', border: '1px solid #3a3a3a' }} />
-          </>
-        )}
+        {/* Stubby legs - waddle animation */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
+          <div 
+            className="w-2 h-3 rounded-b-full transition-transform"
+            style={{ 
+              background: style.skinColor,
+              border: `1px solid ${style.skinBorder}`,
+              transform: `translateY(${walkFrame % 2 === 0 ? 0 : 2}px) rotate(${walkFrame % 2 === 0 ? -8 : 8}deg)`,
+            }}
+          />
+          <div 
+            className="w-2 h-3 rounded-b-full transition-transform"
+            style={{ 
+              background: style.skinColor,
+              border: `1px solid ${style.skinBorder}`,
+              transform: `translateY(${walkFrame % 2 === 1 ? 0 : 2}px) rotate(${walkFrame % 2 === 1 ? -8 : 8}deg)`,
+            }}
+          />
+        </div>
         
         {/* Accessories */}
         {style.accessory === 'briefcase' && (
-          <div className="absolute top-[18px] -right-3 w-4 h-3 rounded-sm border" style={{ background: '#2a1a1a', borderColor: '#4a3a3a' }} />
+          <div 
+            className="absolute top-10 -right-2 w-4 h-3 rounded-sm"
+            style={{ background: '#3a2a1a', border: '1px solid #5a4a3a' }}
+          />
         )}
         {style.accessory === 'backpack' && (
-          <div className="absolute top-[12px] -left-2 w-4 h-6 rounded" style={{ background: '#4a5a3a', border: '1px solid #3a4a2a' }}>
-            <div className="absolute top-1 left-0.5 w-3 h-1" style={{ background: '#3a4a2a' }} />
+          <div 
+            className="absolute top-7 -left-3 w-5 h-6 rounded"
+            style={{ background: '#5a7a4a', border: '1px solid #4a6a3a' }}
+          >
+            <div className="absolute top-1 left-1 w-3 h-1" style={{ background: '#4a6a3a' }} />
           </div>
         )}
         {style.accessory === 'camera' && (
-          <div className="absolute top-[16px] left-1/2 -translate-x-1/2 w-4 h-2.5 rounded" style={{ background: '#3a3a3a', border: '1px solid #5a5a5a' }}>
-            <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full" style={{ background: '#1a1a1a' }} />
+          <div 
+            className="absolute top-9 left-1/2 -translate-x-1/2 w-5 h-3 rounded"
+            style={{ background: '#4a4a4a', border: '1px solid #6a6a6a' }}
+          >
+            <div className="absolute top-0.5 left-0.5 w-2 h-2 rounded-full" style={{ background: '#2a2a2a' }} />
           </div>
         )}
         {style.accessory === 'cane' && (
           <div 
-            className="absolute bottom-0 -right-2 w-1 h-8 origin-bottom rounded-t" 
+            className="absolute bottom-0 -right-2 w-1 h-8 origin-bottom rounded-t transition-transform" 
             style={{ 
-              background: '#5a4a3a', 
-              transform: `rotate(${walkFrame % 2 === 0 ? 8 : -5}deg)` 
+              background: '#6a5a4a', 
+              transform: `rotate(${walkFrame % 2 === 0 ? 10 : -8}deg)`,
             }} 
           />
         )}
         {style.accessory === 'bag' && (
-          <div className="absolute top-[14px] -right-2 w-3 h-4 rounded" style={{ background: '#3a3a4a' }}>
-            <div className="absolute top-0 left-0.5 w-0.5 h-3" style={{ background: '#2a2a3a' }} />
-          </div>
+          <div 
+            className="absolute top-8 -right-2.5 w-4 h-4 rounded"
+            style={{ background: '#4a4a5a', border: '1px solid #3a3a4a' }}
+          />
         )}
         {style.accessory === 'purse' && (
-          <div className="absolute top-[14px] -right-2 w-2.5 h-2.5 rounded" style={{ background: '#5a2a3a', border: '1px solid #7a4a5a' }}>
-            <div className="absolute -top-1 left-0.5 w-1.5 h-1 rounded-t" style={{ background: '#7a4a5a' }} />
-          </div>
-        )}
-        {style.accessory === 'radio' && (
-          <div className="absolute top-[16px] -left-2 w-2 h-3 rounded" style={{ background: '#2a2a2a', border: '1px solid #3a3a3a' }}>
-            <div className="absolute -top-2 left-0.5 w-0.5 h-2" style={{ background: '#3a3a3a' }} />
+          <div 
+            className="absolute top-9 -right-2 w-3 h-3 rounded"
+            style={{ background: '#aa4466', border: '1px solid #884455' }}
+          >
+            <div className="absolute -top-1.5 left-0.5 w-2 h-1.5 rounded-t" style={{ background: '#884455' }} />
           </div>
         )}
       </div>
       
-      {/* Action hints when close - dealers show BUY */}
+      {/* Action hints - dealers show BUY */}
       {showActionHint && pedestrian.archetype === 'dealer' && (
         <div 
           className="absolute -top-6 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[7px] animate-pulse rounded font-bold whitespace-nowrap"
@@ -541,7 +515,7 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
         </div>
       )}
       
-      {/* Regular action hints for non-dealers */}
+      {/* Regular action hints */}
       {showActionHint && pedestrian.archetype !== 'dealer' && (
         <div 
           className="absolute -top-5 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] animate-pulse rounded font-bold whitespace-nowrap"
@@ -551,7 +525,7 @@ export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: Pedes
         </div>
       )}
       
-      {/* Legacy B/C indicator fallback */}
+      {/* Fallback B/C indicator */}
       {isNearPlayer && pedestrian.canBeStolen && !showActionHint && (
         <div 
           className="absolute -top-4 left-1/2 -translate-x-1/2 px-1.5 py-0.5 text-[6px] animate-pulse rounded font-bold"
