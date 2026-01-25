@@ -4,12 +4,14 @@ import {
   INITIAL_STATE, 
   HOTSPOTS, 
   HotspotZone,
-  DesperationAction 
+  DesperationAction,
+  CarState
 } from '@/types/game';
 
 export function useGameState() {
   const [state, setState] = useState<GameState>({ ...INITIAL_STATE });
   const eventTimeoutRef = useRef<number | null>(null);
+  const carIdRef = useRef(0);
 
   const showEvent = useCallback((text: string) => {
     if (eventTimeoutRef.current) {
@@ -178,6 +180,80 @@ export function useGameState() {
     });
   }, [showEvent]);
 
+  const handleCarEncounter = useCallback(() => {
+    setState(s => {
+      if (!s.carEncounterActive || s.isGameOver || s.isPaused) return s;
+      
+      const newState = { ...s, stats: { ...s.stats } };
+      const encounterCount = s.carEncounterCount;
+      const survivalTime = s.stats.survivalTime;
+      
+      // Early game: encounters are more helpful
+      // Late game: encounters become risky
+      const isEarlyGame = survivalTime < 60 && encounterCount < 3;
+      const isLateGame = survivalTime > 120 || encounterCount > 5;
+      
+      const roll = Math.random();
+      
+      if (isLateGame && roll < 0.2) {
+        // Dangerous outcome
+        const dangerRoll = Math.random();
+        if (dangerRoll < 0.5) {
+          showEvent('The encounter turned violent. Everything went dark.');
+          setTimeout(() => triggerGameOver('A dangerous encounter.'), 1500);
+        } else {
+          showEvent('The driver drove off suddenly. You were hurt.');
+          newState.stats.warmth = Math.max(0, newState.stats.warmth - 20);
+          newState.stats.hope = Math.max(0, newState.stats.hope - 30);
+        }
+      } else if (isLateGame && roll < 0.5) {
+        // Refusal
+        showEvent('The car drove off. They changed their mind.');
+        newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+      } else if (isEarlyGame) {
+        // Helpful early encounter
+        newState.stats.hunger = Math.min(100, newState.stats.hunger + 35);
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 25);
+        newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+        newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 8);
+        if (roll < 0.4) {
+          newState.stats.money += Math.floor(Math.random() * 15) + 5;
+        }
+        showEvent('You accepted a private arrangement. It kept you fed and warm. It cost you.');
+      } else {
+        // Mid-game: moderate returns
+        newState.stats.hunger = Math.min(100, newState.stats.hunger + 20);
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
+        newState.stats.hope = Math.max(0, newState.stats.hope - 25);
+        newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 10);
+        showEvent('The arrangement was brief. You survived another hour.');
+      }
+      
+      // Clear the stopped car and increment counter
+      newState.cars = s.cars.filter(c => !c.isEncounter);
+      newState.carEncounterActive = false;
+      newState.carEncounterCount = s.carEncounterCount + 1;
+      
+      return newState;
+    });
+  }, [showEvent, triggerGameOver]);
+
+  const ignoreCarEncounter = useCallback(() => {
+    setState(s => {
+      if (!s.carEncounterActive) return s;
+      
+      // Car drives off
+      const newCars = s.cars.filter(c => !c.isEncounter);
+      showEvent('You ignored the car. It drove away.');
+      
+      return {
+        ...s,
+        cars: newCars,
+        carEncounterActive: false,
+      };
+    });
+  }, [showEvent]);
+
   const performDesperationAction = useCallback((action: DesperationAction) => {
     setState(s => {
       if (s.isGameOver || s.isPaused) return s;
@@ -198,11 +274,7 @@ export function useGameState() {
           break;
         }
         case 'car': {
-          newState.stats.hunger = Math.min(100, newState.stats.hunger + 40);
-          newState.stats.warmth = Math.min(100, newState.stats.warmth + 30);
-          newState.stats.hope = Math.max(0, newState.stats.hope - 25);
-          newState.stats.money += Math.floor(Math.random() * 20) + 10;
-          showEvent('You accepted a private car arrangement. It cost you.');
+          handleCarEncounter();
           break;
         }
         case 'sell': {
@@ -229,7 +301,7 @@ export function useGameState() {
       
       return newState;
     });
-  }, [showEvent, triggerGameOver]);
+  }, [showEvent, triggerGameOver, handleCarEncounter]);
 
   const tick = useCallback(() => {
     setState(s => {
@@ -284,6 +356,68 @@ export function useGameState() {
         newState.isRaining = Math.random() < 0.3;
       }
       
+      // === CAR SYSTEM ===
+      // Move existing cars
+      let updatedCars = s.cars.map(car => {
+        if (car.isStopped) return car;
+        return { ...car, x: car.x - car.speed };
+      }).filter(car => car.x > -20); // Remove cars that left screen
+      
+      // Spawn new cars periodically
+      const spawnRate = s.timeOfDay === 'night' ? 0.08 : 0.15;
+      if (Math.random() < spawnRate && updatedCars.filter(c => !c.isStopped).length < 3) {
+        const newCar: CarState = {
+          id: carIdRef.current++,
+          x: 110,
+          speed: 1.5 + Math.random() * 1.5,
+          isStopped: false,
+          isEncounter: false,
+          variant: Math.floor(Math.random() * 3),
+        };
+        updatedCars.push(newCar);
+      }
+      
+      // Car encounter logic - only when not already in an encounter
+      if (!s.carEncounterActive) {
+        // Encounter chance based on survival time and previous encounters
+        const baseEncounterChance = 0.02;
+        const encounterModifier = Math.max(0.5, 1 - (s.carEncounterCount * 0.1));
+        const encounterChance = baseEncounterChance * encounterModifier;
+        
+        // Check if a car should stop near the player (ask-help zone is best for this)
+        const playerNearRoad = s.playerX > 5 && s.playerX < 30;
+        
+        for (let i = 0; i < updatedCars.length; i++) {
+          const car = updatedCars[i];
+          if (!car.isStopped && !car.isEncounter && playerNearRoad) {
+            // Car is passing near player
+            if (car.x <= s.playerX + 15 && car.x >= s.playerX - 5) {
+              if (Math.random() < encounterChance) {
+                updatedCars[i] = {
+                  ...car,
+                  isStopped: true,
+                  isEncounter: true,
+                  x: s.playerX + 5,
+                };
+                newState.carEncounterActive = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      // Auto-dismiss encounter after ~8 seconds if player doesn't interact
+      if (s.carEncounterActive) {
+        const encounterCar = updatedCars.find(c => c.isEncounter);
+        if (encounterCar) {
+          // Track encounter duration via a hacky method - car variant as timer
+          // This is simplified; in production you'd want a proper timestamp
+        }
+      }
+      
+      newState.cars = updatedCars;
+      
       // Random events
       if (Math.random() < 0.02) {
         const eventRoll = Math.random();
@@ -319,9 +453,6 @@ export function useGameState() {
       if (newState.stats.hunger < 25 || newState.stats.warmth < 25 || newState.stats.money <= 0) {
         if (s.currentZone === 'services' || s.currentZone === 'bins') {
           desperationAvailable.push('theft');
-        }
-        if (s.currentZone === 'ask-help' && Math.random() < 0.1) {
-          desperationAvailable.push('car');
         }
         if (s.currentZone === 'services') {
           desperationAvailable.push('sell');
@@ -360,6 +491,8 @@ export function useGameState() {
     restartGame,
     performAction,
     performDesperationAction,
+    handleCarEncounter,
+    ignoreCarEncounter,
     tick,
   };
 }

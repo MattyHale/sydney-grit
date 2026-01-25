@@ -15,24 +15,38 @@ const Index = () => {
     restartGame,
     performAction,
     performDesperationAction,
+    handleCarEncounter,
+    ignoreCarEncounter,
     tick,
   } = useGameState();
 
-  // Handle interactions based on current zone
+  // Handle interactions based on current zone or car encounter
   const handleInteract = useCallback(() => {
-    if (state.currentZone) {
+    if (state.carEncounterActive) {
+      handleCarEncounter();
+    } else if (state.currentZone) {
       performAction(state.currentZone);
     }
-  }, [state.currentZone, performAction]);
+  }, [state.currentZone, state.carEncounterActive, performAction, handleCarEncounter]);
+
+  // Handle duck/down - also dismisses car encounter
+  const handleDuck = useCallback((ducking: boolean) => {
+    if (ducking && state.carEncounterActive) {
+      ignoreCarEncounter();
+    }
+    setDucking(ducking);
+  }, [state.carEncounterActive, ignoreCarEncounter, setDucking]);
 
   // Button handlers for desperation actions
   const handleButtonA = useCallback(() => {
-    if (state.desperationAvailable[0]) {
+    if (state.carEncounterActive) {
+      handleCarEncounter();
+    } else if (state.desperationAvailable[0]) {
       performDesperationAction(state.desperationAvailable[0]);
     } else if (state.currentZone) {
       performAction(state.currentZone);
     }
-  }, [state.desperationAvailable, state.currentZone, performAction, performDesperationAction]);
+  }, [state.desperationAvailable, state.currentZone, state.carEncounterActive, performAction, performDesperationAction, handleCarEncounter]);
 
   const handleButtonB = useCallback(() => {
     if (state.desperationAvailable[1]) {
@@ -51,7 +65,7 @@ const Index = () => {
     onMoveLeft: () => updatePlayerPosition(-2),
     onMoveRight: () => updatePlayerPosition(2),
     onStopMove: stopWalking,
-    onDuck: setDucking,
+    onDuck: handleDuck,
     onInteract: handleInteract,
     onButtonA: handleButtonA,
     onButtonB: handleButtonB,
@@ -91,12 +105,13 @@ const Index = () => {
         onLeft={() => updatePlayerPosition(-2)}
         onRight={() => updatePlayerPosition(2)}
         onUp={handleInteract}
-        onDown={setDucking}
+        onDown={handleDuck}
         onStopMove={stopWalking}
         onButtonA={handleButtonA}
         onButtonB={handleButtonB}
         onButtonC={handleButtonC}
         desperationActions={state.desperationAvailable}
+        carEncounterActive={state.carEncounterActive}
       />
     </div>
   );

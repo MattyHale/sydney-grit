@@ -7,6 +7,15 @@ export interface GameStats {
   survivalTime: number;
 }
 
+export interface CarState {
+  id: number;
+  x: number;
+  speed: number;
+  isStopped: boolean;
+  isEncounter: boolean;
+  variant: number;
+}
+
 export interface GameState {
   stats: GameStats;
   playerX: number;
@@ -26,6 +35,9 @@ export interface GameState {
   shelterOpen: boolean;
   servicesOpen: boolean;
   binsRestocked: boolean;
+  cars: CarState[];
+  carEncounterActive: boolean;
+  carEncounterCount: number;
 }
 
 export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep';
@@ -75,4 +87,7 @@ export const INITIAL_STATE: GameState = {
   shelterOpen: false,
   servicesOpen: true,
   binsRestocked: true,
+  cars: [],
+  carEncounterActive: false,
+  carEncounterCount: 0,
 };
