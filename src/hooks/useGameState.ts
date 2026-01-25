@@ -11,6 +11,7 @@ import {
   ARCHETYPE_STEAL_BIAS,
   PedestrianArchetype
 } from '@/types/game';
+import { getDistrictFromOffset, DISTRICT_CONFIGS } from '@/types/districts';
 
 export function useGameState() {
   const [state, setState] = useState<GameState>({ ...INITIAL_STATE });
@@ -46,7 +47,8 @@ export function useGameState() {
       }
       
       // Update world offset for infinite scroll effect
-      const newWorldOffset = s.worldOffset + (delta * 0.5);
+      const newWorldOffset = s.worldOffset + (delta * 2.5); // Faster scrolling
+      const newDistrict = getDistrictFromOffset(newWorldOffset);
 
       return {
         ...s,
@@ -55,6 +57,7 @@ export function useGameState() {
         playerState: 'walking',
         currentZone,
         worldOffset: newWorldOffset,
+        currentDistrict: newDistrict,
       };
     });
   }, []);
@@ -102,15 +105,18 @@ export function useGameState() {
       if (s.isGameOver || s.isPaused) return s;
       
       const newState = { ...s, stats: { ...s.stats } };
+      const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
       
       switch (zone) {
         case 'ask-help': {
+          const kindnessChance = 0.3 * districtConfig.kindnessMultiplier;
           const roll = Math.random();
-          if (roll < 0.3) {
-            newState.stats.money += Math.floor(Math.random() * 3) + 1;
+          if (roll < kindnessChance) {
+            const money = Math.floor(Math.random() * 3 * districtConfig.kindnessMultiplier) + 1;
+            newState.stats.money += money;
             newState.stats.hope = Math.min(100, newState.stats.hope + 5);
             showEvent('Someone gave you a few dollars.');
-          } else if (roll < 0.5) {
+          } else if (roll < kindnessChance + 0.2) {
             newState.stats.hope = Math.min(100, newState.stats.hope + 3);
             showEvent('A passerby offered kind words.');
           } else {
@@ -150,14 +156,16 @@ export function useGameState() {
           break;
         }
         case 'services': {
+          const servicesChance = 0.4 * districtConfig.servicesMultiplier;
           if (s.servicesOpen) {
             const roll = Math.random();
-            if (roll < 0.4) {
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + 25);
+            if (roll < servicesChance) {
+              const hungerBoost = Math.floor(25 * districtConfig.foodMultiplier);
+              newState.stats.hunger = Math.min(100, newState.stats.hunger + hungerBoost);
               newState.stats.warmth = Math.min(100, newState.stats.warmth + 10);
               newState.stats.hope = Math.min(100, newState.stats.hope + 10);
               showEvent('Services gave you a hot meal and some advice.');
-            } else if (roll < 0.7) {
+            } else if (roll < servicesChance + 0.3) {
               newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
               showEvent('You waited in the warm lobby for a while.');
             } else {
@@ -170,9 +178,10 @@ export function useGameState() {
           break;
         }
         case 'shelter': {
+          const shelterChance = 0.5 * districtConfig.servicesMultiplier;
           if (s.shelterOpen) {
             const roll = Math.random();
-            if (roll < 0.5) {
+            if (roll < shelterChance) {
               newState.stats.warmth = Math.min(100, newState.stats.warmth + 30);
               newState.stats.fatigue = Math.max(0, newState.stats.fatigue - 20);
               newState.stats.hope = Math.min(100, newState.stats.hope + 5);
@@ -464,10 +473,14 @@ export function useGameState() {
         newState.isRaining = Math.random() < 0.3;
       }
       
+      // === DISTRICT-BASED SYSTEMS ===
+      const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
+      
       // === IBIS SYSTEM ===
-      // Ibis appears near bins at certain times
+      // Ibis appears near bins - more frequent in Redfern
+      const ibisChance = districtConfig.ibisFrequency;
       const shouldHaveIbis = (newState.stats.survivalTime % 60) > 20 && (newState.stats.survivalTime % 60) < 40;
-      if (shouldHaveIbis && !s.ibis.isActive) {
+      if (shouldHaveIbis && !s.ibis.isActive && Math.random() < ibisChance) {
         newState.ibis = { x: 27, isActive: true, hasEaten: Math.random() < 0.5 };
       } else if (!shouldHaveIbis && s.ibis.isActive) {
         newState.ibis = { ...s.ibis, isActive: false };
@@ -480,24 +493,40 @@ export function useGameState() {
         return { ...ped, x: ped.x + dx };
       }).filter(ped => ped.x > -10 && ped.x < 110);
       
-      // Spawn pedestrian bursts
-      const burstChance = newState.timeOfDay === 'day' ? 0.08 : 
-                          newState.timeOfDay === 'dusk' ? 0.12 :
-                          newState.timeOfDay === 'night' ? 0.05 : 0.06;
+      // Spawn pedestrian bursts - district-based density
+      const baseBurstChance = newState.timeOfDay === 'day' ? 0.08 : 
+                              newState.timeOfDay === 'dusk' ? 0.12 :
+                              newState.timeOfDay === 'night' ? 0.05 : 0.06;
+      const burstChance = baseBurstChance * districtConfig.pedestrianDensity * 1.5;
+      const maxPeds = Math.floor(6 * districtConfig.pedestrianDensity + 4);
       
-      if (Math.random() < burstChance && updatedPeds.length < 6) {
-        const burstSize = Math.floor(Math.random() * 3) + 1;
+      if (Math.random() < burstChance && updatedPeds.length < maxPeds) {
+        const burstSize = Math.floor(Math.random() * 4 * districtConfig.pedestrianDensity) + 1;
         const direction: 'left' | 'right' = Math.random() < 0.5 ? 'left' : 'right';
         const startX = direction === 'right' ? -5 : 105;
         
+        // Use district-weighted archetype selection
+        const archetypeWeights = districtConfig.archetypeWeights;
+        const weightSum = Object.values(archetypeWeights).reduce((a, b) => a + b, 0);
+        
         for (let i = 0; i < burstSize; i++) {
-          const archetype = PEDESTRIAN_ARCHETYPES[Math.floor(Math.random() * PEDESTRIAN_ARCHETYPES.length)];
+          // Weighted random archetype selection
+          let roll = Math.random() * weightSum;
+          let selectedArchetype: PedestrianArchetype = 'student';
+          for (const [arch, weight] of Object.entries(archetypeWeights)) {
+            roll -= weight;
+            if (roll <= 0) {
+              selectedArchetype = arch as PedestrianArchetype;
+              break;
+            }
+          }
+          
           const newPed: PedestrianState = {
             id: pedIdRef.current++,
             x: startX - (i * 6 * (direction === 'right' ? 1 : -1)),
             speed: 0.4 + Math.random() * 0.3,
             direction,
-            archetype,
+            archetype: selectedArchetype,
             canBeStolen: true,
           };
           updatedPeds.push(newPed);
@@ -526,12 +555,12 @@ export function useGameState() {
         return { ...car, x: car.x - car.speed };
       }).filter(car => car.x > -20);
       
-      // Car spawn rate varies by time and previous encounters
-      const baseSpawnRate = s.timeOfDay === 'night' ? 0.12 : 0.08;
+      // Car spawn rate varies by time, district, and previous encounters
+      const baseSpawnRate = s.timeOfDay === 'night' ? 0.15 : 0.1;
       const spawnModifier = Math.max(0.3, 1 - (s.carEncounterCount * 0.08));
       const spawnRate = baseSpawnRate * spawnModifier;
       
-      if (Math.random() < spawnRate && updatedCars.filter(c => !c.isStopped).length < 3) {
+      if (Math.random() < spawnRate && updatedCars.filter(c => !c.isStopped).length < 4) {
         const newCar: CarState = {
           id: carIdRef.current++,
           x: 110,
@@ -543,13 +572,14 @@ export function useGameState() {
         updatedCars.push(newCar);
       }
       
-      // Car encounter logic
+      // Car encounter logic - district-based sex economy
       if (!s.carEncounterActive) {
-        const baseEncounterChance = newState.timeOfDay === 'night' ? 0.04 : 0.015;
-        const encounterModifier = Math.max(0.2, 1 - (s.carEncounterCount * 0.12));
-        const encounterChance = baseEncounterChance * encounterModifier;
+        const baseSexChance = newState.timeOfDay === 'night' ? 0.05 : 0.01;
+        const sexMultiplier = districtConfig.sexEconomyMultiplier;
+        const encounterModifier = Math.max(0.15, 1 - (s.carEncounterCount * 0.12));
+        const encounterChance = baseSexChance * sexMultiplier * encounterModifier;
         
-        const playerNearRoad = s.playerX > 5 && s.playerX < 35;
+        const playerNearRoad = s.playerX > 5 && s.playerX < 40;
         
         for (let i = 0; i < updatedCars.length; i++) {
           const car = updatedCars[i];
@@ -573,11 +603,12 @@ export function useGameState() {
       newState.cars = updatedCars;
       
       // === POLICE SWEEP SYSTEM ===
-      // Rhythmic sweeps every 45 seconds, more frequent at night
-      const sweepInterval = newState.timeOfDay === 'night' ? 35 : 50;
+      // Rhythmic sweeps - frequency varies by district
+      const baseSweepInterval = newState.timeOfDay === 'night' ? 35 : 50;
+      const sweepInterval = Math.floor(baseSweepInterval / districtConfig.policeFrequency);
       const isSweepTime = newState.stats.survivalTime % sweepInterval === 0 && newState.stats.survivalTime > 10;
       
-      if (isSweepTime && !s.police.isActive) {
+      if (isSweepTime && !s.police.isActive && Math.random() < districtConfig.policeFrequency) {
         // Start a police sweep
         newState.police = {
           x: Math.random() < 0.5 ? -10 : 110,
@@ -593,14 +624,16 @@ export function useGameState() {
           ? s.police.x + policeSpeed 
           : s.police.x - policeSpeed;
         
-        // Check if police catches player during sweep
+        // Check if police catches player during sweep - danger multiplier affects arrest chance
         if (Math.abs(newPoliceX - s.playerX) < 10) {
           const isSleeping = s.currentZone === 'sleep';
           const isVisible = s.currentZone === null || s.currentZone === 'ask-help';
           const hasRecentActivity = s.recentTheft || s.recentCarEncounter;
+          const catchChance = 0.4 * districtConfig.dangerMultiplier;
           
-          if ((isSleeping || (isVisible && hasRecentActivity)) && Math.random() < 0.4) {
-            if (hasRecentActivity && Math.random() < 0.35) {
+          if ((isSleeping || (isVisible && hasRecentActivity)) && Math.random() < catchChance) {
+            const arrestChance = 0.35 * districtConfig.dangerMultiplier;
+            if (hasRecentActivity && Math.random() < arrestChance) {
               showEvent('The police arrested you.');
               setTimeout(() => triggerGameOver('Arrested by police.'), 1500);
             } else {

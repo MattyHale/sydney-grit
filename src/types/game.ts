@@ -1,3 +1,5 @@
+import { District } from './districts';
+
 export interface GameStats {
   hunger: number;
   warmth: number;
@@ -7,7 +9,7 @@ export interface GameStats {
   survivalTime: number;
 }
 
-export type PedestrianArchetype = 
+export type PedestrianArchetype =
   | 'businessman' 
   | 'clubber' 
   | 'tourist' 
@@ -79,6 +81,7 @@ export interface GameState {
   ibis: IbisState;
   permanentHopeLoss: number;
   worldOffset: number; // For infinite scrolling
+  currentDistrict: District;
 }
 
 export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep';
@@ -164,4 +167,5 @@ export const INITIAL_STATE: GameState = {
   ibis: { x: 27, isActive: false, hasEaten: false },
   permanentHopeLoss: 0,
   worldOffset: 0,
+  currentDistrict: 'cross',
 };
