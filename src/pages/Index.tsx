@@ -17,6 +17,7 @@ const Index = () => {
     performDesperationAction,
     handleCarEncounter,
     ignoreCarEncounter,
+    attemptPurseSteal,
     tick,
   } = useGameState();
 
@@ -49,16 +50,22 @@ const Index = () => {
   }, [state.desperationAvailable, state.currentZone, state.carEncounterActive, performAction, performDesperationAction, handleCarEncounter]);
 
   const handleButtonB = useCallback(() => {
-    if (state.desperationAvailable[1]) {
+    // B button for purse steal when near pedestrian
+    if (state.stealWindowActive) {
+      attemptPurseSteal();
+    } else if (state.desperationAvailable[1]) {
       performDesperationAction(state.desperationAvailable[1]);
     }
-  }, [state.desperationAvailable, performDesperationAction]);
+  }, [state.stealWindowActive, state.desperationAvailable, attemptPurseSteal, performDesperationAction]);
 
   const handleButtonC = useCallback(() => {
-    if (state.desperationAvailable[2]) {
+    // C button also for purse steal
+    if (state.stealWindowActive) {
+      attemptPurseSteal();
+    } else if (state.desperationAvailable[2]) {
       performDesperationAction(state.desperationAvailable[2]);
     }
-  }, [state.desperationAvailable, performDesperationAction]);
+  }, [state.stealWindowActive, state.desperationAvailable, attemptPurseSteal, performDesperationAction]);
 
   // Set up keyboard controls
   useControls({
@@ -112,6 +119,7 @@ const Index = () => {
         onButtonC={handleButtonC}
         desperationActions={state.desperationAvailable}
         carEncounterActive={state.carEncounterActive}
+        stealWindowActive={state.stealWindowActive}
       />
     </div>
   );

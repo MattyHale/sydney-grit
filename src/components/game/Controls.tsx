@@ -12,6 +12,7 @@ interface ControlsProps {
   onButtonC: () => void;
   desperationActions: DesperationAction[];
   carEncounterActive?: boolean;
+  stealWindowActive?: boolean;
 }
 
 export function Controls({
@@ -25,6 +26,7 @@ export function Controls({
   onButtonC,
   desperationActions,
   carEncounterActive,
+  stealWindowActive,
 }: ControlsProps) {
   const moveIntervalRef = useRef<number | null>(null);
 
@@ -119,8 +121,16 @@ export function Controls({
         </div>
       )}
 
+      {/* Steal hint */}
+      {stealWindowActive && !carEncounterActive && (
+        <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex flex-col gap-1 text-[10px] sm:text-[9px] text-gb-lightest bg-gb-darkest px-3 py-2 rounded border border-[#ff6666] animate-pulse">
+          <span>👛 Steal opportunity</span>
+          <span>B or C: grab purse</span>
+        </div>
+      )}
+
       {/* Desperation hints */}
-      {desperationActions.length > 0 && !carEncounterActive && (
+      {desperationActions.length > 0 && !carEncounterActive && !stealWindowActive && (
         <div className="absolute bottom-[160px] sm:bottom-[140px] left-1/2 -translate-x-1/2 flex gap-2 text-[9px] sm:text-[8px] text-gb-lightest">
           {desperationActions.map((action, i) => (
             <span key={action} className="bg-gb-dark px-2 py-1 animate-pulse rounded">

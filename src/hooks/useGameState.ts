@@ -5,13 +5,19 @@ import {
   HOTSPOTS, 
   HotspotZone,
   DesperationAction,
-  CarState
+  CarState,
+  PedestrianState,
+  PEDESTRIAN_ARCHETYPES,
+  ARCHETYPE_STEAL_BIAS,
+  PedestrianArchetype
 } from '@/types/game';
 
 export function useGameState() {
   const [state, setState] = useState<GameState>({ ...INITIAL_STATE });
   const eventTimeoutRef = useRef<number | null>(null);
   const carIdRef = useRef(0);
+  const pedIdRef = useRef(0);
+  const dogLowHungerTimeRef = useRef(0);
 
   const showEvent = useCallback((text: string) => {
     if (eventTimeoutRef.current) {
@@ -38,6 +44,9 @@ export function useGameState() {
           break;
         }
       }
+      
+      // Update world offset for infinite scroll effect
+      const newWorldOffset = s.worldOffset + (delta * 0.5);
 
       return {
         ...s,
@@ -45,6 +54,7 @@ export function useGameState() {
         playerDirection: direction,
         playerState: 'walking',
         currentZone,
+        worldOffset: newWorldOffset,
       };
     });
   }, []);
@@ -83,6 +93,7 @@ export function useGameState() {
   }, []);
 
   const restartGame = useCallback(() => {
+    dogLowHungerTimeRef.current = 0;
     setState({ ...INITIAL_STATE });
   }, []);
 
@@ -109,9 +120,20 @@ export function useGameState() {
           break;
         }
         case 'bins': {
+          // Ibis mechanic - if ibis is active and has eaten
+          if (s.ibis.isActive && s.ibis.hasEaten) {
+            showEvent('An ibis picked the bins clean before you.');
+            newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 5);
+            break;
+          }
+          
           if (s.binsRestocked) {
             const roll = Math.random();
-            if (roll < 0.4) {
+            if (s.ibis.isActive && roll < 0.3) {
+              // Ibis gets some but not all
+              newState.stats.hunger = Math.min(100, newState.stats.hunger + 5);
+              showEvent('An ibis got most of it. You found some scraps.');
+            } else if (roll < 0.4) {
               newState.stats.hunger = Math.min(100, newState.stats.hunger + 15);
               showEvent('You found some stale bread in the bins.');
             } else if (roll < 0.7) {
@@ -188,45 +210,65 @@ export function useGameState() {
       const encounterCount = s.carEncounterCount;
       const survivalTime = s.stats.survivalTime;
       
-      // Early game: encounters are more helpful
-      // Late game: encounters become risky
-      const isEarlyGame = survivalTime < 60 && encounterCount < 3;
-      const isLateGame = survivalTime > 120 || encounterCount > 5;
+      // Phase-based economy
+      const isEarlyGame = survivalTime < 30 && encounterCount < 3;
+      const isMidGame = survivalTime >= 30 && survivalTime < 60 && encounterCount < 6;
+      const isLateGame = survivalTime >= 60 || encounterCount >= 6;
       
       const roll = Math.random();
       
-      if (isLateGame && roll < 0.2) {
-        // Dangerous outcome
-        const dangerRoll = Math.random();
-        if (dangerRoll < 0.5) {
+      if (isLateGame) {
+        // Late game - dangerous and unreliable
+        if (roll < 0.15) {
           showEvent('The encounter turned violent. Everything went dark.');
           setTimeout(() => triggerGameOver('A dangerous encounter.'), 1500);
-        } else {
-          showEvent('The driver drove off suddenly. You were hurt.');
+          return newState;
+        } else if (roll < 0.35) {
+          showEvent('They drove off suddenly. You were hurt.');
           newState.stats.warmth = Math.max(0, newState.stats.warmth - 20);
-          newState.stats.hope = Math.max(0, newState.stats.hope - 30);
+          newState.stats.hope = Math.max(0, newState.stats.hope - 35);
+        } else if (roll < 0.6) {
+          showEvent('The car drove off. They changed their mind.');
+          newState.stats.hope = Math.max(0, newState.stats.hope - 15);
+        } else if (roll < 0.8) {
+          // Exploitative outcome
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 5);
+          newState.stats.hope = Math.max(0, newState.stats.hope - 40);
+          newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 15);
+          showEvent('It was degrading. You got almost nothing.');
+          // May attract police attention
+          newState.recentCarEncounter = true;
+        } else {
+          showEvent('No one stopped. The street was empty.');
         }
-      } else if (isLateGame && roll < 0.5) {
-        // Refusal
-        showEvent('The car drove off. They changed their mind.');
-        newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+      } else if (isMidGame) {
+        // Mid game - reduced returns, some refusals
+        if (roll < 0.2) {
+          showEvent('The car drove off without stopping.');
+          newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+        } else {
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 20);
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
+          newState.stats.hope = Math.max(0, newState.stats.hope - 28);
+          newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 12);
+          if (roll < 0.4) {
+            newState.stats.money += Math.floor(Math.random() * 8) + 3;
+          }
+          showEvent('The arrangement was brief. You survived another hour.');
+          newState.recentCarEncounter = true;
+        }
       } else if (isEarlyGame) {
-        // Helpful early encounter
+        // Early game - relatively reliable
         newState.stats.hunger = Math.min(100, newState.stats.hunger + 35);
-        newState.stats.warmth = Math.min(100, newState.stats.warmth + 25);
-        newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 28);
+        newState.stats.hope = Math.max(0, newState.stats.hope - 22);
         newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 8);
-        if (roll < 0.4) {
+        if (roll < 0.5) {
           newState.stats.money += Math.floor(Math.random() * 15) + 5;
         }
         showEvent('You accepted a private arrangement. It kept you fed and warm. It cost you.');
-      } else {
-        // Mid-game: moderate returns
-        newState.stats.hunger = Math.min(100, newState.stats.hunger + 20);
-        newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
-        newState.stats.hope = Math.max(0, newState.stats.hope - 25);
-        newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 10);
-        showEvent('The arrangement was brief. You survived another hour.');
+        newState.recentCarEncounter = true;
       }
       
       // Clear the stopped car and increment counter
@@ -242,7 +284,6 @@ export function useGameState() {
     setState(s => {
       if (!s.carEncounterActive) return s;
       
-      // Car drives off
       const newCars = s.cars.filter(c => !c.isEncounter);
       showEvent('You ignored the car. It drove away.');
       
@@ -251,6 +292,55 @@ export function useGameState() {
         cars: newCars,
         carEncounterActive: false,
       };
+    });
+  }, [showEvent]);
+
+  // Purse steal action
+  const attemptPurseSteal = useCallback(() => {
+    setState(s => {
+      if (!s.stealWindowActive || !s.stealTarget || s.isGameOver || s.isPaused) return s;
+      
+      const newState = { ...s, stats: { ...s.stats } };
+      const target = s.stealTarget;
+      const bias = ARCHETYPE_STEAL_BIAS[target.archetype];
+      
+      const roll = Math.random();
+      
+      // Rare kindness twist
+      if (roll < bias.kindnessChance) {
+        const amount = Math.floor(Math.random() * 5) + 2;
+        newState.stats.money += amount;
+        newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+        showEvent('They stopped. They gave you money instead.');
+      }
+      // Shout - triggers police check
+      else if (roll < bias.kindnessChance + bias.shoutChance) {
+        newState.stats.hope = Math.max(0, newState.stats.hope - 12);
+        newState.recentTheft = true;
+        showEvent('They shouted. People are staring.');
+        // Police check happens in tick
+      }
+      // Panic - no loot
+      else if (roll < bias.kindnessChance + bias.shoutChance + 0.25) {
+        newState.stats.hope = Math.max(0, newState.stats.hope - 8);
+        showEvent('You panicked. Got nothing.');
+      }
+      // Clean success
+      else {
+        const [minMoney, maxMoney] = bias.moneyRange;
+        const stolen = Math.floor(Math.random() * (maxMoney - minMoney + 1)) + minMoney;
+        newState.stats.money += stolen;
+        newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+        showEvent(`You grabbed ${stolen} dollars and ran.`);
+        newState.recentTheft = true;
+      }
+      
+      // Remove the target pedestrian and reset steal state
+      newState.pedestrians = s.pedestrians.filter(p => p.id !== target.id);
+      newState.stealWindowActive = false;
+      newState.stealTarget = null;
+      
+      return newState;
     });
   }, [showEvent]);
 
@@ -266,11 +356,16 @@ export function useGameState() {
           if (roll < 0.3) {
             newState.stats.money += Math.floor(Math.random() * 10) + 5;
             newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+            newState.recentTheft = true;
             showEvent('You stole from a shop. You got away with it.');
           } else {
             showEvent('You stole from a shop. The police caught you.');
             setTimeout(() => triggerGameOver('Arrested for theft.'), 1500);
           }
+          break;
+        }
+        case 'purse-steal': {
+          attemptPurseSteal();
           break;
         }
         case 'car': {
@@ -291,9 +386,10 @@ export function useGameState() {
           if (s.hasDog) {
             newState.hasDog = false;
             newState.stats.hunger = Math.min(100, newState.stats.hunger + 60);
-            newState.stats.warmth = Math.min(100, newState.stats.warmth + 40);
-            newState.stats.hope = Math.max(0, newState.stats.hope - 50);
-            showEvent('Your companion is gone. You survived another day.');
+            newState.stats.warmth = Math.min(100, newState.stats.warmth + 45);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 55);
+            newState.permanentHopeLoss += 20; // Permanent penalty
+            showEvent('Your companion is gone. You will carry this.');
           }
           break;
         }
@@ -301,7 +397,7 @@ export function useGameState() {
       
       return newState;
     });
-  }, [showEvent, triggerGameOver, handleCarEncounter]);
+  }, [showEvent, triggerGameOver, handleCarEncounter, attemptPurseSteal]);
 
   const tick = useCallback(() => {
     setState(s => {
@@ -313,28 +409,40 @@ export function useGameState() {
       // Base stat decay
       newState.stats.hunger = Math.max(0, newState.stats.hunger - 1.5);
       newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 0.8);
-      newState.stats.hope = Math.max(0, newState.stats.hope - 0.3);
+      newState.stats.hope = Math.max(0, newState.stats.hope - 0.3 - (s.permanentHopeLoss * 0.01));
       
       // Warmth decay based on time/weather
       let warmthDecay = 0.8;
       if (newState.timeOfDay === 'night') warmthDecay = 1.5;
+      if (newState.timeOfDay === 'dusk') warmthDecay = 1.1;
       if (newState.isRaining) warmthDecay += 0.8;
       newState.stats.warmth = Math.max(0, newState.stats.warmth - warmthDecay);
       
       // Dog passive effects
-      if (s.hasDog && s.dogHealth > 50) {
-        newState.stats.hope = Math.min(100, newState.stats.hope + 0.2);
-        newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.1);
+      if (s.hasDog && s.dogHealth > 50 && !s.dogSick) {
+        newState.stats.hope = Math.min(100, newState.stats.hope + 0.25);
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.15);
       }
       
       // Dog health decay if player hunger is low
       if (s.hasDog && s.stats.hunger < 30) {
-        newState.dogHealth = Math.max(0, s.dogHealth - 1);
+        dogLowHungerTimeRef.current += 1;
+        newState.dogHealth = Math.max(0, s.dogHealth - 0.8);
+        
+        // Dog sickness after extended low hunger
+        if (dogLowHungerTimeRef.current > 15 && !s.dogSick) {
+          newState.dogSick = true;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+          showEvent('Your dog is sick. It whimpers weakly.');
+        }
+        
         if (newState.dogHealth <= 0) {
           newState.hasDog = false;
-          newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+          newState.stats.hope = Math.max(0, newState.stats.hope - 25);
           showEvent('Your companion passed away from hunger.');
         }
+      } else if (s.hasDog) {
+        dogLowHungerTimeRef.current = Math.max(0, dogLowHungerTimeRef.current - 0.5);
       }
       
       // Time of day cycle (changes every 30 seconds)
@@ -356,15 +464,73 @@ export function useGameState() {
         newState.isRaining = Math.random() < 0.3;
       }
       
+      // === IBIS SYSTEM ===
+      // Ibis appears near bins at certain times
+      const shouldHaveIbis = (newState.stats.survivalTime % 60) > 20 && (newState.stats.survivalTime % 60) < 40;
+      if (shouldHaveIbis && !s.ibis.isActive) {
+        newState.ibis = { x: 27, isActive: true, hasEaten: Math.random() < 0.5 };
+      } else if (!shouldHaveIbis && s.ibis.isActive) {
+        newState.ibis = { ...s.ibis, isActive: false };
+      }
+      
+      // === PEDESTRIAN SYSTEM ===
+      // Move existing pedestrians
+      let updatedPeds = s.pedestrians.map(ped => {
+        const dx = ped.direction === 'right' ? ped.speed : -ped.speed;
+        return { ...ped, x: ped.x + dx };
+      }).filter(ped => ped.x > -10 && ped.x < 110);
+      
+      // Spawn pedestrian bursts
+      const burstChance = newState.timeOfDay === 'day' ? 0.08 : 
+                          newState.timeOfDay === 'dusk' ? 0.12 :
+                          newState.timeOfDay === 'night' ? 0.05 : 0.06;
+      
+      if (Math.random() < burstChance && updatedPeds.length < 6) {
+        const burstSize = Math.floor(Math.random() * 3) + 1;
+        const direction: 'left' | 'right' = Math.random() < 0.5 ? 'left' : 'right';
+        const startX = direction === 'right' ? -5 : 105;
+        
+        for (let i = 0; i < burstSize; i++) {
+          const archetype = PEDESTRIAN_ARCHETYPES[Math.floor(Math.random() * PEDESTRIAN_ARCHETYPES.length)];
+          const newPed: PedestrianState = {
+            id: pedIdRef.current++,
+            x: startX - (i * 6 * (direction === 'right' ? 1 : -1)),
+            speed: 0.4 + Math.random() * 0.3,
+            direction,
+            archetype,
+            canBeStolen: true,
+          };
+          updatedPeds.push(newPed);
+        }
+      }
+      
+      // Check for steal window
+      let stealWindowActive = false;
+      let stealTarget: PedestrianState | null = null;
+      
+      for (const ped of updatedPeds) {
+        if (Math.abs(ped.x - s.playerX) < 8 && ped.canBeStolen) {
+          stealWindowActive = true;
+          stealTarget = ped;
+          break;
+        }
+      }
+      
+      newState.pedestrians = updatedPeds;
+      newState.stealWindowActive = stealWindowActive;
+      newState.stealTarget = stealTarget;
+      
       // === CAR SYSTEM ===
-      // Move existing cars
       let updatedCars = s.cars.map(car => {
         if (car.isStopped) return car;
         return { ...car, x: car.x - car.speed };
-      }).filter(car => car.x > -20); // Remove cars that left screen
+      }).filter(car => car.x > -20);
       
-      // Spawn new cars periodically
-      const spawnRate = s.timeOfDay === 'night' ? 0.08 : 0.15;
+      // Car spawn rate varies by time and previous encounters
+      const baseSpawnRate = s.timeOfDay === 'night' ? 0.12 : 0.08;
+      const spawnModifier = Math.max(0.3, 1 - (s.carEncounterCount * 0.08));
+      const spawnRate = baseSpawnRate * spawnModifier;
+      
       if (Math.random() < spawnRate && updatedCars.filter(c => !c.isStopped).length < 3) {
         const newCar: CarState = {
           id: carIdRef.current++,
@@ -377,20 +543,17 @@ export function useGameState() {
         updatedCars.push(newCar);
       }
       
-      // Car encounter logic - only when not already in an encounter
+      // Car encounter logic
       if (!s.carEncounterActive) {
-        // Encounter chance based on survival time and previous encounters
-        const baseEncounterChance = 0.02;
-        const encounterModifier = Math.max(0.5, 1 - (s.carEncounterCount * 0.1));
+        const baseEncounterChance = newState.timeOfDay === 'night' ? 0.04 : 0.015;
+        const encounterModifier = Math.max(0.2, 1 - (s.carEncounterCount * 0.12));
         const encounterChance = baseEncounterChance * encounterModifier;
         
-        // Check if a car should stop near the player (ask-help zone is best for this)
-        const playerNearRoad = s.playerX > 5 && s.playerX < 30;
+        const playerNearRoad = s.playerX > 5 && s.playerX < 35;
         
         for (let i = 0; i < updatedCars.length; i++) {
           const car = updatedCars[i];
           if (!car.isStopped && !car.isEncounter && playerNearRoad) {
-            // Car is passing near player
             if (car.x <= s.playerX + 15 && car.x >= s.playerX - 5) {
               if (Math.random() < encounterChance) {
                 updatedCars[i] = {
@@ -407,16 +570,62 @@ export function useGameState() {
         }
       }
       
-      // Auto-dismiss encounter after ~8 seconds if player doesn't interact
-      if (s.carEncounterActive) {
-        const encounterCar = updatedCars.find(c => c.isEncounter);
-        if (encounterCar) {
-          // Track encounter duration via a hacky method - car variant as timer
-          // This is simplified; in production you'd want a proper timestamp
+      newState.cars = updatedCars;
+      
+      // === POLICE SWEEP SYSTEM ===
+      // Rhythmic sweeps every 45 seconds, more frequent at night
+      const sweepInterval = newState.timeOfDay === 'night' ? 35 : 50;
+      const isSweepTime = newState.stats.survivalTime % sweepInterval === 0 && newState.stats.survivalTime > 10;
+      
+      if (isSweepTime && !s.police.isActive) {
+        // Start a police sweep
+        newState.police = {
+          x: Math.random() < 0.5 ? -10 : 110,
+          isActive: true,
+          direction: Math.random() < 0.5 ? 'right' : 'left',
+        };
+      }
+      
+      // Move police during sweep
+      if (s.police.isActive) {
+        const policeSpeed = 1.2;
+        const newPoliceX = s.police.direction === 'right' 
+          ? s.police.x + policeSpeed 
+          : s.police.x - policeSpeed;
+        
+        // Check if police catches player during sweep
+        if (Math.abs(newPoliceX - s.playerX) < 10) {
+          const isSleeping = s.currentZone === 'sleep';
+          const isVisible = s.currentZone === null || s.currentZone === 'ask-help';
+          const hasRecentActivity = s.recentTheft || s.recentCarEncounter;
+          
+          if ((isSleeping || (isVisible && hasRecentActivity)) && Math.random() < 0.4) {
+            if (hasRecentActivity && Math.random() < 0.35) {
+              showEvent('The police arrested you.');
+              setTimeout(() => triggerGameOver('Arrested by police.'), 1500);
+            } else {
+              newState.stats.hope = Math.max(0, newState.stats.hope - 12);
+              newState.playerX = 50;
+              showEvent('Police moved you along. Keep walking.');
+            }
+          }
+        }
+        
+        // End sweep when police leaves screen
+        if (newPoliceX < -15 || newPoliceX > 115) {
+          newState.police = { ...s.police, isActive: false };
+        } else {
+          newState.police = { ...s.police, x: newPoliceX };
         }
       }
       
-      newState.cars = updatedCars;
+      // Clear recent activity flags after some time
+      if (s.recentTheft && newState.stats.survivalTime % 20 === 0) {
+        newState.recentTheft = false;
+      }
+      if (s.recentCarEncounter && newState.stats.survivalTime % 25 === 0) {
+        newState.recentCarEncounter = false;
+      }
       
       // Random events
       if (Math.random() < 0.02) {
@@ -434,20 +643,6 @@ export function useGameState() {
         }
       }
       
-      // Police sweep at night
-      if (newState.timeOfDay === 'night' && newState.stats.survivalTime % 60 === 30) {
-        if (s.currentZone === 'sleep' || s.currentZone === null) {
-          if (Math.random() < 0.4) {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 10);
-            newState.playerX = 50;
-            showEvent('Police moved you along. Keep walking.');
-          } else if (Math.random() < 0.2) {
-            showEvent('You were arrested for loitering.');
-            setTimeout(() => triggerGameOver('Arrested by police.'), 1500);
-          }
-        }
-      }
-      
       // Desperation actions availability
       const desperationAvailable: DesperationAction[] = [];
       if (newState.stats.hunger < 25 || newState.stats.warmth < 25 || newState.stats.money <= 0) {
@@ -461,6 +656,12 @@ export function useGameState() {
           desperationAvailable.push('dog-sacrifice');
         }
       }
+      
+      // Purse steal available when near pedestrian
+      if (stealWindowActive) {
+        desperationAvailable.push('purse-steal');
+      }
+      
       newState.desperationAvailable = desperationAvailable;
       
       return newState;
@@ -493,6 +694,7 @@ export function useGameState() {
     performDesperationAction,
     handleCarEncounter,
     ignoreCarEncounter,
+    attemptPurseSteal,
     tick,
   };
 }

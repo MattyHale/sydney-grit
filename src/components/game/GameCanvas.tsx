@@ -3,6 +3,9 @@ import { Street } from './Street';
 import { Player } from './Player';
 import { Dog } from './Dog';
 import { Car } from './Car';
+import { Pedestrian } from './Pedestrian';
+import { Ibis } from './Ibis';
+import { Police } from './Police';
 import { TextOverlay } from './TextOverlay';
 import { PauseButton } from './PauseButton';
 import { PauseOverlay } from './PauseOverlay';
@@ -27,6 +30,13 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
         shelterOpen={state.shelterOpen}
         servicesOpen={state.servicesOpen}
         playerX={state.playerX}
+        worldOffset={state.worldOffset}
+      />
+      
+      {/* Ibis near bins */}
+      <Ibis 
+        x={state.ibis.x}
+        isActive={state.ibis.isActive}
       />
       
       {/* Cars on the road */}
@@ -39,12 +49,29 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
         />
       ))}
       
+      {/* Pedestrians */}
+      {state.pedestrians.map(ped => (
+        <Pedestrian 
+          key={ped.id}
+          pedestrian={ped}
+          playerX={state.playerX}
+        />
+      ))}
+      
+      {/* Police officer during sweeps */}
+      <Police 
+        x={state.police.x}
+        isActive={state.police.isActive}
+        direction={state.police.direction}
+      />
+      
       {/* Dog companion */}
       <Dog 
         playerX={state.playerX}
         playerDirection={state.playerDirection}
         isVisible={state.hasDog}
         health={state.dogHealth}
+        isSick={state.dogSick}
       />
       
       {/* Player character */}
@@ -59,6 +86,13 @@ export function GameCanvas({ state, onPause, onRestart }: GameCanvasProps) {
         text={state.lastEventText}
         visible={state.eventTextVisible}
       />
+      
+      {/* Steal window indicator */}
+      {state.stealWindowActive && state.stealTarget && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-gb-darkest text-gb-lightest text-[9px] animate-pulse border border-gb-light rounded">
+          B/C: Steal from {state.stealTarget.archetype}
+        </div>
+      )}
       
       {/* Pause button */}
       {!state.isGameOver && <PauseButton onPause={onPause} />}

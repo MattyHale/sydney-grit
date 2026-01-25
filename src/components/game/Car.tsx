@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 interface CarProps {
   x: number;
   isStopped: boolean;
@@ -7,64 +5,55 @@ interface CarProps {
 }
 
 export function Car({ x, isStopped, variant }: CarProps) {
-  const [frame, setFrame] = useState(0);
-
-  useEffect(() => {
-    if (isStopped) return;
-    const interval = setInterval(() => {
-      setFrame(f => (f + 1) % 2);
-    }, 200);
-    return () => clearInterval(interval);
-  }, [isStopped]);
-
-  // Different car colors based on variant
-  const getCarColor = () => {
-    switch (variant % 3) {
-      case 0: return 'bg-gb-dark';
-      case 1: return 'bg-gb-darkest';
-      case 2: return 'bg-gb-light';
-      default: return 'bg-gb-dark';
+  // Different car colors/styles for variety - HIGH CONTRAST
+  const getCarStyle = () => {
+    switch (variant) {
+      case 0:
+        return { body: 'bg-[#6a7a6a]', roof: 'bg-[#4a5a4a]', light: 'bg-[#ffff88]' };
+      case 1:
+        return { body: 'bg-[#8a6a5a]', roof: 'bg-[#5a4a3a]', light: 'bg-[#ffaa66]' };
+      case 2:
+        return { body: 'bg-[#5a6a8a]', roof: 'bg-[#3a4a5a]', light: 'bg-[#88ffff]' };
+      default:
+        return { body: 'bg-gb-dark', roof: 'bg-gb-darkest', light: 'bg-gb-lightest' };
     }
   };
 
+  const style = getCarStyle();
+
   return (
-    <div
-      className="absolute bottom-[8%] transition-all"
-      style={{
-        left: `${x}%`,
+    <div 
+      className="absolute bottom-[24%] transition-all"
+      style={{ 
+        left: `${x}%`, 
         transform: 'translateX(-50%)',
-        transition: isStopped ? 'left 0.5s ease-out' : 'left 0.05s linear',
       }}
     >
-      {/* Car body */}
-      <div className={`relative ${getCarColor()}`}>
-        {/* Main body */}
-        <div className="w-16 h-5 rounded-sm" />
+      {/* Car sprite - larger and more distinct */}
+      <div className="relative w-16 h-8">
+        {/* Headlights */}
+        <div className={`absolute top-3 left-0 w-2 h-1.5 ${style.light} rounded-l ${isStopped ? 'animate-pulse' : ''}`} />
         
-        {/* Cabin */}
-        <div className="absolute -top-3 left-3 w-8 h-3 bg-gb-darkest rounded-t-sm">
+        {/* Body */}
+        <div className={`absolute bottom-0 left-1 w-14 h-5 ${style.body} rounded border-2 border-gb-darkest`} />
+        
+        {/* Roof/cabin */}
+        <div className={`absolute top-0 left-4 w-8 h-4 ${style.roof} rounded-t border-2 border-b-0 border-gb-darkest`}>
           {/* Windows */}
-          <div className="absolute top-0.5 left-0.5 w-3 h-2 bg-gb-light opacity-60" />
-          <div className="absolute top-0.5 right-0.5 w-3 h-2 bg-gb-light opacity-60" />
+          <div className="absolute inset-0.5 bg-[#1a2a3a] rounded-t opacity-80" />
         </div>
         
-        {/* Wheels */}
-        <div 
-          className="absolute -bottom-1 left-1 w-3 h-3 bg-gb-darkest rounded-full"
-          style={{ transform: `rotate(${frame * 45}deg)` }}
-        />
-        <div 
-          className="absolute -bottom-1 right-1 w-3 h-3 bg-gb-darkest rounded-full"
-          style={{ transform: `rotate(${frame * 45}deg)` }}
-        />
-        
-        {/* Headlights */}
-        <div className="absolute top-1 left-0 w-1 h-1 bg-gb-lightest" />
-        <div className="absolute top-2 left-0 w-1 h-1 bg-gb-lightest" />
-        
         {/* Taillights */}
-        <div className="absolute top-1 right-0 w-1 h-1 bg-gb-light" />
-        <div className="absolute top-2 right-0 w-1 h-1 bg-gb-light" />
+        <div className="absolute top-3 right-0 w-1.5 h-1.5 bg-[#ff4444] rounded-r" />
+        
+        {/* Wheels */}
+        <div className="absolute bottom-[-2px] left-3 w-3 h-3 bg-gb-darkest rounded-full border border-gb-dark" />
+        <div className="absolute bottom-[-2px] right-3 w-3 h-3 bg-gb-darkest rounded-full border border-gb-dark" />
+        
+        {/* Stopped indicator - interior light */}
+        {isStopped && (
+          <div className="absolute top-1 left-5 w-6 h-2 bg-[#ffaa4444] rounded animate-pulse" />
+        )}
       </div>
     </div>
   );
