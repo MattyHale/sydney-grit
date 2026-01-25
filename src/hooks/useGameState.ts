@@ -179,7 +179,11 @@ export function useGameState() {
           // Spend energy
           newState.stats.hunger = Math.max(0, newState.stats.hunger - config.energyCost);
           
-          if (Math.random() < config.successRate && nextStage) {
+          // Valuable tech boosts success rate by 15%
+          const techBonus = s.stats.hasValuableTech ? 0.15 : 0;
+          const effectiveSuccessRate = Math.min(0.9, config.successRate + techBonus);
+          
+          if (Math.random() < effectiveSuccessRate && nextStage) {
             newState.stats.money += config.amount;
             newState.stats.fundingStage = nextStage;
             newState.stats.hope = Math.min(100, newState.stats.hope + 25);
@@ -372,6 +376,16 @@ export function useGameState() {
           } else {
             showEvent('Fancy dinner. Great for relationships. No deal yet.');
           }
+        } else if (actionId === 'eat-dog' && s.hasDog) {
+          // Desperate move: sell dog to kitchen
+          newState.hasDog = false;
+          newState.dogHealth = 0;
+          newState.stats.money += 50;
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 40);
+          newState.permanentHopeLoss += 30;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 30);
+          showEvent('You sold your companion to the kitchen. $50. You monster.');
+          showTransaction('danger', 'SOUL LOST');
         }
       }
       
@@ -453,6 +467,28 @@ export function useGameState() {
             }
           } else {
             showEvent('Too tired to scavenge.');
+          }
+        } else if (actionId === 'find-tech' && !s.stats.hasValuableTech) {
+          if (s.stats.hunger >= 20) {
+            newState.stats.hunger = Math.max(0, newState.stats.hunger - 20);
+            if (Math.random() < 0.35) {
+              newState.stats.hasValuableTech = true;
+              newState.stats.hope = Math.min(100, newState.stats.hope + 15);
+              const techFinds = [
+                'Found a discarded prototype! This could demo well.',
+                'Working GPS unit from a bankrupt startup. Proof of concept!',
+                'Old but functional modem setup. Perfect for your pitch deck.',
+                'Someone tossed a working Newton. Retro-future vibes for investors!',
+              ];
+              showEvent(techFinds[Math.floor(Math.random() * techFinds.length)]);
+              showTransaction('hope', '+TECH');
+            } else {
+              newState.stats.hope = Math.min(100, newState.stats.hope + 3);
+              showEvent('Nothing groundbreaking. Just more broken dreams.');
+              showTransaction('hope', '+3');
+            }
+          } else {
+            showEvent('Need more energy to hunt for prototypes.');
           }
         }
       }
