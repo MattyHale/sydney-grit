@@ -473,11 +473,37 @@ export function useGameState() {
       newState.stats.hope = Math.max(0, newState.stats.hope - 0.3 - (s.permanentHopeLoss * 0.01));
       
       // Cocaine effects - when high, hope boost but accelerated hunger drain
-      if (s.stats.cocaine > 30) {
+      const isHigh = s.stats.cocaine > 30;
+      const isWithdrawing = s.stats.cocaine > 0 && s.stats.cocaine <= 20;
+      
+      if (isHigh) {
         // High on coke - feel invincible but burning through energy
         newState.stats.hope = Math.min(100, newState.stats.hope + 0.4);
         newState.stats.hunger = Math.max(0, newState.stats.hunger - 0.8); // Extra hunger drain
         newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.2); // Feel warmer
+        
+        // PARANOIA - increased police attention when high
+        if (Math.random() < 0.03 * (s.stats.cocaine / 100)) {
+          // Paranoia event - might trigger police or be hallucination
+          const paranoiaRoll = Math.random();
+          if (paranoiaRoll < 0.4 && !s.police.isActive) {
+            // Real police triggered by erratic behavior
+            newState.police = {
+              x: Math.random() < 0.5 ? -10 : 110,
+              isActive: true,
+              direction: Math.random() < 0.5 ? 'right' : 'left',
+            };
+            showEvent('You\'re acting paranoid. Someone called the cops.');
+          } else if (paranoiaRoll < 0.7) {
+            // Paranoid delusion - think someone's following
+            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+            showEvent('Someone\'s watching you. Or are they?');
+          } else {
+            // Paranoia makes you aggressive/erratic
+            newState.stats.hope = Math.max(0, newState.stats.hope - 3);
+            showEvent('Your heart races. Everything feels threatening.');
+          }
+        }
       }
       
       // Cocaine decay
@@ -488,6 +514,38 @@ export function useGameState() {
           newState.stats.hope = Math.max(0, newState.stats.hope - 12);
           newState.stats.hunger = Math.max(0, newState.stats.hunger - 15);
           showEvent('The crash hits. Everything feels empty.');
+        }
+      }
+      
+      // WITHDRAWAL HALLUCINATIONS - when coming down (1-20 cocaine)
+      if (isWithdrawing && Math.random() < 0.04) {
+        const hallucinationRoll = Math.random();
+        if (hallucinationRoll < 0.25) {
+          // See fake threats
+          showEvent('Shadows move at the edge of your vision. Nothing\'s there.');
+          newState.stats.hope = Math.max(0, newState.stats.hope - 4);
+        } else if (hallucinationRoll < 0.45) {
+          // Hear things
+          showEvent('You hear footsteps behind you. Just the wind.');
+          newState.stats.hope = Math.max(0, newState.stats.hope - 3);
+        } else if (hallucinationRoll < 0.6) {
+          // See a dealer that isn't there
+          showEvent('You see a dealer across the street. When you look again, they\'re gone.');
+          newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+        } else if (hallucinationRoll < 0.75) {
+          // Body horror
+          showEvent('Your skin crawls. Bugs everywhere. Not real. Not real.');
+          newState.stats.hope = Math.max(0, newState.stats.hope - 6);
+          newState.stats.warmth = Math.max(0, newState.stats.warmth - 5);
+        } else if (hallucinationRoll < 0.85) {
+          // Fake police siren
+          showEvent('Sirens! You duck—nothing. Just your mind.');
+          newState.stats.hope = Math.max(0, newState.stats.hope - 4);
+        } else {
+          // Craving hits hard
+          showEvent('The craving claws at you. You need more.');
+          newState.stats.hope = Math.max(0, newState.stats.hope - 8);
+          newState.stats.hunger = Math.max(0, newState.stats.hunger - 5);
         }
       }
       
@@ -747,33 +805,51 @@ export function useGameState() {
         }
       }
       
-      // Dealer random events - district based
-      const dealerChance = districtConfig.dealerFrequency * 0.015;
+      // Dealer approach events - district based, more aggressive
+      const dealerChance = districtConfig.dealerFrequency * 0.018;
       if (Math.random() < dealerChance && newState.timeOfDay !== 'dawn') {
         const dealerRoll = Math.random();
-        if (dealerRoll < 0.4 && s.stats.money >= 10) {
+        const isWithdrawingNow = s.stats.cocaine > 0 && s.stats.cocaine <= 20;
+        
+        // Dealers more aggressive when you're withdrawing
+        const aggressionBonus = isWithdrawingNow ? 0.15 : 0;
+        
+        if (dealerRoll < 0.3 + aggressionBonus && s.stats.money >= 10) {
           // Dealer offers coke for money
           newState.stats.money -= 10;
           newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 35);
           newState.stats.hope = Math.min(100, newState.stats.hope + 10);
           showEvent('A dealer approached. You scored. Everything feels possible.');
-        } else if (dealerRoll < 0.6) {
-          // Free sample / pity hit
+        } else if (dealerRoll < 0.45 + aggressionBonus) {
+          // Free sample / pity hit - dealers know you'll come back
           newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 20);
           newState.stats.hope = Math.min(100, newState.stats.hope + 5);
-          showEvent('Someone passed you a taste. The world sharpens.');
-        } else if (dealerRoll < 0.75 && s.stats.money >= 5) {
+          if (isWithdrawingNow) {
+            showEvent('Dealer saw you shaking. "First one\'s free." You take it.');
+          } else {
+            showEvent('Someone passed you a taste. The world sharpens.');
+          }
+        } else if (dealerRoll < 0.6 && s.stats.money >= 5) {
           // Cheaper deal, lower quality
           newState.stats.money -= 5;
           newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 15);
           showEvent('Got some gear cheap. Might be cut with something.');
-        } else {
+        } else if (dealerRoll < 0.7 && s.stats.money >= 8) {
           // Dealer scam / bad deal
-          if (s.stats.money >= 8) {
-            newState.stats.money -= 8;
-            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
-            showEvent('Dealer took your money and vanished.');
+          newState.stats.money -= 8;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+          showEvent('Dealer took your money and vanished.');
+        } else if (dealerRoll < 0.8) {
+          // Dealer just watching - paranoia inducing
+          if (s.stats.cocaine > 0) {
+            showEvent('A figure in the alley watches you. Dealer? Cop? You can\'t tell.');
+            newState.stats.hope = Math.max(0, newState.stats.hope - 3);
           }
+        } else if (dealerRoll < 0.9 && isWithdrawingNow) {
+          // Dealer offers credit - dangerous
+          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 25);
+          newState.permanentHopeLoss += 5; // You owe someone now
+          showEvent('Dealer fronts you some. "You owe me." This won\'t end well.');
         }
       }
       
