@@ -111,20 +111,21 @@ export function useGameState() {
       
       switch (zone) {
         case 'ask-help': {
-          const kindnessChance = 0.3 * districtConfig.kindnessMultiplier;
+          // Slightly better odds, better payoffs
+          const kindnessChance = 0.35 * districtConfig.kindnessMultiplier;
           const roll = Math.random();
           if (roll < kindnessChance) {
-            const money = Math.floor(Math.random() * 3 * districtConfig.kindnessMultiplier) + 1;
+            const money = Math.floor(Math.random() * 4 * districtConfig.kindnessMultiplier) + 2;
             newState.stats.money += money;
-            newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+            newState.stats.hope = Math.min(100, newState.stats.hope + 8);
             const messages = [
               `Someone pressed ${money} dollars into your hand.`,
               'A stranger stopped. They saw you.',
               `"Here." ${money} dollars. No eye contact.`,
             ];
             showEvent(messages[Math.floor(Math.random() * messages.length)]);
-          } else if (roll < kindnessChance + 0.2) {
-            newState.stats.hope = Math.min(100, newState.stats.hope + 3);
+          } else if (roll < kindnessChance + 0.25) {
+            newState.stats.hope = Math.min(100, newState.stats.hope + 5);
             const messages = [
               'A nod. Just a nod. It was something.',
               'Someone smiled. Brief, but real.',
@@ -132,7 +133,7 @@ export function useGameState() {
             ];
             showEvent(messages[Math.floor(Math.random() * messages.length)]);
           } else {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 2);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 3);
             const messages = [
               'Eyes forward. They all looked away.',
               'Invisible. You\'re invisible.',
@@ -145,23 +146,25 @@ export function useGameState() {
         case 'bins': {
           if (s.ibis.isActive && s.ibis.hasEaten) {
             showEvent('A bin chicken got there first. Nothing left.');
-            newState.stats.hope = Math.max(0, newState.stats.hope - 3);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 4);
             break;
           }
           
           if (s.binsRestocked) {
             const roll = Math.random();
-            if (s.ibis.isActive && roll < 0.3) {
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + 5);
-              showEvent('You fought an ibis for scraps. Won some.');
-            } else if (roll < 0.4) {
-              newState.stats.hunger = Math.min(100, newState.stats.hunger + 15);
-              showEvent('Bread. Stale but edible.');
-            } else if (roll < 0.7) {
+            if (s.ibis.isActive && roll < 0.25) {
               newState.stats.hunger = Math.min(100, newState.stats.hunger + 8);
+              showEvent('You fought an ibis for scraps. Won some.');
+            } else if (roll < 0.5) {
+              // Better food finds
+              newState.stats.hunger = Math.min(100, newState.stats.hunger + 20);
+              showEvent('Bread. Stale but edible.');
+            } else if (roll < 0.8) {
+              newState.stats.hunger = Math.min(100, newState.stats.hunger + 12);
               showEvent('Half a meat pie. Cold. It\'ll do.');
             } else {
               showEvent('Empty. All of them.');
+              newState.stats.hope = Math.max(0, newState.stats.hope - 2);
             }
             newState.binsRestocked = false;
           } else {
@@ -170,20 +173,22 @@ export function useGameState() {
           break;
         }
         case 'services': {
-          const servicesChance = 0.4 * districtConfig.servicesMultiplier;
+          // Better service payoffs when open
+          const servicesChance = 0.5 * districtConfig.servicesMultiplier;
           if (s.servicesOpen) {
             const roll = Math.random();
             if (roll < servicesChance) {
-              const hungerBoost = Math.floor(25 * districtConfig.foodMultiplier);
+              const hungerBoost = Math.floor(30 * districtConfig.foodMultiplier);
               newState.stats.hunger = Math.min(100, newState.stats.hunger + hungerBoost);
-              newState.stats.warmth = Math.min(100, newState.stats.warmth + 10);
-              newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+              newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
+              newState.stats.hope = Math.min(100, newState.stats.hope + 12);
               showEvent('Services gave you a hot meal and some advice.');
             } else if (roll < servicesChance + 0.3) {
-              newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
+              newState.stats.warmth = Math.min(100, newState.stats.warmth + 20);
+              newState.stats.hope = Math.min(100, newState.stats.hope + 5);
               showEvent('You waited in the warm lobby for a while.');
             } else {
-              newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+              newState.stats.hope = Math.max(0, newState.stats.hope - 4);
               showEvent('They told you to come back another day.');
             }
           } else {
@@ -192,15 +197,17 @@ export function useGameState() {
           break;
         }
         case 'shelter': {
-          const shelterChance = 0.5 * districtConfig.servicesMultiplier;
+          // Shelter is a big win when it works
+          const shelterChance = 0.55 * districtConfig.servicesMultiplier;
           if (s.shelterOpen) {
             const roll = Math.random();
             if (roll < shelterChance) {
-              newState.stats.warmth = Math.min(100, newState.stats.warmth + 30);
-              newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+              newState.stats.warmth = Math.min(100, newState.stats.warmth + 40);
+              newState.stats.hope = Math.min(100, newState.stats.hope + 12);
+              newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
               showEvent('You got a bed in the shelter tonight.');
             } else {
-              newState.stats.hope = Math.max(0, newState.stats.hope - 8);
+              newState.stats.hope = Math.max(0, newState.stats.hope - 6);
               showEvent('The shelter is full. No beds left.');
             }
           } else {
@@ -209,16 +216,17 @@ export function useGameState() {
           break;
         }
         case 'sleep': {
-          newState.stats.warmth = Math.max(0, newState.stats.warmth - 15);
-          newState.stats.hunger = Math.max(0, newState.stats.hunger - 10);
-          newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+          // Sleeping is risky but restores some hope
+          newState.stats.warmth = Math.max(0, newState.stats.warmth - 12);
+          newState.stats.hunger = Math.max(0, newState.stats.hunger - 8);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 8);
           if (s.timeOfDay === 'night') {
-            newState.stats.warmth = Math.max(0, newState.stats.warmth - 10);
+            newState.stats.warmth = Math.max(0, newState.stats.warmth - 8);
           }
           // Cocaine withdrawal hits hard when resting
           if (s.stats.cocaine > 30) {
             newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 15);
-            newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 8);
             showEvent('You tried to rest. The comedown was brutal.');
           } else {
             showEvent('You rested in the doorway. The cold seeped in.');
@@ -693,19 +701,21 @@ export function useGameState() {
       const newState = { ...s, stats: { ...s.stats } };
       newState.stats.survivalTime += 1;
       
-      // Base stat decay
-      newState.stats.hunger = Math.max(0, newState.stats.hunger - 1.5);
-      newState.stats.hope = Math.max(0, newState.stats.hope - 0.3 - (s.permanentHopeLoss * 0.01));
+      // Base stat decay - tuned for 45-90 second runs
+      // Hunger: 55 start, 1.0/sec decay = ~55 sec without food
+      newState.stats.hunger = Math.max(0, newState.stats.hunger - 1.0);
+      // Hope: 50 start, 0.5/sec decay = ~100 sec base, but penalties stack
+      newState.stats.hope = Math.max(0, newState.stats.hope - 0.5 - (s.permanentHopeLoss * 0.02));
       
       // Cocaine effects - when high, hope boost but accelerated hunger drain
       const isHigh = s.stats.cocaine > 30;
       const isWithdrawing = s.stats.cocaine > 0 && s.stats.cocaine <= 20;
       
       if (isHigh) {
-        // High on coke - feel invincible but burning through energy
-        newState.stats.hope = Math.min(100, newState.stats.hope + 0.4);
-        newState.stats.hunger = Math.max(0, newState.stats.hunger - 0.8); // Extra hunger drain
-        newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.2); // Feel warmer
+        // High on coke - feel invincible but burning through energy faster
+        newState.stats.hope = Math.min(100, newState.stats.hope + 0.6);
+        newState.stats.hunger = Math.max(0, newState.stats.hunger - 0.5); // Extra hunger drain
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.3); // Feel warmer
         
         // PARANOIA - increased police attention when high
         if (Math.random() < 0.03 * (s.stats.cocaine / 100)) {
@@ -813,19 +823,19 @@ export function useGameState() {
         }
       }
       
-      // Warmth decay based on time/weather
-      let warmthDecay = 0.8;
-      if (newState.timeOfDay === 'night') warmthDecay = 1.5;
-      if (newState.timeOfDay === 'dusk') warmthDecay = 1.1;
-      if (newState.isRaining) warmthDecay += 0.8;
+      // Warmth decay based on time/weather - tuned for 45-90 sec runs
+      let warmthDecay = 0.6;
+      if (newState.timeOfDay === 'night') warmthDecay = 1.2;
+      if (newState.timeOfDay === 'dusk') warmthDecay = 0.9;
+      if (newState.isRaining) warmthDecay += 0.6;
       // LSD reduces awareness of cold
-      if (s.lsdTripActive) warmthDecay *= 0.3;
+      if (s.lsdTripActive) warmthDecay *= 0.4;
       newState.stats.warmth = Math.max(0, newState.stats.warmth - warmthDecay);
       
-      // Dog passive effects
+      // Dog passive effects - stronger to reward keeping dog alive
       if (s.hasDog && s.dogHealth > 50 && !s.dogSick) {
-        newState.stats.hope = Math.min(100, newState.stats.hope + 0.25);
-        newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.15);
+        newState.stats.hope = Math.min(100, newState.stats.hope + 0.4);
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 0.25);
       }
       
       // Dog health decay if player hunger is low
@@ -849,8 +859,8 @@ export function useGameState() {
         dogLowHungerTimeRef.current = Math.max(0, dogLowHungerTimeRef.current - 0.5);
       }
       
-      // Time of day cycle (changes every 30 seconds)
-      const timePhase = Math.floor(newState.stats.survivalTime / 30) % 4;
+      // Time of day cycle (changes every 20 seconds for faster gameplay)
+      const timePhase = Math.floor(newState.stats.survivalTime / 20) % 4;
       const times: ('dawn' | 'day' | 'dusk' | 'night')[] = ['dawn', 'day', 'dusk', 'night'];
       newState.timeOfDay = times[timePhase];
       
@@ -858,14 +868,14 @@ export function useGameState() {
       newState.shelterOpen = newState.timeOfDay === 'dusk' || newState.timeOfDay === 'night';
       newState.servicesOpen = newState.timeOfDay === 'day' || newState.timeOfDay === 'dawn';
       
-      // Restock bins every ~45 seconds
-      if (newState.stats.survivalTime % 45 === 0) {
+      // Restock bins every ~25 seconds (more frequent for faster gameplay)
+      if (newState.stats.survivalTime % 25 === 0 && newState.stats.survivalTime > 0) {
         newState.binsRestocked = true;
       }
       
-      // Random weather changes
-      if (newState.stats.survivalTime % 20 === 0) {
-        newState.isRaining = Math.random() < 0.3;
+      // Random weather changes every 15 seconds
+      if (newState.stats.survivalTime % 15 === 0) {
+        newState.isRaining = Math.random() < 0.25;
       }
       
       // === DISTRICT-BASED SYSTEMS ===

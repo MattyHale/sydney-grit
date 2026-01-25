@@ -147,12 +147,12 @@ export const ARCHETYPE_STEAL_BIAS: Record<PedestrianArchetype, { moneyRange: [nu
 };
 
 export const INITIAL_STATS: GameStats = {
-  hunger: 70,
-  warmth: 70,
-  hope: 60,
+  hunger: 55,      // Lower start - creates urgency early
+  warmth: 60,      // Moderate start
+  hope: 50,        // Lower start - hope is precious
   cocaine: 0,
   lsd: 0,
-  money: 5,
+  money: 8,        // Slightly more starting cash for first action
   survivalTime: 0,
 };
 
