@@ -346,45 +346,49 @@ export function useGameState() {
         } else if (roll < 0.35) {
           showEvent('They drove off suddenly. You were hurt.');
           newState.stats.warmth = Math.max(0, newState.stats.warmth - 20);
-          newState.stats.hope = Math.max(0, newState.stats.hope - 35);
+          newState.stats.hope = Math.max(0, newState.stats.hope - 15);
         } else if (roll < 0.6) {
           showEvent('The car drove off. They changed their mind.');
-          newState.stats.hope = Math.max(0, newState.stats.hope - 15);
+          newState.stats.hope = Math.max(0, newState.stats.hope - 5);
         } else if (roll < 0.8) {
-          // Exploitative outcome
-          newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
-          newState.stats.warmth = Math.min(100, newState.stats.warmth + 5);
-          newState.stats.hope = Math.max(0, newState.stats.hope - 40);
-          showEvent('It was degrading. You got almost nothing.');
-          // May attract police attention
+          // Late game still provides SOME hope - money is survival
+          const money = Math.floor(Math.random() * 12) + 8;
+          newState.stats.money += money;
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 15);
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 10);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 5); // Small hope boost - you survived
+          showEvent(`They paid $${money}. Brief. Professional. You survived.`);
+          showTransaction('money', `+$${money}`);
           newState.recentCarEncounter = true;
         } else {
           showEvent('No one stopped. The street was empty.');
         }
       } else if (isMidGame) {
-        // Mid game - reduced returns, some refusals
-        if (roll < 0.2) {
+        // Mid game - still decent returns, hope is mixed
+        if (roll < 0.15) {
           showEvent('The car drove off without stopping.');
-          newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+          newState.stats.hope = Math.max(0, newState.stats.hope - 5);
         } else {
-          newState.stats.hunger = Math.min(100, newState.stats.hunger + 20);
-          newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
-          newState.stats.hope = Math.max(0, newState.stats.hope - 28);
-          if (roll < 0.4) {
-            newState.stats.money += Math.floor(Math.random() * 8) + 3;
-          }
-          showEvent('The arrangement was brief. You survived another hour.');
+          const money = Math.floor(Math.random() * 15) + 10;
+          newState.stats.money += money;
+          newState.stats.hunger = Math.min(100, newState.stats.hunger + 25);
+          newState.stats.warmth = Math.min(100, newState.stats.warmth + 20);
+          // Net positive hope - you're surviving, that's something
+          newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+          showEvent(`$${money}. Quick transaction. You're still here.`);
+          showTransaction('money', `+$${money}`);
           newState.recentCarEncounter = true;
         }
       } else if (isEarlyGame) {
-        // Early game - relatively reliable
+        // Early game - reliable money, good hope boost (control over your survival)
+        const money = Math.floor(Math.random() * 20) + 15;
+        newState.stats.money += money;
         newState.stats.hunger = Math.min(100, newState.stats.hunger + 35);
-        newState.stats.warmth = Math.min(100, newState.stats.warmth + 28);
-        newState.stats.hope = Math.max(0, newState.stats.hope - 22);
-        if (roll < 0.5) {
-          newState.stats.money += Math.floor(Math.random() * 15) + 5;
-        }
-        showEvent('You accepted a private arrangement. It kept you fed and warm. It cost you.');
+        newState.stats.warmth = Math.min(100, newState.stats.warmth + 30);
+        // Significant hope boost - you took action, earned money, you're surviving
+        newState.stats.hope = Math.min(100, newState.stats.hope + 15);
+        showEvent(`$${money}. You made it work. That's survival.`);
+        showTransaction('money', `+$${money}`);
         newState.recentCarEncounter = true;
       }
       
@@ -395,7 +399,7 @@ export function useGameState() {
       
       return newState;
     });
-  }, [showEvent, triggerGameOver]);
+  }, [showEvent, showTransaction, triggerGameOver]);
 
   const ignoreCarEncounter = useCallback(() => {
     setState(s => {

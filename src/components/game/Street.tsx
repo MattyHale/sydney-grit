@@ -232,22 +232,42 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         return (
           <div className="relative w-full h-full">
             <div className="absolute inset-0" style={{ background: '#1a0510' }} />
-            <div className="absolute top-1 left-1 right-1 h-8" style={{ background: '#0a0308' }} />
+            <div className="absolute top-1 left-1 right-1 h-8" style={{ background: '#0a0308' }}>
+              {/* Vertical neon tubes on either side */}
+              {isNight && (
+                <>
+                  <div className="absolute top-0 left-0 w-0.5 h-full animate-pulse" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa' }} />
+                  <div className="absolute top-0 right-0 w-0.5 h-full animate-pulse" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa', animationDelay: '0.5s' }} />
+                </>
+              )}
+            </div>
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-10" style={{ background: '#0f0508', border: '2px solid #3a1a2a' }}>
-              {/* Curtain */}
+              {/* Curtain with shimmer */}
               <div className="absolute inset-1" style={{ background: 'repeating-linear-gradient(90deg, #2a0a1a 0px, #3a1a2a 2px)' }} />
+              {isNight && <div className="absolute inset-1 animate-pulse opacity-20" style={{ background: 'linear-gradient(90deg, transparent, #ff88aa33, transparent)' }} />}
+            </div>
+            {/* Bouncer silhouette */}
+            <div className="absolute bottom-1 right-0.5 w-2.5 h-4 rounded-t" style={{ background: '#0a0505' }}>
+              <div className="w-1.5 h-1.5 rounded-full mx-auto mt-0.5" style={{ background: '#151010' }} />
+            </div>
+            {/* Clubber queue silhouettes */}
+            <div className="absolute bottom-1 left-0 flex gap-0.5">
+              <div className="w-1 h-2.5 rounded-t" style={{ background: '#150a10' }} />
+              <div className="w-1 h-2 rounded-t" style={{ background: '#150a10' }} />
             </div>
             {isNight && neonIntensity > 0.3 && (
               <>
                 {/* Female silhouette neon - stylized, non-explicit */}
                 <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-8 h-6">
-                  <div className="w-2 h-2 rounded-full mx-auto" style={{ background: pal.neonPrimary, boxShadow: `0 0 4px ${pal.neonPrimary}` }} />
-                  <div className="w-1 h-3 mx-auto" style={{ background: pal.neonPrimary, boxShadow: `0 0 3px ${pal.neonPrimary}` }} />
+                  <div className="w-2 h-2 rounded-full mx-auto" style={{ background: pal.neonPrimary, boxShadow: `0 0 6px ${pal.neonPrimary}` }} />
+                  <div className="w-1 h-3 mx-auto" style={{ background: pal.neonPrimary, boxShadow: `0 0 4px ${pal.neonPrimary}` }} />
                 </div>
-                <div className={`absolute bottom-19 left-1/2 -translate-x-1/2 px-1 py-0.5 text-[5px] animate-pulse font-bold ${signageClass}`} style={{ color: pal.neonPrimary, textShadow: `0 0 6px ${pal.neonPrimary}` }}>
+                <div className={`absolute bottom-19 left-1/2 -translate-x-1/2 px-1 py-0.5 text-[5px] animate-pulse font-bold ${signageClass}`} style={{ color: pal.neonPrimary, textShadow: `0 0 8px ${pal.neonPrimary}` }}>
                   {scrambleText('GIRLS')}
                 </div>
-                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: pal.neonPrimary, boxShadow: `0 0 8px ${pal.neonPrimary}` }} />
+                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: pal.neonPrimary, boxShadow: `0 0 10px ${pal.neonPrimary}` }} />
+                {/* Smoke haze */}
+                <div className="absolute bottom-8 left-0 right-0 h-4 opacity-15" style={{ background: 'linear-gradient(0deg, #888888 0%, transparent 100%)' }} />
               </>
             )}
           </div>
@@ -257,15 +277,29 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         return (
           <div className="relative w-full h-full">
             <div className="absolute inset-0" style={{ background: '#1a1510' }} />
-            <div className="absolute top-2 left-1 right-1 h-6" style={{ background: '#0a0808' }} />
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-9" style={{ background: '#0f0a08', border: '2px solid #3a2a2a' }} />
+            <div className="absolute top-2 left-1 right-1 h-6" style={{ background: '#0a0808' }}>
+              {/* Window with warm glow */}
+              <div className="absolute inset-0.5" style={{ background: '#ffaa4411' }} />
+              {/* Bar patrons silhouettes */}
+              <div className="absolute bottom-0 left-1 w-1 h-2 rounded-t" style={{ background: '#151010' }} />
+              <div className="absolute bottom-0 left-3 w-1 h-1.5 rounded-t" style={{ background: '#151010' }} />
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-9" style={{ background: '#0f0a08', border: '2px solid #3a2a2a' }}>
+              {/* Door window */}
+              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-3 h-3" style={{ background: '#ffaa4422' }} />
+            </div>
+            {/* Smokers outside */}
+            <div className="absolute bottom-1 left-0.5 w-1.5 h-2.5 rounded-t" style={{ background: '#151510' }} />
+            {isNight && <div className="absolute bottom-3 left-1 w-0.5 h-2 opacity-20 animate-pulse" style={{ background: 'linear-gradient(0deg, #888888 0%, transparent 100%)' }} />}
             {isNight && neonIntensity > 0.2 && (
               <>
-                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] animate-pulse font-bold ${signageClass}`} style={{ color: '#ffaa44', textShadow: '0 0 4px #ffaa44' }}>
+                <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] animate-pulse font-bold ${signageClass}`} style={{ color: '#ffaa44', textShadow: '0 0 6px #ffaa44' }}>
                   {scrambleText('BAR')}
                 </div>
                 {/* Beer glass neon */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-4 rounded-b border" style={{ borderColor: '#ffaa44', boxShadow: '0 0 3px #ffaa4466' }} />
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-4 rounded-b border" style={{ borderColor: '#ffaa44', boxShadow: '0 0 4px #ffaa4488' }} />
+                {/* Amber light spill */}
+                <div className="absolute bottom-0 left-0 right-0 h-4 opacity-15" style={{ background: 'linear-gradient(0deg, #ffaa4444 0%, transparent 100%)' }} />
               </>
             )}
           </div>
@@ -275,15 +309,35 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         return (
           <div className="relative w-full h-full">
             <div className="absolute inset-0" style={{ background: buildingColor }} />
-            {/* Multiple windows - backpacker vibe */}
+            {/* Multiple floors of windows - backpacker hostel vibe */}
             <div className="absolute top-1 left-0.5 w-2 h-3" style={{ background: pal.windowGlow, opacity: 0.25 }} />
-            <div className="absolute top-1 right-0.5 w-2 h-3" style={{ background: pal.windowGlow, opacity: 0.2 }} />
+            <div className="absolute top-1 right-0.5 w-2 h-3" style={{ background: pal.windowGlow, opacity: 0.15 }} />
             <div className="absolute top-5 left-0.5 w-2 h-3" style={{ background: pal.windowGlow, opacity: 0.3 }} />
-            <div className="absolute top-5 right-0.5 w-2 h-3" style={{ background: pal.windowGlow, opacity: 0.15 }} />
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#2a3a2a', border: '1px solid #4a5a4a' }} />
+            <div className="absolute top-5 right-0.5 w-2 h-3" style={{ background: '#0a0808', opacity: 0.8 }} />
+            <div className="absolute top-9 left-0.5 w-2 h-3" style={{ background: '#0a0808' }} />
+            <div className="absolute top-9 right-0.5 w-2 h-3" style={{ background: pal.windowGlow, opacity: 0.2 }} />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-8" style={{ background: '#2a3a2a', border: '1px solid #4a5a4a' }}>
+              {/* Noticeboard */}
+              <div className="absolute top-1 left-0.5 w-2 h-2" style={{ background: '#5a5a4a' }}>
+                <div className="w-1 h-0.5 mt-0.5 mx-auto" style={{ background: '#e8e8d0' }} />
+              </div>
+            </div>
             <div className={`absolute bottom-9 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5 ${signageClass}`} style={{ background: '#1a1a1a', color: '#8a8a6a' }}>{scrambleText('HOSTEL')}</div>
-            {/* Backpack icon */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2 h-3 rounded" style={{ background: '#4a5a3a' }} />
+            {/* Backpacker silhouettes with packs */}
+            <div className="absolute bottom-1 left-0 flex gap-0.5 items-end">
+              <div className="w-1.5 h-2.5 rounded-t" style={{ background: '#1a2a1a' }}>
+                <div className="w-1 h-1.5 -mt-0.5 mx-auto rounded" style={{ background: '#4a5a3a' }} />
+              </div>
+              <div className="w-1.5 h-2 rounded-t" style={{ background: '#1a2a1a' }}>
+                <div className="w-1 h-1 -mt-0.5 mx-auto rounded" style={{ background: '#3a4a5a' }} />
+              </div>
+            </div>
+            {/* Chalkboard specials */}
+            {isNight && (
+              <div className="absolute bottom-10 right-0.5 w-3 h-2" style={{ background: '#0a0a0a', border: '1px solid #2a2a2a' }}>
+                <div className="text-[2px] text-center mt-0.5" style={{ color: '#888866' }}>$5</div>
+              </div>
+            )}
           </div>
         );
         
@@ -291,21 +345,36 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         return (
           <div className="relative w-full h-full">
             <div className="absolute inset-0" style={{ background: buildingColor }} />
-            {/* Bright shopfront */}
-            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#3a2a20' }}>
+            {/* Bright stainless steel shopfront */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#3a2a20', border: '1px solid #4a3a30' }}>
               <div className="absolute top-1 left-1 right-1 h-5" style={{ background: '#4a3525' }}>
                 {/* Food display glow */}
-                <div className="absolute inset-0.5" style={{ background: '#ffaa4422' }} />
-                {/* Rotisserie */}
-                <div className="absolute top-0.5 left-1 w-2 h-4 rounded" style={{ background: '#6a4a2a' }} />
+                <div className="absolute inset-0.5" style={{ background: '#ffaa4433' }} />
+                {/* Rotisserie meat */}
+                <div className="absolute top-0.5 left-1 w-2.5 h-4 rounded" style={{ background: 'linear-gradient(180deg, #5a3a1a 0%, #7a4a2a 50%, #5a3a1a 100%)' }} />
+                {/* Sauce bottles */}
+                <div className="absolute bottom-0.5 right-0.5 w-0.5 h-2" style={{ background: '#ff4444' }} />
+                <div className="absolute bottom-0.5 right-1.5 w-0.5 h-2" style={{ background: '#ffffff' }} />
               </div>
+              {/* Counter with wrappers */}
+              <div className="absolute bottom-1 left-1 w-4 h-1" style={{ background: '#e8e0d0' }} />
             </div>
-            <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1 ${signageClass}`} style={{ color: '#ffcc44', textShadow: isNight ? '0 0 3px #ffaa44' : 'none' }}>{scrambleText('KEBAB')}</div>
+            {/* Messy wrappers on ground */}
+            <div className="absolute bottom-0 right-0.5 w-2 h-0.5 rotate-12" style={{ background: '#e8e0d0' }} />
+            <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1 ${signageClass}`} style={{ color: '#ffcc44', textShadow: isNight ? '0 0 4px #ffaa44' : 'none' }}>{scrambleText('KEBAB')}</div>
             {isNight && (
               <>
-                <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-10 h-1" style={{ background: '#ffaa44', boxShadow: '0 0 6px #ffaa44' }} />
+                <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-10 h-1" style={{ background: '#ffaa44', boxShadow: '0 0 8px #ffaa44' }} />
+                {/* Loud late-night crowd silhouettes */}
+                <div className="absolute bottom-1 left-0 flex gap-0.5">
+                  <div className="w-1 h-2 rounded-t" style={{ background: '#1a1510' }} />
+                  <div className="w-1 h-2.5 rounded-t" style={{ background: '#1a1510' }} />
+                  <div className="w-1 h-2 rounded-t" style={{ background: '#1a1510' }} />
+                </div>
                 {/* Light spill */}
-                <div className="absolute bottom-0 left-0 right-0 h-6 opacity-20" style={{ background: 'linear-gradient(0deg, #ffaa4444 0%, transparent 100%)' }} />
+                <div className="absolute bottom-0 left-0 right-0 h-6 opacity-25" style={{ background: 'linear-gradient(0deg, #ffaa4444 0%, transparent 100%)' }} />
+                {/* Steam plume */}
+                <div className="absolute bottom-14 left-2 w-3 h-5 opacity-20 animate-pulse" style={{ background: 'linear-gradient(0deg, #ffffff44 0%, transparent 100%)' }} />
               </>
             )}
           </div>
