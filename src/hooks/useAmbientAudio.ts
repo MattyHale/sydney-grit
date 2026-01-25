@@ -110,7 +110,8 @@ export function useAmbientAudio(
   isPaused: boolean,
   isGameOver: boolean,
   isRaining: boolean,
-  timeOfDay: 'dawn' | 'day' | 'dusk' | 'night'
+  timeOfDay: 'dawn' | 'day' | 'dusk' | 'night',
+  isMuted: boolean
 ) {
   const audioContextRef = useRef<AudioContext | null>(null);
   const masterGainRef = useRef<GainNode | null>(null);
@@ -297,18 +298,18 @@ export function useAmbientAudio(
     masterGainRef.current.gain.value = baseVolume * nightBoost;
   }, [timeOfDay]);
 
-  // Handle pause/game over
+  // Handle pause/game over/mute
   useEffect(() => {
     if (!masterGainRef.current) return;
     
-    if (isPaused || isGameOver) {
+    if (isPaused || isGameOver || isMuted) {
       masterGainRef.current.gain.value = 0;
     } else {
       const baseVolume = 0.12;
       const nightBoost = timeOfDay === 'night' ? 1.3 : timeOfDay === 'dusk' ? 1.15 : 1.0;
       masterGainRef.current.gain.value = baseVolume * nightBoost;
     }
-  }, [isPaused, isGameOver, timeOfDay]);
+  }, [isPaused, isGameOver, isMuted, timeOfDay]);
 
   // Handle district change
   useEffect(() => {

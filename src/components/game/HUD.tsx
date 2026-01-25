@@ -1,10 +1,13 @@
 import { GameStats } from '@/types/game';
+import { Volume2, VolumeX } from 'lucide-react';
 
 interface HUDProps {
   stats: GameStats;
   timeOfDay: string;
   isRaining: boolean;
   lsdTripActive?: boolean;
+  isMuted: boolean;
+  onToggleMute: () => void;
 }
 
 function StatBar({ label, value, max = 100, danger = false, glow = false, trippy = false }: { 
@@ -40,11 +43,23 @@ function StatBar({ label, value, max = 100, danger = false, glow = false, trippy
   );
 }
 
-export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false }: HUDProps) {
+export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMuted, onToggleMute }: HUDProps) {
   const isHigh = stats.cocaine > 30;
   
   return (
     <div className={`bg-gb-dark border-b-2 border-gb-darkest px-2 py-1.5 flex flex-wrap items-center justify-between gap-2 ${isHigh ? 'shadow-[inset_0_-2px_8px_rgba(255,150,200,0.2)]' : ''} ${lsdTripActive ? 'shadow-[inset_0_-2px_12px_rgba(150,100,255,0.3)]' : ''}`}>
+      {/* Mute button */}
+      <button
+        onClick={onToggleMute}
+        className="p-1 text-gb-light hover:text-gb-lightest transition-colors"
+        aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+      >
+        {isMuted ? (
+          <VolumeX size={14} className="sm:w-4 sm:h-4" />
+        ) : (
+          <Volume2 size={14} className="sm:w-4 sm:h-4" />
+        )}
+      </button>
       <div className="flex flex-wrap gap-2 sm:gap-3">
         <StatBar label="HGR" value={stats.hunger} danger={stats.hunger < 25} />
         <StatBar label="WRM" value={stats.warmth} danger={stats.warmth < 25} />
