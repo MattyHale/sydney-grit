@@ -1,20 +1,65 @@
 import { useState } from 'react';
-import { HotspotZone } from '@/types/game';
+import { HotspotZone, FundingStage } from '@/types/game';
 
 interface ShopOption {
   id: string;
   label: string;
   icon: string;
   cost?: number;
+  energyCost?: number;
   description: string;
+  requiredStage?: FundingStage;
 }
 
 interface ShopInteriorProps {
   shopType: HotspotZone;
   money: number;
+  energy: number;
+  fundingStage: FundingStage;
   onAction: (actionId: string) => void;
   onExit: () => void;
 }
+
+// Stage progression order
+const STAGE_ORDER: FundingStage[] = ['bootstrap', 'seed', 'series-a', 'series-b', 'series-c', 'series-d', 'ipo'];
+
+const getNextStage = (current: FundingStage): FundingStage | null => {
+  const idx = STAGE_ORDER.indexOf(current);
+  return idx < STAGE_ORDER.length - 1 ? STAGE_ORDER[idx + 1] : null;
+};
+
+const STAGE_CONFIG: Record<FundingStage, { label: string; amount: string; successRate: number; energyCost: number; hopeLoss: number }> = {
+  'bootstrap': { label: 'Seed Round', amount: '$500K', successRate: 0.5, energyCost: 20, hopeLoss: 15 },
+  'seed': { label: 'Series A', amount: '$2M', successRate: 0.4, energyCost: 25, hopeLoss: 25 },
+  'series-a': { label: 'Series B', amount: '$10M', successRate: 0.35, energyCost: 30, hopeLoss: 30 },
+  'series-b': { label: 'Series C', amount: '$30M', successRate: 0.3, energyCost: 35, hopeLoss: 35 },
+  'series-c': { label: 'Series D', amount: '$80M', successRate: 0.25, energyCost: 40, hopeLoss: 40 },
+  'series-d': { label: 'IPO', amount: '$500M', successRate: 0.15, energyCost: 50, hopeLoss: 50 },
+  'ipo': { label: 'Victory!', amount: '∞', successRate: 1, energyCost: 0, hopeLoss: 0 },
+};
+
+const getVCOptions = (stage: FundingStage): ShopOption[] => {
+  const nextStage = getNextStage(stage);
+  const config = nextStage ? STAGE_CONFIG[stage] : null;
+  
+  const options: ShopOption[] = [];
+  
+  if (stage === 'ipo') {
+    options.push({ id: 'victory', label: '🎉 You Made It!', icon: '🏆', description: 'You took your company public. You won.' });
+  } else if (config) {
+    options.push({ 
+      id: 'pitch-next', 
+      label: config.label, 
+      icon: stage === 'series-d' ? '🔔' : '🚀', 
+      energyCost: config.energyCost,
+      description: `${Math.round(config.successRate * 100)}% chance for ${config.amount}. Uses ${config.energyCost} energy.`
+    });
+  }
+  
+  options.push({ id: 'network', label: 'Network', icon: '🤝', cost: 20, energyCost: 10, description: 'Meet founders, gain hope (-10 energy)' });
+  
+  return options;
+};
 
 const SHOP_CONFIGS: Record<string, {
   title: string;
@@ -23,17 +68,6 @@ const SHOP_CONFIGS: Record<string, {
   bgColor: string;
   accentColor: string;
 }> = {
-  'vc-firm': {
-    title: 'VENTURE CAPITAL',
-    subtitle: 'Sequoia • a16z • Blackbird',
-    bgColor: '#1a1a2a',
-    accentColor: '#4488ff',
-    options: [
-      { id: 'pitch-seed', label: 'Seed Pitch', icon: '🌱', cost: 0, description: '50/50 - Win $500K or lose hope' },
-      { id: 'pitch-series-a', label: 'Series A', icon: '🚀', cost: 50, description: 'Big risk, big reward: $2M or devastation' },
-      { id: 'network', label: 'Network', icon: '🤝', cost: 20, description: 'Meet founders, gain hope' },
-    ],
-  },
   'strip-club': {
     title: 'GENTLEMAN\'S CLUB',
     subtitle: 'The Cross • Private Booths Available',
@@ -73,8 +107,8 @@ const SHOP_CONFIGS: Record<string, {
     bgColor: '#2a1a1a',
     accentColor: '#aa6633',
     options: [
-      { id: 'coffee', label: 'Flat White', icon: '☕', cost: 6, description: 'Energy boost, focus' },
-      { id: 'meeting', label: 'Coffee Meeting', icon: '💼', cost: 15, description: 'Pitch a contact' },
+      { id: 'coffee', label: 'Flat White', icon: '☕', cost: 6, description: 'Energy boost (+15 energy)' },
+      { id: 'meeting', label: 'Coffee Meeting', icon: '💼', cost: 15, energyCost: 10, description: 'Pitch a contact' },
       { id: 'cowork', label: 'Day Pass', icon: '🏢', cost: 35, description: 'Work, restore hope' },
     ],
   },
@@ -84,9 +118,9 @@ const SHOP_CONFIGS: Record<string, {
     bgColor: '#1a1a2a',
     accentColor: '#8844ff',
     options: [
-      { id: 'mentor', label: 'See Mentor', icon: '👨‍🏫', cost: 0, description: 'Free advice, +hope' },
-      { id: 'workshop', label: 'Workshop', icon: '📊', cost: 50, description: 'Learn to pitch better' },
-      { id: 'apply', label: 'Apply to Program', icon: '📝', cost: 0, description: 'Long shot at funding' },
+      { id: 'mentor', label: 'See Mentor', icon: '👨‍🏫', cost: 0, energyCost: 5, description: 'Free advice, +hope (-5 energy)' },
+      { id: 'workshop', label: 'Workshop', icon: '📊', cost: 50, energyCost: 15, description: 'Learn to pitch better' },
+      { id: 'apply', label: 'Apply to Program', icon: '📝', cost: 0, energyCost: 20, description: 'Long shot at funding' },
     ],
   },
   'alley': {
@@ -95,7 +129,7 @@ const SHOP_CONFIGS: Record<string, {
     bgColor: '#0a0a0a',
     accentColor: '#44ff44',
     options: [
-      { id: 'buy-coke', label: 'Buy Coke', icon: '❄️', cost: 150, description: 'High-grade Colombian' },
+      { id: 'buy-coke', label: 'Buy Coke', icon: '❄️', cost: 150, description: 'High-grade Colombian (5x speed!)' },
       { id: 'buy-party', label: 'Party Pack', icon: '🎉', cost: 400, description: 'Coke + pills for client entertainment' },
       { id: 'deal', label: 'Make a Deal', icon: '🤫', cost: 0, description: 'Risky business opportunity' },
     ],
@@ -106,20 +140,31 @@ const SHOP_CONFIGS: Record<string, {
     bgColor: '#1a1a1a',
     accentColor: '#ffcc00',
     options: [
-      { id: 'lunch', label: 'Business Lunch', icon: '🍽️', cost: 85, description: 'Impress a client' },
+      { id: 'lunch', label: 'Business Lunch', icon: '🍽️', cost: 85, description: 'Impress a client (+energy)' },
       { id: 'dinner', label: 'Client Dinner', icon: '🥂', cost: 250, description: 'Close a deal over dinner' },
-      { id: 'takeaway', label: 'UberEats', icon: '🥡', cost: 25, description: 'Quick food, back to work' },
+      { id: 'takeaway', label: 'UberEats', icon: '🥡', cost: 25, description: 'Quick food (+30 energy)' },
     ],
   },
 };
 
-export function ShopInterior({ shopType, money, onAction, onExit }: ShopInteriorProps) {
+export function ShopInterior({ shopType, money, energy, fundingStage, onAction, onExit }: ShopInteriorProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   
-  const config = SHOP_CONFIGS[shopType] || SHOP_CONFIGS['bar'];
+  // Get config - VC firm is dynamic based on stage
+  const isVCFirm = shopType === 'vc-firm';
+  const vcOptions = isVCFirm ? getVCOptions(fundingStage) : [];
+  const config = isVCFirm ? {
+    title: 'VENTURE CAPITAL',
+    subtitle: fundingStage === 'ipo' ? 'Congratulations!' : `Current: ${fundingStage.toUpperCase()} → Next Round`,
+    bgColor: '#1a1a2a',
+    accentColor: '#4488ff',
+    options: vcOptions,
+  } : (SHOP_CONFIGS[shopType] || SHOP_CONFIGS['bar']);
   
   const handleSelect = (option: ShopOption) => {
-    if (option.cost && option.cost > money) {
+    const canAffordMoney = !option.cost || option.cost <= money;
+    const hasEnergy = !option.energyCost || option.energyCost <= energy;
+    if (!canAffordMoney || !hasEnergy) {
       return; // Can't afford
     }
     setSelectedOption(option.id);
@@ -149,11 +194,12 @@ export function ShopInterior({ shopType, money, onAction, onExit }: ShopInterior
             >
               {config.title}
             </h2>
-            <p className="text-[8px] text-gray-400 mt-0.5">{config.subtitle}</p>
+            <p className="text-[8px] text-muted-foreground mt-0.5">{config.subtitle}</p>
           </div>
           <div className="text-right">
             <div className="text-xs font-bold text-green-400">${money.toLocaleString()}</div>
-            <div className="text-[7px] text-gray-500">BALANCE</div>
+            <div className="text-[7px] text-muted-foreground">RUNWAY</div>
+            <div className="text-[10px] text-yellow-400 mt-0.5">⚡{Math.round(energy)}</div>
           </div>
         </div>
       </div>
@@ -162,7 +208,9 @@ export function ShopInterior({ shopType, money, onAction, onExit }: ShopInterior
       <div className="flex-1 p-2 overflow-y-auto">
         <div className="space-y-2">
           {config.options.map((option) => {
-            const canAfford = !option.cost || option.cost <= money;
+            const canAffordMoney = !option.cost || option.cost <= money;
+            const hasEnergy = !option.energyCost || option.energyCost <= energy;
+            const canAfford = canAffordMoney && hasEnergy;
             const isSelected = selectedOption === option.id;
             
             return (
@@ -174,8 +222,8 @@ export function ShopInterior({ shopType, money, onAction, onExit }: ShopInterior
                   isSelected 
                     ? 'border-white bg-white/10' 
                     : canAfford 
-                      ? 'border-gray-600 hover:border-gray-400' 
-                      : 'border-gray-800 opacity-40'
+                      ? 'border-muted hover:border-muted-foreground' 
+                      : 'border-muted/50 opacity-40'
                 }`}
                 style={{ 
                   borderColor: isSelected ? config.accentColor : undefined,
@@ -186,16 +234,23 @@ export function ShopInterior({ shopType, money, onAction, onExit }: ShopInterior
                   <span className="text-lg">{option.icon}</span>
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-white">{option.label}</span>
-                      {option.cost ? (
-                        <span className={`text-[10px] font-bold ${canAfford ? 'text-green-400' : 'text-red-400'}`}>
-                          ${option.cost}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-gray-500">FREE</span>
-                      )}
+                      <span className="text-xs font-bold text-foreground">{option.label}</span>
+                      <div className="flex gap-2">
+                        {option.energyCost && (
+                          <span className={`text-[10px] font-bold ${hasEnergy ? 'text-yellow-400' : 'text-red-400'}`}>
+                            ⚡{option.energyCost}
+                          </span>
+                        )}
+                        {option.cost ? (
+                          <span className={`text-[10px] font-bold ${canAffordMoney ? 'text-green-400' : 'text-red-400'}`}>
+                            ${option.cost}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground">FREE</span>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-[8px] text-gray-400 mt-0.5">{option.description}</p>
+                    <p className="text-[8px] text-muted-foreground mt-0.5">{option.description}</p>
                   </div>
                 </div>
               </button>
@@ -211,7 +266,7 @@ export function ShopInterior({ shopType, money, onAction, onExit }: ShopInterior
       >
         <button
           onClick={onExit}
-          className="flex-1 py-2 px-3 bg-gray-700 hover:bg-gray-600 rounded text-xs font-bold text-white transition-colors"
+          className="flex-1 py-2 px-3 bg-muted hover:bg-muted/80 rounded text-xs font-bold text-foreground transition-colors"
         >
           ← EXIT
         </button>
