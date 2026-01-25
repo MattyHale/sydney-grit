@@ -682,6 +682,68 @@ export function useGameState() {
     });
   }, [showEvent]);
 
+  // Sell drugs to pedestrian
+  const sellDrugs = useCallback(() => {
+    setState(s => {
+      if (!s.stealWindowActive || !s.stealTarget || s.isGameOver || s.isPaused) return s;
+      if (s.stats.cocaine <= 0) {
+        showEvent('You have nothing to sell.');
+        return s;
+      }
+      
+      const newState = { ...s, stats: { ...s.stats } };
+      const target = s.stealTarget;
+      const archetype = target.archetype;
+      
+      // Different archetypes buy at different rates
+      const buyChance: Record<string, number> = {
+        'junkie': 0.95,    // Junkies always buy
+        'clubber': 0.6,    // Clubbers might buy
+        'student': 0.3,    // Students sometimes
+        'businessman': 0.1, // Businessmen rarely
+        'backpacker': 0.4,
+        'punk': 0.5,
+        'sexworker': 0.4,
+        'cop': 0.0,        // Cops never buy (arrest you!)
+        'tourist': 0.05,
+        'pensioner': 0.01,
+        'dealer': 0.0,     // Dealers don't buy from you
+      };
+      
+      const chance = buyChance[archetype] || 0.1;
+      const roll = Math.random();
+      
+      if (archetype === 'cop') {
+        showEvent('You tried to sell to a cop. Big mistake.');
+        newState.recentTheft = true; // Triggers police
+        newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+      } else if (roll < chance) {
+        // Successful sale
+        const amount = Math.floor(Math.random() * 15) + 8; // $8-22
+        newState.stats.money += amount;
+        newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 15);
+        showEvent(`Sold a bump for $${amount}.`);
+      } else if (roll < chance + 0.2) {
+        // They're interested but haggle
+        const amount = Math.floor(Math.random() * 5) + 3;
+        newState.stats.money += amount;
+        newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 10);
+        showEvent(`They wanted a taste. $${amount}.`);
+      } else {
+        // No interest
+        newState.stats.hope = Math.max(0, newState.stats.hope - 3);
+        showEvent('Not interested. They walked away.');
+      }
+      
+      // Target moves on after interaction
+      newState.pedestrians = s.pedestrians.filter(p => p.id !== target.id);
+      newState.stealWindowActive = false;
+      newState.stealTarget = null;
+      
+      return newState;
+    });
+  }, [showEvent]);
+
   // Take LSD action
   const takeLSD = useCallback(() => {
     setState(s => {
@@ -1251,6 +1313,7 @@ export function useGameState() {
     ignoreCarEncounter,
     attemptPurseSteal,
     buyFromDealer,
+    sellDrugs,
     takeLSD,
     tick,
   };
