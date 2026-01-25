@@ -4,7 +4,7 @@ export interface GameStats {
   hunger: number;
   warmth: number;
   hope: number;
-  fatigue: number;
+  cocaine: number;
   money: number;
   survivalTime: number;
 }
@@ -130,7 +130,7 @@ export const INITIAL_STATS: GameStats = {
   hunger: 70,
   warmth: 70,
   hope: 60,
-  fatigue: 20,
+  cocaine: 0,
   money: 5,
   survivalTime: 0,
 };

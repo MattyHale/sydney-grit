@@ -39,7 +39,7 @@ export function HUD({ stats, timeOfDay, isRaining }: HUDProps) {
         <StatBar label="HGR" value={stats.hunger} danger={stats.hunger < 25} />
         <StatBar label="WRM" value={stats.warmth} danger={stats.warmth < 25} />
         <StatBar label="HPE" value={stats.hope} danger={stats.hope < 25} />
-        <StatBar label="FTG" value={100 - stats.fatigue} danger={stats.fatigue > 75} />
+        <StatBar label="COC" value={stats.cocaine} danger={stats.cocaine > 75} />
       </div>
       
       <div className="flex items-center gap-3 sm:gap-4">
