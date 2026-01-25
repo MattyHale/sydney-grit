@@ -1,4 +1,5 @@
 import { GameStats } from '@/types/game';
+import { District, DISTRICT_NAMES } from '@/types/districts';
 import { Volume2, VolumeX } from 'lucide-react';
 
 interface HUDProps {
@@ -8,6 +9,7 @@ interface HUDProps {
   lsdTripActive?: boolean;
   isMuted: boolean;
   onToggleMute: () => void;
+  currentDistrict: District;
 }
 
 function StatBar({ label, value, max = 100, danger = false, glow = false, trippy = false }: { 
@@ -43,8 +45,9 @@ function StatBar({ label, value, max = 100, danger = false, glow = false, trippy
   );
 }
 
-export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMuted, onToggleMute }: HUDProps) {
+export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMuted, onToggleMute, currentDistrict }: HUDProps) {
   const isHigh = stats.cocaine > 30;
+  const districtName = DISTRICT_NAMES[currentDistrict];
   
   return (
     <div className={`bg-gb-dark border-b-2 border-gb-darkest px-2 py-1.5 flex flex-wrap items-center justify-between gap-2 ${isHigh ? 'shadow-[inset_0_-2px_8px_rgba(255,150,200,0.2)]' : ''} ${lsdTripActive ? 'shadow-[inset_0_-2px_12px_rgba(150,100,255,0.3)]' : ''}`}>
@@ -76,6 +79,14 @@ export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMute
       </div>
       
       <div className="flex items-center gap-3 sm:gap-4">
+        {/* District name indicator */}
+        <div className="flex flex-col items-center">
+          <span className="text-gb-lightest text-[7px] sm:text-[8px] uppercase opacity-60">District</span>
+          <span className={`text-[9px] sm:text-[10px] font-bold text-gb-light ${lsdTripActive ? 'animate-pulse' : ''}`}>
+            {districtName}
+          </span>
+        </div>
+        
         <div className="flex flex-col items-end">
           <span className="text-gb-lightest text-[8px] sm:text-[10px] uppercase">Money</span>
           <span className={`text-xs sm:text-sm font-bold ${
@@ -93,14 +104,14 @@ export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMute
         </div>
         
         <div className="flex flex-col items-center">
-          <span className={`text-[10px] sm:text-xs text-gb-light capitalize ${lsdTripActive ? 'text-purple-300' : ''}`}>
+          <span className={`text-[10px] sm:text-xs text-gb-light capitalize ${lsdTripActive ? 'text-gb-lightest' : ''}`}>
             {lsdTripActive ? '✦ TRIP ✦' : timeOfDay}
           </span>
           {isRaining && !lsdTripActive && (
             <span className="text-[8px] text-gb-lightest">🌧</span>
           )}
           {lsdTripActive && (
-            <span className="text-[8px] text-purple-300 animate-pulse">∞</span>
+            <span className="text-[8px] text-gb-lightest animate-pulse">∞</span>
           )}
         </div>
       </div>

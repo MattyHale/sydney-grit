@@ -578,6 +578,88 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
           </div>
         );
       
+      // Cabramatta-specific blocks
+      case 'pho':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#2a1a10' }} />
+            {/* Vietnamese restaurant - warm tones, steam */}
+            <div className="absolute top-0 left-0 right-0 h-3" style={{ background: '#7a2a1a', borderBottom: '1px solid #5a1a0a' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-11" style={{ background: '#3a2515' }}>
+              <div className="absolute inset-1" style={{ background: '#ffcc6633' }} />
+              {/* Bowl of pho */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-4 h-2 rounded-t-full" style={{ background: '#5a4a3a' }}>
+                {isNight && <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-3 opacity-40 animate-pulse" style={{ background: 'linear-gradient(0deg, #ffffff33 0%, transparent 100%)' }} />}
+              </div>
+            </div>
+            <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 text-[5px] font-bold px-1 ${signageClass}`} style={{ color: '#ffcc66', textShadow: isNight ? '0 0 3px #ffaa44' : 'none' }}>{scrambleText('PHỞ')}</div>
+            {isNight && <div className="absolute bottom-0 left-0 right-0 h-5 opacity-25" style={{ background: 'linear-gradient(0deg, #ffaa4444 0%, transparent 100%)' }} />}
+          </div>
+        );
+        
+      case 'goldshop':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1505' }} />
+            {/* Gold/jewelry shop - Vietnamese style */}
+            <div className="absolute bottom-0 left-0 right-0 h-12" style={{ background: '#252010' }}>
+              <div className="absolute top-1 left-1 right-1 h-6 border-2" style={{ background: '#0f0a05', borderColor: '#4a4a25' }}>
+                {/* Gold items display */}
+                <div className="absolute bottom-0.5 left-0.5 w-1.5 h-1.5 rounded-full" style={{ background: '#aa9a4a' }} />
+                <div className="absolute bottom-0.5 left-3 w-2 h-1" style={{ background: '#9a8a3a' }} />
+                <div className="absolute bottom-0.5 right-0.5 w-1.5 h-1.5 rounded-full" style={{ background: '#aa9a4a' }} />
+              </div>
+              {/* Security bars */}
+              <div className="absolute top-1 left-2 w-px h-6" style={{ background: '#5a5a3a' }} />
+              <div className="absolute top-1 right-2 w-px h-6" style={{ background: '#5a5a3a' }} />
+            </div>
+            <div className={`absolute bottom-13 left-1/2 -translate-x-1/2 text-[4px] font-bold px-0.5 ${signageClass}`} style={{ color: '#ccaa44', textShadow: isNight ? '0 0 2px #ccaa44' : 'none' }}>{scrambleText('VÀNG')}</div>
+            {isNight && <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-8 h-0.5 animate-pulse" style={{ background: '#ccaa44' }} />}
+          </div>
+        );
+        
+      case 'market':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#1a1a15' }} />
+            {/* Open market stall feel */}
+            <div className="absolute top-0 left-0 right-0 h-4" style={{ background: '#5a2a2a', borderBottom: '1px solid #4a1a1a' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: '#252520' }}>
+              {/* Produce */}
+              <div className="absolute top-1 left-0.5 right-0.5 h-5 grid grid-cols-3 gap-0.5">
+                <div style={{ background: '#4a7a3a' }} />
+                <div style={{ background: '#7a5a3a' }} />
+                <div style={{ background: '#3a6a4a' }} />
+              </div>
+            </div>
+            <div className={`absolute bottom-11 left-1/2 -translate-x-1/2 text-[4px] font-bold ${signageClass}`} style={{ color: '#8a8a6a' }}>{scrambleText('MARKET')}</div>
+          </div>
+        );
+        
+      case 'arcade':
+        return (
+          <div className="relative w-full h-full">
+            <div className="absolute inset-0" style={{ background: '#0a0510' }} />
+            {/* Dark arcade - games, seedy */}
+            <div className="absolute top-2 left-1 right-1 h-8" style={{ background: '#050208' }}>
+              {/* Arcade cabinets */}
+              <div className="absolute top-1 left-1 w-3 h-5 rounded-t" style={{ background: '#1a1a2a' }}>
+                <div className="w-2 h-2 mx-auto mt-0.5" style={{ background: '#2a4a3a' }} />
+              </div>
+              <div className="absolute top-1 right-1 w-3 h-5 rounded-t" style={{ background: '#1a1a2a' }}>
+                <div className="w-2 h-2 mx-auto mt-0.5" style={{ background: '#4a2a3a' }} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-8" style={{ background: '#0a0508', border: '1px solid #2a1a2a' }} />
+            {isNight && neonIntensity > 0.2 && (
+              <>
+                <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[5px] animate-pulse font-bold ${signageClass}`} style={{ color: '#ff66aa', textShadow: '0 0 4px #ff66aa' }}>{scrambleText('ARCADE')}</div>
+                <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: '#ff66aa', boxShadow: '0 0 6px #ff66aa' }} />
+              </>
+            )}
+          </div>
+        );
+      
       case 'shop':
       default:
         return (

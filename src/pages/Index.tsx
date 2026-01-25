@@ -203,6 +203,7 @@ const Index = () => {
         lsdTripActive={state.lsdTripActive}
         isMuted={isMuted}
         onToggleMute={toggleMute}
+        currentDistrict={state.currentDistrict}
       />
       
       {/* Main game canvas - fills remaining space */}
