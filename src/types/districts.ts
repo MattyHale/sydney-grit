@@ -69,7 +69,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
       pensioner: 0.02,
       backpacker: 0.18,
       junkie: 0.15,
-      sexworker: 0.25, // High sex worker presence in the Cross
+      sexworker: 0.25,
       student: 0.05,
       cop: 0.04,
       punk: 0.08,
@@ -88,9 +88,9 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.8,
     dogFrequency: 0.3,
     ibisFrequency: 0.2,
-    dominantBlocks: ['stripclub', 'bar', 'hostel', 'motel', 'alley', 'club'],
+    dominantBlocks: ['stripclub', 'bourbon', 'brothel', 'hostel', 'motel', 'alley', 'club', 'bar', 'parlour'],
     clutterTypes: ['neon', 'bottles', 'trash', 'posters', 'puddles', 'crates', 'smoke', 'dumpster'],
-    signage: ['XXX', 'GIRLS', 'LIVE', 'BAR', '24HR', 'HOSTEL', 'MOTEL', 'SHOW', 'MASSAGE'],
+    signage: ['THE BOURBON', 'GIRLS', 'LIVE', 'XXX', 'LANGTREES', '24HR', 'HOSTEL', 'MASSAGE', 'STILETTO', 'GATEWAY', 'SHOW'],
   },
   oxford: {
     neonIntensity: 0.8,
@@ -107,7 +107,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
       sexworker: 0.08,
       student: 0.18,
       cop: 0.03,
-      punk: 0.10, // Punks on Oxford St
+      punk: 0.10,
     },
     sexEconomyMultiplier: 1.0,
     foodMultiplier: 1.0,
@@ -123,9 +123,9 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.5,
     dogFrequency: 0.2,
     ibisFrequency: 0.3,
-    dominantBlocks: ['bar', 'kebab', 'club', 'shop', 'convenience'],
+    dominantBlocks: ['stonewall', 'exchange', 'qbar', 'kebab', 'club', 'bar', 'convenience'],
     clutterTypes: ['bottles', 'kebabvan', 'posters', 'crates', 'busstop', 'neon', 'puddles', 'cone'],
-    signage: ['PUB', 'KEBAB', 'DANCE', 'CLUB', 'BAR', 'CAFE', 'PIZZA', 'DISCO'],
+    signage: ['STONEWALL', 'EXCHANGE', 'Q BAR', 'KEBAB', 'DANCE', 'CLUB', 'PIZZA', 'DISCO', 'PUB'],
   },
   cbd: {
     neonIntensity: 0.3,
@@ -133,7 +133,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     brightness: 0.7,
     pedestrianDensity: 0.6,
     archetypeWeights: {
-      businessman: 0.40, // Lots of suits in CBD
+      businessman: 0.40,
       clubber: 0.03,
       tourist: 0.20,
       pensioner: 0.08,
@@ -158,9 +158,9 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 1.0,
     dogFrequency: 0.1,
     ibisFrequency: 0.4,
-    dominantBlocks: ['services', 'shelter', 'pawn', 'office', 'newsagent', 'bottleo'],
+    dominantBlocks: ['services', 'shelter', 'frankies', 'jacksons', 'criterion', 'civic', 'office', 'newsagent', 'parlour'],
     clutterTypes: ['newsrack', 'phonebooth', 'busstop', 'bins', 'crates', 'cone'],
-    signage: ['SERVICES', 'SHELTER', 'CASH', 'PAWN', 'BOTTLE-O', 'NEWS', 'BANK', 'WYNYARD'],
+    signage: ["FRANKIE'S", 'JACKSONS', 'CRITERION', 'CIVIC', 'SERVICES', 'SHELTER', 'PAWN', 'WYNYARD', 'MASSAGE'],
   },
   chinatown: {
     neonIntensity: 0.6,
@@ -170,7 +170,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     archetypeWeights: {
       businessman: 0.10,
       clubber: 0.08,
-      tourist: 0.35, // Tourists love Chinatown
+      tourist: 0.35,
       pensioner: 0.12,
       backpacker: 0.10,
       junkie: 0.04,
@@ -180,10 +180,10 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
       punk: 0.02,
     },
     sexEconomyMultiplier: 0.1,
-    foodMultiplier: 2.0,  // Best food in Chinatown
+    foodMultiplier: 2.0,
     servicesMultiplier: 0.5,
     theftMultiplier: 0.35,
-    kindnessMultiplier: 1.0,  // Friendly district
+    kindnessMultiplier: 1.0,
     dangerMultiplier: 0.2,
     dealerFrequency: 0.15,
     pitchMultiplier: 0.3,
@@ -193,9 +193,9 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.4,
     dogFrequency: 0.1,
     ibisFrequency: 0.5,
-    dominantBlocks: ['restaurant', 'foodstall', 'shop', 'soup'],
+    dominantBlocks: ['goldencentury', 'bbqking', 'emperors', 'noodlebar', 'capitol', 'restaurant', 'shop', 'parlour'],
     clutterTypes: ['crates', 'bins', 'steam', 'lanterns', 'bottles', 'dumpster'],
-    signage: ['食', 'BBQ', 'NOODLE', 'DIM SUM', 'YUM CHA', 'WOK', 'TEA', '面'],
+    signage: ['GOLDEN CENTURY', 'BBQ KING', "EMPEROR'S", 'DIM SUM', 'YUM CHA', 'NOODLE', 'MASSAGE', '面'],
   },
   central: {
     neonIntensity: 0.2,
@@ -208,7 +208,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
       tourist: 0.06,
       pensioner: 0.08,
       backpacker: 0.08,
-      junkie: 0.25, // Lots of junkies around Central
+      junkie: 0.25,
       sexworker: 0.06,
       student: 0.15,
       cop: 0.07,
@@ -217,7 +217,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     sexEconomyMultiplier: 0.25,
     foodMultiplier: 0.5,
     servicesMultiplier: 0.8,
-    theftMultiplier: 1.8,  // Best theft in Central
+    theftMultiplier: 1.8,
     kindnessMultiplier: 0.15,
     dangerMultiplier: 1.0,
     dealerFrequency: 0.7,
@@ -228,9 +228,9 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 1.2,
     dogFrequency: 0.4,
     ibisFrequency: 0.6,
-    dominantBlocks: ['station', 'alley', 'bins', 'tab', 'newsagent', 'convenience'],
+    dominantBlocks: ['station', 'alley', 'bins', 'tab', 'newsagent', 'convenience', 'boarded', 'parlour'],
     clutterTypes: ['trash', 'bottles', 'newsrack', 'phonebooth', 'busstop', 'puddles', 'dumpster', 'smoke'],
-    signage: ['CENTRAL', 'EXIT', 'TAB', 'PLATFORM', 'TICKETS', 'EDDY AVE', 'BUSES'],
+    signage: ['CENTRAL', 'EDDY AVE', 'TAB', 'PLATFORM', 'TICKETS', 'EXIT', 'MASSAGE', 'BUSES'],
   },
   redfern: {
     neonIntensity: 0.1,
@@ -243,19 +243,19 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
       tourist: 0.01,
       pensioner: 0.12,
       backpacker: 0.02,
-      junkie: 0.38, // Very high junkie presence
+      junkie: 0.38,
       sexworker: 0.10,
       student: 0.15,
       cop: 0.06,
-      punk: 0.12, // Punks in Redfern
+      punk: 0.12,
     },
     sexEconomyMultiplier: 0.5,
     foodMultiplier: 0.25,
     servicesMultiplier: 0.2,
     theftMultiplier: 1.5,
-    kindnessMultiplier: 0.05,  // Harsh district
+    kindnessMultiplier: 0.05,
     dangerMultiplier: 1.2,
-    dealerFrequency: 0.95,  // Lots of dealers
+    dealerFrequency: 0.95,
     pitchMultiplier: 0.0,
     tradeMultiplier: 0.6,
     violenceMultiplier: 1.2,
@@ -263,9 +263,9 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.8,
     dogFrequency: 0.8,
     ibisFrequency: 0.9,
-    dominantBlocks: ['bins', 'pawn', 'tab', 'boarded', 'alley', 'bottleo'],
+    dominantBlocks: ['bins', 'hopetoun', 'dolphin', 'pawn', 'tab', 'boarded', 'alley', 'bottleo'],
     clutterTypes: ['trash', 'bottles', 'crates', 'bins', 'puddles', 'posters', 'dumpster', 'smoke'],
-    signage: ['TAB', 'PAWN', 'CASH', 'BOTTLE-O', 'LOANS', 'BLOCK'],
+    signage: ['HOPETOUN', 'DOLPHIN', 'TAB', 'PAWN', 'CASH', 'THE BLOCK', 'BOTTLE-O', 'LOANS'],
   },
   cabramatta: {
     neonIntensity: 0.4,
@@ -278,29 +278,29 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
       tourist: 0.05,
       pensioner: 0.15,
       backpacker: 0.03,
-      junkie: 0.35, // Heavy heroin presence in 1991
+      junkie: 0.35,
       sexworker: 0.05,
       student: 0.12,
       cop: 0.08,
       punk: 0.12,
     },
     sexEconomyMultiplier: 0.3,
-    foodMultiplier: 1.8,  // Great Vietnamese food
+    foodMultiplier: 1.8,
     servicesMultiplier: 0.4,
     theftMultiplier: 1.2,
     kindnessMultiplier: 0.5,
-    dangerMultiplier: 1.5, // Highest danger - heroin wars
-    dealerFrequency: 1.0,  // Dealers everywhere
+    dangerMultiplier: 1.5,
+    dealerFrequency: 1.0,
     pitchMultiplier: 0.1,
     tradeMultiplier: 0.4,
-    violenceMultiplier: 1.5, // High violence
+    violenceMultiplier: 1.5,
     lsdFrequency: 0.2,
-    policeFrequency: 1.2, // Heavy police presence
+    policeFrequency: 1.2,
     dogFrequency: 0.5,
     ibisFrequency: 0.3,
-    dominantBlocks: ['pho', 'goldshop', 'pawn', 'alley', 'boarded', 'market', 'arcade'],
+    dominantBlocks: ['pho', 'goldshop', 'nightmarket', 'bakery', 'pawn', 'alley', 'boarded', 'arcade'],
     clutterTypes: ['crates', 'bins', 'steam', 'trash', 'bottles', 'dumpster', 'puddles'],
-    signage: ['PHỞ', 'VÀNG', 'GOLD', 'NOODLE', 'BÁNH MÌ', 'TIỆM', 'ARCADE', 'MARKET'],
+    signage: ['PHỞ', 'VÀNG', 'GOLD', 'BÁNH MÌ', 'TIỆM', 'ARCADE', 'MARKET', 'NOODLE'],
   },
 };
 
