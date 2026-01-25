@@ -129,7 +129,7 @@ export function useGameState() {
           // Ibis mechanic - if ibis is active and has eaten
           if (s.ibis.isActive && s.ibis.hasEaten) {
             showEvent('An ibis picked the bins clean before you.');
-            newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 5);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 3);
             break;
           }
           
@@ -152,7 +152,6 @@ export function useGameState() {
           } else {
             showEvent('The bins are empty. Check back later.');
           }
-          newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 5);
           break;
         }
         case 'services': {
@@ -183,8 +182,7 @@ export function useGameState() {
             const roll = Math.random();
             if (roll < shelterChance) {
               newState.stats.warmth = Math.min(100, newState.stats.warmth + 30);
-              newState.stats.fatigue = Math.max(0, newState.stats.fatigue - 20);
-              newState.stats.hope = Math.min(100, newState.stats.hope + 5);
+              newState.stats.hope = Math.min(100, newState.stats.hope + 8);
               showEvent('You got a bed in the shelter tonight.');
             } else {
               newState.stats.hope = Math.max(0, newState.stats.hope - 8);
@@ -196,13 +194,20 @@ export function useGameState() {
           break;
         }
         case 'sleep': {
-          newState.stats.fatigue = Math.max(0, newState.stats.fatigue - 30);
           newState.stats.warmth = Math.max(0, newState.stats.warmth - 15);
           newState.stats.hunger = Math.max(0, newState.stats.hunger - 10);
+          newState.stats.hope = Math.min(100, newState.stats.hope + 5);
           if (s.timeOfDay === 'night') {
             newState.stats.warmth = Math.max(0, newState.stats.warmth - 10);
           }
-          showEvent('You rested in the doorway. The cold seeped in.');
+          // Cocaine withdrawal hits hard when resting
+          if (s.stats.cocaine > 30) {
+            newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 15);
+            newState.stats.hope = Math.max(0, newState.stats.hope - 10);
+            showEvent('You tried to rest. The comedown was brutal.');
+          } else {
+            showEvent('You rested in the doorway. The cold seeped in.');
+          }
           break;
         }
       }
@@ -244,7 +249,6 @@ export function useGameState() {
           newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
           newState.stats.warmth = Math.min(100, newState.stats.warmth + 5);
           newState.stats.hope = Math.max(0, newState.stats.hope - 40);
-          newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 15);
           showEvent('It was degrading. You got almost nothing.');
           // May attract police attention
           newState.recentCarEncounter = true;
@@ -260,7 +264,6 @@ export function useGameState() {
           newState.stats.hunger = Math.min(100, newState.stats.hunger + 20);
           newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
           newState.stats.hope = Math.max(0, newState.stats.hope - 28);
-          newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 12);
           if (roll < 0.4) {
             newState.stats.money += Math.floor(Math.random() * 8) + 3;
           }
@@ -272,7 +275,6 @@ export function useGameState() {
         newState.stats.hunger = Math.min(100, newState.stats.hunger + 35);
         newState.stats.warmth = Math.min(100, newState.stats.warmth + 28);
         newState.stats.hope = Math.max(0, newState.stats.hope - 22);
-        newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 8);
         if (roll < 0.5) {
           newState.stats.money += Math.floor(Math.random() * 15) + 5;
         }
@@ -417,8 +419,18 @@ export function useGameState() {
       
       // Base stat decay
       newState.stats.hunger = Math.max(0, newState.stats.hunger - 1.5);
-      newState.stats.fatigue = Math.min(100, newState.stats.fatigue + 0.8);
       newState.stats.hope = Math.max(0, newState.stats.hope - 0.3 - (s.permanentHopeLoss * 0.01));
+      
+      // Cocaine withdrawal - if high, it decays and causes penalties
+      if (s.stats.cocaine > 0) {
+        newState.stats.cocaine = Math.max(0, newState.stats.cocaine - 0.5);
+        // Withdrawal effects when coming down
+        if (s.stats.cocaine > 50 && newState.stats.cocaine <= 50) {
+          newState.stats.hope = Math.max(0, newState.stats.hope - 8);
+          newState.stats.hunger = Math.max(0, newState.stats.hunger - 10);
+          showEvent('The crash hits. Everything feels empty.');
+        }
+      }
       
       // Warmth decay based on time/weather
       let warmthDecay = 0.8;
@@ -711,8 +723,8 @@ export function useGameState() {
       triggerGameOver('Hypothermia.');
     } else if (state.stats.hope <= 0) {
       triggerGameOver('Lost all hope.');
-    } else if (state.stats.fatigue >= 100) {
-      triggerGameOver('Complete exhaustion.');
+    } else if (state.stats.cocaine >= 100) {
+      triggerGameOver('Overdose.');
     }
   }, [state.stats, state.isGameOver, triggerGameOver]);
 
