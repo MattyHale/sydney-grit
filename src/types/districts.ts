@@ -15,6 +15,150 @@ export const DISTRICT_NAMES: Record<District, string> = {
   cabramatta: "Cabramatta",
 };
 
+// Block type to signage mapping - ensures accurate function-to-name matching
+export interface BlockSignage {
+  type: 'bar' | 'food' | 'cafe' | 'vc' | 'hub' | 'club' | 'pawn' | 'shelter' | 'alley' | 'hostel' | 'shop' | 'derelict';
+  name: string;
+}
+
+// District-specific venue lists with accurate block types
+export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
+  cross: [
+    // Bars/Pubs
+    { type: 'bar', name: 'THE BOURBON' },
+    { type: 'bar', name: 'TEXAS TAVERN' },
+    { type: 'bar', name: "PORKY'S" },
+    { type: 'bar', name: 'PICCOLO BAR' },
+    // Clubs
+    { type: 'club', name: 'KINSELAS' },
+    { type: 'club', name: 'THE TUNNEL' },
+    { type: 'club', name: 'LES GIRLS' },
+    { type: 'club', name: 'CAROUSEL' },
+    // Food
+    { type: 'food', name: 'HARRYS CAFE' },
+    { type: 'food', name: 'TROPICANA' },
+    { type: 'cafe', name: 'PICCOLO' },
+    // Other
+    { type: 'hostel', name: 'EVAS HOSTEL' },
+    { type: 'pawn', name: 'CROSS PAWN' },
+    { type: 'alley', name: 'ALLEY' },
+  ],
+  oxford: [
+    // Bars/Pubs - Golden Mile
+    { type: 'bar', name: 'THE ALBURY' },
+    { type: 'bar', name: 'MIDNIGHT SHIFT' },
+    { type: 'bar', name: 'BERESFORD' },
+    { type: 'bar', name: 'FLINDERS' },
+    { type: 'bar', name: "GILLIGAN'S" },
+    // Clubs
+    { type: 'club', name: 'DCM' },
+    { type: 'club', name: 'EXCHANGE' },
+    { type: 'club', name: 'TAXI CLUB' },
+    { type: 'club', name: 'PALMS' },
+    // Food
+    { type: 'food', name: 'COLOMBIAN' },
+    { type: 'food', name: 'BALKAN' },
+    { type: 'cafe', name: 'TROPICANA' },
+    // Other
+    { type: 'pawn', name: 'OXFORD GOLD' },
+    { type: 'alley', name: 'ALLEY' },
+  ],
+  cbd: [
+    // Australian VCs (real 1990s era)
+    { type: 'vc', name: 'ALLEN & BUCKERIDGE' },
+    { type: 'vc', name: 'PLATINUM VENTURES' },
+    { type: 'vc', name: 'POLARIS' },
+    { type: 'vc', name: 'HAMBROS' },
+    // Startup Hubs / Accelerators
+    { type: 'hub', name: 'ATP INNOVATIONS' },
+    { type: 'hub', name: 'AGSM' },
+    { type: 'hub', name: 'TECH SYDNEY' },
+    // Bars
+    { type: 'bar', name: 'MARBLE BAR' },
+    { type: 'bar', name: 'REGENT' },
+    { type: 'bar', name: 'CIVIC' },
+    // Food
+    { type: 'food', name: 'ROCKPOOL' },
+    { type: 'food', name: 'KABLES' },
+    { type: 'cafe', name: 'LINDT' },
+    // Other
+    { type: 'shelter', name: 'QVB' },
+    { type: 'shop', name: 'DAVID JONES' },
+  ],
+  chinatown: [
+    // Restaurants - all food!
+    { type: 'food', name: 'GOLDEN CENTURY' },
+    { type: 'food', name: 'BBQ KING' },
+    { type: 'food', name: 'EAST OCEAN' },
+    { type: 'food', name: 'MARIGOLD' },
+    { type: 'food', name: 'EMPERORS GARDEN' },
+    { type: 'food', name: 'HINGARA' },
+    { type: 'food', name: 'REGAL' },
+    { type: 'food', name: 'SUPERBOWL' },
+    { type: 'cafe', name: 'EMPEROR' },
+    // Other
+    { type: 'shop', name: 'PADDY MARKETS' },
+    { type: 'shop', name: 'CAPITOL' },
+    { type: 'pawn', name: 'GOLD SHOP' },
+    { type: 'alley', name: 'ALLEY' },
+  ],
+  central: [
+    // Bars/Pubs around Central
+    { type: 'bar', name: 'RAILWAY HOTEL' },
+    { type: 'bar', name: 'CLOCK HOTEL' },
+    { type: 'bar', name: 'TERMINUS' },
+    { type: 'bar', name: 'ALFRED' },
+    // Food
+    { type: 'food', name: 'RED ROOSTER' },
+    { type: 'food', name: 'RAILWAY BUFFET' },
+    { type: 'cafe', name: 'CENTRAL CAFE' },
+    // Services
+    { type: 'shelter', name: 'SALVATION ARMY' },
+    { type: 'shelter', name: 'CITY MISSION' },
+    // Other
+    { type: 'shop', name: 'CENTRAL' },
+    { type: 'pawn', name: 'TAB' },
+    { type: 'pawn', name: 'BOTTLE-O' },
+    { type: 'derelict', name: 'EDDY AVE' },
+    { type: 'alley', name: 'ALLEY' },
+  ],
+  redfern: [
+    // Pubs
+    { type: 'bar', name: 'HOPETOUN HOTEL' },
+    { type: 'bar', name: 'COURTHOUSE' },
+    { type: 'bar', name: 'REGENT' },
+    // Food
+    { type: 'food', name: 'REDFERN RSL' },
+    { type: 'cafe', name: 'ELOUERA' },
+    // Shelters/Services
+    { type: 'shelter', name: 'THE BLOCK' },
+    { type: 'shelter', name: 'MURAWINA' },
+    // Other
+    { type: 'pawn', name: 'CASH LOANS' },
+    { type: 'pawn', name: 'BOTTLE-O' },
+    { type: 'shop', name: 'KOORI RADIO' },
+    { type: 'derelict', name: 'EVELEIGH ST' },
+    { type: 'alley', name: 'ALLEY' },
+  ],
+  cabramatta: [
+    // Vietnamese Restaurants - all food!
+    { type: 'food', name: 'PHO TAU BAY' },
+    { type: 'food', name: 'THANH BINH' },
+    { type: 'food', name: 'AN RESTAURANT' },
+    { type: 'food', name: 'TAN VIET' },
+    { type: 'food', name: 'PHO AN' },
+    { type: 'food', name: 'HUONG XUAN' },
+    { type: 'food', name: 'SAIGON GATE' },
+    { type: 'cafe', name: 'CA PHE' },
+    { type: 'cafe', name: 'BANH MI' },
+    // Other
+    { type: 'shop', name: 'FREEDOM PLAZA' },
+    { type: 'shop', name: 'CABRA MALL' },
+    { type: 'pawn', name: 'VANG 24K' },
+    { type: 'alley', name: 'ALLEY' },
+  ],
+};
+
 // Visual and economy properties per district
 export interface DistrictConfig {
   // Lighting
@@ -46,14 +190,8 @@ export interface DistrictConfig {
   dogFrequency: number;
   ibisFrequency: number;
   
-  // Block types that appear more often
-  dominantBlocks: string[];
-  
   // Clutter types
   clutterTypes: string[];
-  
-  // Signage fragments
-  signage: string[];
 }
 
 export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
@@ -88,10 +226,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.8,
     dogFrequency: 0.3,
     ibisFrequency: 0.2,
-    // Authentic Kings Cross 1991 venues
-    dominantBlocks: ['bourbon', 'porkys', 'stripclub', 'kinselas', 'alamode', 'tunnel', 'hostel', 'kebab', 'bar', 'cafe'],
     clutterTypes: ['neon', 'bottles', 'trash', 'posters', 'puddles', 'crates', 'smoke', 'dumpster', 'syringes'],
-    signage: ['THE BOURBON', "PORKY'S", 'TEXAS TAVERN', 'KINSELAS', 'A LA MODE', 'THE TUNNEL', 'STRIPPERAMA', 'LES GIRLS', 'PINK PANTHER', 'CAROUSEL', 'LOVE MACHINE', 'PICCOLO BAR'],
   },
   oxford: {
     neonIntensity: 0.8,
@@ -124,10 +259,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.5,
     dogFrequency: 0.2,
     ibisFrequency: 0.3,
-    // Authentic Oxford St 1991 - Golden Mile
-    dominantBlocks: ['albury', 'midnight', 'beresford', 'exchange', 'taxi', 'bar', 'kebab', 'cafe', 'stripclub'],
     clutterTypes: ['bottles', 'kebabvan', 'posters', 'crates', 'busstop', 'neon', 'puddles', 'cone'],
-    signage: ['THE ALBURY', 'MIDNIGHT SHIFT', 'BERESFORD', 'EXCHANGE', 'TAXI CLUB', "GILLIGAN'S", 'FLINDERS', 'DCM', 'STONEWALL', 'COLOMBIAN', 'PALMS', 'BEAUCHAMP'],
   },
   cbd: {
     neonIntensity: 0.3,
@@ -160,10 +292,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 1.0,
     dogFrequency: 0.1,
     ibisFrequency: 0.4,
-    // Sydney CBD 1991 - Business district with early Australian VCs & startup hubs
-    dominantBlocks: ['services', 'shelter', 'vc', 'startuphub', 'civic', 'newsagent', 'bar', 'cafe', 'parlour'],
     clutterTypes: ['newsrack', 'phonebooth', 'busstop', 'bins', 'crates', 'cone'],
-    signage: ['ALLEN & BUCKERIDGE', 'PLATINUM VENTURES', 'POLARIS', 'WESTPAC PLACE', 'MARBLE BAR', 'REGENT', 'AGSM', 'ATP INNOVATIONS', 'QVB', 'GRACE BROS', 'DJ', 'MLC CENTRE'],
   },
   chinatown: {
     neonIntensity: 0.6,
@@ -196,10 +325,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.4,
     dogFrequency: 0.1,
     ibisFrequency: 0.5,
-    // Authentic Dixon St Chinatown 1991
-    dominantBlocks: ['goldencentury', 'bbqking', 'eastocean', 'marigold', 'capitol', 'goldshop', 'herbshop', 'cafe'],
     clutterTypes: ['crates', 'bins', 'steam', 'lanterns', 'bottles', 'dumpster'],
-    signage: ['GOLDEN CENTURY', 'BBQ KING', 'EAST OCEAN', 'MARIGOLD', 'EMPERORS GARDEN', 'HINGARA', 'CAPITOL', 'PADDY MARKETS', 'EMPERORS CHOICE', 'REGAL', 'SUPERBOWL', 'GOLDEN HARBOUR'],
   },
   central: {
     neonIntensity: 0.2,
@@ -232,10 +358,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 1.2,
     dogFrequency: 0.4,
     ibisFrequency: 0.6,
-    // Central Station / Eddy Ave 1991 - rough area
-    dominantBlocks: ['centralstation', 'salvation', 'derelict', 'boarded', 'alley', 'tab', 'bottleo', 'kebab'],
     clutterTypes: ['trash', 'bottles', 'newsrack', 'phonebooth', 'busstop', 'puddles', 'dumpster', 'smoke', 'syringes'],
-    signage: ['CENTRAL', 'EDDY AVE', 'SALVATION ARMY', 'RED ROOSTER', 'TAB', 'BOTTLE-O', 'CITY CIRCLE', 'PLATFORM 1', 'RAILWAY HOTEL', 'TERMINUS', 'CLOCK HOTEL', 'ALFRED'],
   },
   redfern: {
     neonIntensity: 0.1,
@@ -268,10 +391,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 0.8,
     dogFrequency: 0.8,
     ibisFrequency: 0.9,
-    // Authentic Redfern / The Block 1991
-    dominantBlocks: ['theblock', 'redfernstation', 'hopetoun', 'courthouse', 'pawn', 'boarded', 'alley', 'bottleo', 'tab'],
     clutterTypes: ['trash', 'bottles', 'crates', 'bins', 'puddles', 'posters', 'dumpster', 'smoke'],
-    signage: ['THE BLOCK', 'EVELEIGH ST', 'REDFERN', 'HOPETOUN HOTEL', 'COURTHOUSE', 'LAND RIGHTS NOW', 'BOTTLE-O', 'CASH LOANS', 'PAWN', 'KOORI RADIO', 'ELOUERA', 'MURAWINA'],
   },
   cabramatta: {
     neonIntensity: 0.4,
@@ -304,10 +424,7 @@ export const DISTRICT_CONFIGS: Record<District, DistrictConfig> = {
     policeFrequency: 1.2,
     dogFrequency: 0.5,
     ibisFrequency: 0.3,
-    // Authentic Cabramatta 1991 - Vietnamese community, heroin era
-    dominantBlocks: ['pho2000', 'goldshop', 'freedomplaza', 'herbalmed', 'arcade', 'alley', 'cafe', 'kebab'],
     clutterTypes: ['crates', 'bins', 'steam', 'trash', 'bottles', 'dumpster', 'puddles', 'syringes'],
-    signage: ['PHỞ TÀU BAY', 'THÀNH BÌNH', 'FREEDOM PLAZA', 'AN RESTAURANT', 'TAN VIET', 'BÁNH MÌ', 'CABRA MALL', 'VÀNG 24K', 'PHO AN', 'HUONG XUAN', 'CAY DUA', 'SAIGON GATE'],
   },
 };
 
@@ -333,4 +450,10 @@ export function getDistrictBlend(worldOffset: number): { current: District; next
   const next = DISTRICT_SEQUENCE[(districtIndex + 1) % DISTRICT_SEQUENCE.length];
   
   return { current, next, blend };
+}
+
+// Get venue for a specific block index
+export function getVenueForBlock(district: District, index: number): BlockSignage {
+  const venues = DISTRICT_VENUES[district];
+  return venues[index % venues.length];
 }
