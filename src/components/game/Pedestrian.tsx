@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { PedestrianState } from '@/types/game';
+import { PedestrianState, PedestrianAction } from '@/types/game';
 
 interface PedestrianProps {
   pedestrian: PedestrianState;
   playerX: number;
+  actionsAvailable?: PedestrianAction[];
 }
 
-// Visual configs for each archetype - more distinct silhouettes
+// Visual configs for each archetype - distinct silhouettes, no faces
 const ARCHETYPE_STYLES: Record<string, { 
   bodyColor: string; 
   headColor: string; 
@@ -17,6 +18,11 @@ const ARCHETYPE_STYLES: Record<string, {
   hasHat?: boolean;
   hasBag?: boolean;
   stance?: string;
+  walkSpeed: number;
+  // Unique silhouette elements
+  shoulderWidth?: number;
+  hairStyle?: 'bald' | 'short' | 'long' | 'curly' | 'mohawk' | 'grey';
+  bodyShape?: 'thin' | 'average' | 'wide' | 'hunched';
 }> = {
   businessman: { 
     bodyColor: '#1a1a2a', // Dark suit
@@ -24,7 +30,10 @@ const ARCHETYPE_STYLES: Record<string, {
     accessory: 'briefcase', 
     height: 22,
     bodyWidth: 5,
-    hasBag: false,
+    walkSpeed: 200,
+    shoulderWidth: 6,
+    hairStyle: 'short',
+    bodyShape: 'average',
   },
   clubber: { 
     bodyColor: '#5a2a5a', // Bright purple/pink
@@ -33,6 +42,9 @@ const ARCHETYPE_STYLES: Record<string, {
     height: 20,
     bodyWidth: 4,
     stance: 'relaxed',
+    walkSpeed: 160,
+    hairStyle: 'mohawk',
+    bodyShape: 'thin',
   },
   tourist: { 
     bodyColor: '#5a7a5a', // Khaki/green
@@ -41,13 +53,19 @@ const ARCHETYPE_STYLES: Record<string, {
     height: 19,
     bodyWidth: 5,
     hasHat: true,
+    walkSpeed: 280,
+    hairStyle: 'short',
+    bodyShape: 'wide',
   },
   pensioner: { 
     bodyColor: '#5a5a5a', // Grey
-    headColor: '#8a8a8a', // Grey hair
+    headColor: '#9a9a9a', // Grey hair
     accessory: 'cane', 
     height: 16, // Shorter, hunched
     bodyWidth: 4,
+    walkSpeed: 450,
+    hairStyle: 'grey',
+    bodyShape: 'hunched',
   },
   backpacker: { 
     bodyColor: '#4a5a4a', // Earthy
@@ -55,6 +73,9 @@ const ARCHETYPE_STYLES: Record<string, {
     accessory: 'backpack', 
     height: 21,
     bodyWidth: 4,
+    walkSpeed: 200,
+    hairStyle: 'long',
+    bodyShape: 'thin',
   },
   junkie: { 
     bodyColor: '#2a2a2a', // Dark, worn
@@ -63,6 +84,9 @@ const ARCHETYPE_STYLES: Record<string, {
     height: 17, // Hunched
     bodyWidth: 3, // Thin
     stance: 'hunched',
+    walkSpeed: 380,
+    hairStyle: 'bald',
+    bodyShape: 'hunched',
   },
   sexworker: { 
     bodyColor: '#6a3a4a', // Red/dark outfit
@@ -70,8 +94,11 @@ const ARCHETYPE_STYLES: Record<string, {
     accessory: 'purse', 
     height: 20,
     bodyWidth: 4,
-    hasHeels: true, // Distinctive heel silhouette
+    hasHeels: true,
     stance: 'posed',
+    walkSpeed: 220,
+    hairStyle: 'long',
+    bodyShape: 'thin',
   },
   student: { 
     bodyColor: '#3a3a5a', // Casual blue
@@ -79,47 +106,118 @@ const ARCHETYPE_STYLES: Record<string, {
     accessory: 'bag', 
     height: 19,
     bodyWidth: 4,
+    walkSpeed: 180,
+    hairStyle: 'curly',
+    bodyShape: 'average',
+  },
+  cop: {
+    bodyColor: '#1a2a3a', // Dark blue uniform
+    headColor: '#5a5a5a',
+    accessory: 'radio',
+    height: 23,
+    bodyWidth: 6,
+    hasHat: true,
+    walkSpeed: 200,
+    shoulderWidth: 7,
+    hairStyle: 'short',
+    bodyShape: 'wide',
   },
 };
 
-export function Pedestrian({ pedestrian, playerX }: PedestrianProps) {
+export function Pedestrian({ pedestrian, playerX, actionsAvailable = [] }: PedestrianProps) {
   const [walkFrame, setWalkFrame] = useState(0);
   
-  useEffect(() => {
-    const speed = pedestrian.archetype === 'pensioner' ? 350 : 
-                  pedestrian.archetype === 'junkie' ? 400 : 180;
-    const interval = setInterval(() => {
-      setWalkFrame(f => (f + 1) % 2);
-    }, speed);
-    return () => clearInterval(interval);
-  }, [pedestrian.archetype]);
-
   const style = ARCHETYPE_STYLES[pedestrian.archetype] || ARCHETYPE_STYLES.student;
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWalkFrame(f => (f + 1) % 4);
+    }, style.walkSpeed);
+    return () => clearInterval(interval);
+  }, [style.walkSpeed]);
+
   const isNearPlayer = Math.abs(pedestrian.x - playerX) < 8;
+  const showActionHint = isNearPlayer && pedestrian.canBeStolen && actionsAvailable.length > 0;
+  
+  // Hair rendering based on style
+  const renderHair = () => {
+    switch (style.hairStyle) {
+      case 'bald':
+        return null;
+      case 'grey':
+        return <div className="absolute -top-0.5 left-0 right-0 h-2 rounded-t" style={{ background: '#9a9a9a' }} />;
+      case 'long':
+        return (
+          <>
+            <div className="absolute -top-0.5 left-0 right-0 h-2 rounded-t" style={{ background: '#3a2a2a' }} />
+            <div className="absolute top-2 -left-0.5 w-1.5 h-3 rounded" style={{ background: '#3a2a2a' }} />
+            <div className="absolute top-2 -right-0.5 w-1.5 h-3 rounded" style={{ background: '#3a2a2a' }} />
+          </>
+        );
+      case 'mohawk':
+        return <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-2.5 rounded-t" style={{ background: '#3a2a4a' }} />;
+      case 'curly':
+        return <div className="absolute -top-1 left-0 right-0 h-2.5 rounded-t" style={{ background: '#4a3a2a', borderRadius: '50% 50% 0 0' }} />;
+      case 'short':
+      default:
+        return <div className="absolute -top-0.5 left-0.5 right-0.5 h-1.5 rounded-t" style={{ background: '#3a3a3a' }} />;
+    }
+  };
+  
+  // Body shape modifiers
+  const getBodyModifiers = () => {
+    switch (style.bodyShape) {
+      case 'thin':
+        return { bodyHeight: style.height - 14, widthMod: 0.8 };
+      case 'wide':
+        return { bodyHeight: style.height - 15, widthMod: 1.3 };
+      case 'hunched':
+        return { bodyHeight: style.height - 12, widthMod: 0.9, tilt: 10 };
+      default:
+        return { bodyHeight: style.height - 16, widthMod: 1 };
+    }
+  };
+  
+  const bodyMods = getBodyModifiers();
   
   return (
     <div 
       className="absolute transition-all duration-100 z-25"
       style={{ 
         left: `${pedestrian.x}%`, 
-        bottom: '46%', // Footpath level
+        bottom: '46%',
         transform: `translateX(-50%) ${pedestrian.direction === 'left' ? 'scaleX(-1)' : ''}`,
         opacity: isNearPlayer ? 1 : 0.85,
       }}
     >
-      {/* Shadow - grounds pedestrian */}
+      {/* Shadow - grounds pedestrian to footpath */}
       <div 
-        className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-1 rounded-full opacity-25"
-        style={{ background: '#0a0a0a', filter: 'blur(1px)' }}
+        className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 rounded-full opacity-30"
+        style={{ 
+          background: '#0a0a0a', 
+          filter: 'blur(1px)',
+          width: `${(style.shoulderWidth || style.bodyWidth) * 1.5}px`,
+          height: '4px',
+        }}
       />
       
       {/* Pedestrian sprite */}
-      <div className="relative" style={{ height: `${style.height}px`, width: '14px' }}>
-        {/* Hat (tourist) */}
+      <div 
+        className="relative" 
+        style={{ 
+          height: `${style.height}px`, 
+          width: '16px',
+          transform: bodyMods.tilt ? `rotate(${bodyMods.tilt}deg)` : undefined,
+        }}
+      >
+        {/* Hat (tourist, cop) */}
         {style.hasHat && (
           <div 
-            className="absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-1.5 rounded-t"
-            style={{ background: '#5a5a4a' }}
+            className="absolute -top-2 left-1/2 -translate-x-1/2 w-5 h-2 rounded-t"
+            style={{ 
+              background: pedestrian.archetype === 'cop' ? '#1a2a3a' : '#5a5a4a',
+              borderBottom: pedestrian.archetype === 'cop' ? '1px solid #3a4a5a' : 'none',
+            }}
           />
         )}
         
@@ -128,26 +226,60 @@ export function Pedestrian({ pedestrian, playerX }: PedestrianProps) {
           className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border"
           style={{ background: style.headColor, borderColor: '#2a2a2a' }}
         >
-          {/* Hair detail based on archetype */}
-          {pedestrian.archetype === 'pensioner' && (
-            <div className="absolute -top-0.5 left-0 right-0 h-1.5 rounded-t" style={{ background: '#9a9a9a' }} />
-          )}
-          {pedestrian.archetype === 'clubber' && (
-            <div className="absolute -top-1 left-0.5 right-0.5 h-2 rounded-t" style={{ background: '#3a2a3a' }} />
-          )}
+          {/* Hair */}
+          {renderHair()}
         </div>
         
-        {/* Body */}
+        {/* Neck for taller figures */}
+        {style.height > 20 && (
+          <div 
+            className="absolute top-[14px] left-1/2 -translate-x-1/2 w-1.5 h-1"
+            style={{ background: style.headColor }}
+          />
+        )}
+        
+        {/* Body - varies by archetype */}
         <div 
           className="absolute left-1/2 -translate-x-1/2 rounded-sm border"
           style={{ 
-            top: '14px',
-            width: `${style.bodyWidth * 2.5}px`,
-            height: `${style.height - 16}px`,
+            top: style.height > 20 ? '15px' : '14px',
+            width: `${style.bodyWidth * bodyMods.widthMod * 2.5}px`,
+            height: `${bodyMods.bodyHeight}px`,
             background: style.bodyColor,
             borderColor: '#1a1a1a',
           }}
-        />
+        >
+          {/* Cop badge */}
+          {pedestrian.archetype === 'cop' && (
+            <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-sm" style={{ background: '#8a8a4a' }} />
+          )}
+        </div>
+        
+        {/* Shoulders for wider builds */}
+        {(style.shoulderWidth || 0) > style.bodyWidth && (
+          <>
+            <div 
+              className="absolute rounded-t"
+              style={{ 
+                top: style.height > 20 ? '15px' : '14px',
+                left: '0px',
+                width: '3px',
+                height: '4px',
+                background: style.bodyColor,
+              }}
+            />
+            <div 
+              className="absolute rounded-t"
+              style={{ 
+                top: style.height > 20 ? '15px' : '14px',
+                right: '0px',
+                width: '3px',
+                height: '4px',
+                background: style.bodyColor,
+              }}
+            />
+          </>
+        )}
         
         {/* Legs - walking animation */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
@@ -155,55 +287,84 @@ export function Pedestrian({ pedestrian, playerX }: PedestrianProps) {
             className="rounded-b transition-transform"
             style={{ 
               width: '3px',
-              height: style.hasHeels ? '5px' : '4px',
-              background: pedestrian.archetype === 'sexworker' ? '#1a1a1a' : '#2a2a2a',
-              transform: `translateY(${walkFrame === 0 ? 0 : 1}px)`,
+              height: style.hasHeels ? '6px' : '5px',
+              background: pedestrian.archetype === 'cop' ? '#1a2a3a' : 
+                         pedestrian.archetype === 'sexworker' ? '#1a1a1a' : '#2a2a2a',
+              transform: `translateY(${walkFrame % 2 === 0 ? 0 : 1}px)`,
             }}
           />
           <div 
             className="rounded-b transition-transform"
             style={{ 
               width: '3px',
-              height: style.hasHeels ? '5px' : '4px',
-              background: pedestrian.archetype === 'sexworker' ? '#1a1a1a' : '#2a2a2a',
-              transform: `translateY(${walkFrame === 1 ? 0 : 1}px)`,
+              height: style.hasHeels ? '6px' : '5px',
+              background: pedestrian.archetype === 'cop' ? '#1a2a3a' : 
+                         pedestrian.archetype === 'sexworker' ? '#1a1a1a' : '#2a2a2a',
+              transform: `translateY(${walkFrame % 2 === 1 ? 0 : 1}px)`,
             }}
           />
         </div>
         
-        {/* Heels (sexworker) */}
+        {/* Heels */}
         {style.hasHeels && (
           <>
-            <div className="absolute bottom-0 left-3 w-1 h-1" style={{ background: '#aa4444' }} />
-            <div className="absolute bottom-0 right-3 w-1 h-1" style={{ background: '#aa4444' }} />
+            <div className="absolute bottom-0 left-4 w-1 h-1.5" style={{ background: '#aa4444' }} />
+            <div className="absolute bottom-0 right-4 w-1 h-1.5" style={{ background: '#aa4444' }} />
           </>
         )}
         
         {/* Accessories */}
         {style.accessory === 'briefcase' && (
-          <div className="absolute top-[16px] -right-2 w-3 h-2.5 rounded-sm border" style={{ background: '#2a1a1a', borderColor: '#4a3a3a' }} />
+          <div className="absolute top-[18px] -right-3 w-4 h-3 rounded-sm border" style={{ background: '#2a1a1a', borderColor: '#4a3a3a' }} />
         )}
         {style.accessory === 'backpack' && (
-          <div className="absolute top-[12px] -left-1 w-3 h-5 rounded" style={{ background: '#4a5a3a', border: '1px solid #3a4a2a' }} />
+          <div className="absolute top-[12px] -left-2 w-4 h-6 rounded" style={{ background: '#4a5a3a', border: '1px solid #3a4a2a' }}>
+            <div className="absolute top-1 left-0.5 w-3 h-1" style={{ background: '#3a4a2a' }} />
+          </div>
         )}
         {style.accessory === 'camera' && (
-          <div className="absolute top-[16px] left-1/2 -translate-x-1/2 w-3 h-2 rounded" style={{ background: '#3a3a3a', border: '1px solid #5a5a5a' }}>
-            <div className="absolute top-0.5 left-0.5 w-1 h-1 rounded-full" style={{ background: '#1a1a1a' }} />
+          <div className="absolute top-[16px] left-1/2 -translate-x-1/2 w-4 h-2.5 rounded" style={{ background: '#3a3a3a', border: '1px solid #5a5a5a' }}>
+            <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full" style={{ background: '#1a1a1a' }} />
           </div>
         )}
         {style.accessory === 'cane' && (
-          <div className="absolute bottom-0 -right-1 w-0.5 h-6 origin-bottom" style={{ background: '#5a4a3a', transform: `rotate(${walkFrame === 0 ? 5 : -5}deg)` }} />
+          <div 
+            className="absolute bottom-0 -right-2 w-1 h-8 origin-bottom rounded-t" 
+            style={{ 
+              background: '#5a4a3a', 
+              transform: `rotate(${walkFrame % 2 === 0 ? 8 : -5}deg)` 
+            }} 
+          />
         )}
         {style.accessory === 'bag' && (
-          <div className="absolute top-[14px] -right-1 w-2.5 h-3 rounded" style={{ background: '#3a3a4a' }} />
+          <div className="absolute top-[14px] -right-2 w-3 h-4 rounded" style={{ background: '#3a3a4a' }}>
+            <div className="absolute top-0 left-0.5 w-0.5 h-3" style={{ background: '#2a2a3a' }} />
+          </div>
         )}
         {style.accessory === 'purse' && (
-          <div className="absolute top-[14px] -right-1.5 w-2 h-2 rounded" style={{ background: '#5a2a3a', border: '1px solid #7a4a5a' }} />
+          <div className="absolute top-[14px] -right-2 w-2.5 h-2.5 rounded" style={{ background: '#5a2a3a', border: '1px solid #7a4a5a' }}>
+            <div className="absolute -top-1 left-0.5 w-1.5 h-1 rounded-t" style={{ background: '#7a4a5a' }} />
+          </div>
+        )}
+        {style.accessory === 'radio' && (
+          <div className="absolute top-[16px] -left-2 w-2 h-3 rounded" style={{ background: '#2a2a2a', border: '1px solid #3a3a3a' }}>
+            <div className="absolute -top-2 left-0.5 w-0.5 h-2" style={{ background: '#3a3a3a' }} />
+          </div>
         )}
       </div>
       
-      {/* Steal indicator when close */}
-      {isNearPlayer && pedestrian.canBeStolen && (
+      {/* Action hints when close */}
+      {showActionHint && (
+        <div 
+          className="absolute -top-5 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[6px] animate-pulse rounded font-bold whitespace-nowrap"
+          style={{ background: '#1a1a1a', color: '#9bbc0f', border: '1px solid #8bac0f' }}
+        >
+          STEAL | PITCH | TRADE | HIT
+        </div>
+      )}
+      
+      {/* Legacy B/C indicator fallback */}
+      {isNearPlayer && pedestrian.canBeStolen && !showActionHint && (
         <div 
           className="absolute -top-4 left-1/2 -translate-x-1/2 px-1.5 py-0.5 text-[6px] animate-pulse rounded font-bold"
           style={{ background: '#1a1a1a', color: '#9bbc0f', border: '1px solid #8bac0f' }}

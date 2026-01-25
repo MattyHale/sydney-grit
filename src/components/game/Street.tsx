@@ -591,17 +591,25 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         );
       case 'crates':
         return (
-          <div className="flex gap-0.5">
+          <div className="flex gap-0.5 items-end">
             <div className="w-3 h-2" style={{ background: '#5a4a3a', border: '1px solid #7a6a5a' }} />
             <div className="w-2.5 h-2.5" style={{ background: '#4a3a2a' }} />
+            {/* Milk crate */}
+            <div className="w-3 h-3 rounded-sm" style={{ background: '#2a4a6a', border: '1px solid #3a5a7a' }}>
+              <div className="w-1.5 h-1.5 mt-0.5 mx-auto rounded-sm" style={{ background: '#1a3a5a' }} />
+            </div>
           </div>
         );
       case 'trash':
         return (
           <div className="flex gap-0.5 items-end">
-            <div className="w-2 h-1.5 rounded" style={{ background: '#2a2a2a' }} />
-            <div className="w-3 h-1" style={{ background: '#3a3a3a' }} />
-            <div className="w-1.5 h-2" style={{ background: '#252525' }} />
+            {/* Trash bags */}
+            <div className="w-3 h-2 rounded" style={{ background: '#1a1a1a' }} />
+            <div className="w-2 h-2.5 rounded" style={{ background: '#252525' }} />
+            {/* Scattered items */}
+            <div className="w-1.5 h-1" style={{ background: '#4a4a3a' }} />
+            {/* Flyers/paper */}
+            <div className="w-2 h-0.5 rotate-12" style={{ background: '#8a8a7a' }} />
           </div>
         );
       case 'bottles':
@@ -610,25 +618,35 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             <div className="w-1 h-2" style={{ background: '#4a6a4a' }} />
             <div className="w-1 h-1.5" style={{ background: '#6a4a3a' }} />
             <div className="w-1 h-2.5" style={{ background: '#3a5a5a' }} />
+            {/* Broken bottle */}
+            <div className="w-1.5 h-1 rotate-45" style={{ background: '#3a5a3a' }} />
           </div>
         );
       case 'newsrack':
         return (
           <div className="w-3 h-5" style={{ background: '#4a3a3a', border: '1px solid #6a5a5a' }}>
             <div className="w-2 h-2.5 mt-0.5 mx-auto" style={{ background: '#8a8a6a' }} />
+            <div className="text-[2px] text-center" style={{ color: '#5a5a4a' }}>NEWS</div>
           </div>
         );
       case 'phonebooth':
         return (
-          <div className="w-3 h-7 rounded-t" style={{ background: '#3a4a5a', border: '1px solid #5a6a7a' }}>
-            <div className="w-1.5 h-1.5 mx-auto mt-1" style={{ background: '#2a3a4a' }} />
+          <div className="w-3.5 h-8 rounded-t relative" style={{ background: '#3a4a5a', border: '1px solid #5a6a7a' }}>
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded" style={{ background: '#2a3a4a' }} />
+            {/* Phone cord */}
+            <div className="absolute bottom-2 left-1 w-0.5 h-2" style={{ background: '#5a5a5a' }} />
+            {isNight && <div className="absolute top-0 left-0 right-0 h-1" style={{ background: '#aaaaff33' }} />}
           </div>
         );
       case 'busstop':
         return (
           <div className="relative">
-            <div className="w-0.5 h-8" style={{ background: '#5a5a5a' }} />
-            <div className="absolute top-0 left-0 w-4 h-2.5" style={{ background: '#4a5a4a', border: '1px solid #6a7a6a' }} />
+            <div className="w-0.5 h-9" style={{ background: '#5a5a5a' }} />
+            <div className="absolute top-0 left-0 w-5 h-3" style={{ background: '#4a5a4a', border: '1px solid #6a7a6a' }}>
+              <div className="text-[2px] text-center mt-0.5" style={{ color: '#8a8a6a' }}>BUS</div>
+            </div>
+            {/* Bench */}
+            <div className="absolute bottom-0 left-1 w-4 h-1.5" style={{ background: '#5a4a3a' }} />
           </div>
         );
       case 'neon':
@@ -637,28 +655,59 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         ) : null;
       case 'posters':
         return (
-          <div className="w-3 h-4" style={{ background: '#4a4a3a', border: '1px solid #5a5a4a' }}>
-            <div className="w-2 h-2 mx-auto mt-0.5" style={{ background: '#6a5a4a' }} />
+          <div className="flex gap-0.5">
+            <div className="w-3 h-4" style={{ background: '#4a4a3a', border: '1px solid #5a5a4a' }}>
+              <div className="w-2 h-2 mx-auto mt-0.5" style={{ background: '#6a5a4a' }} />
+            </div>
+            {/* Torn poster */}
+            <div className="w-2 h-3" style={{ background: '#5a4a4a', clipPath: 'polygon(0 0, 100% 20%, 100% 100%, 0 80%)' }} />
           </div>
         );
       case 'kebabvan':
         return (
-          <div className="w-8 h-4" style={{ background: '#3a3530', border: '1px solid #5a5550' }}>
-            <div className="absolute top-0 left-1 w-1.5 h-1" style={{ background: '#ffaa4466' }} />
-            <div className="text-[3px] mt-1 ml-1" style={{ color: '#aa8866' }}>KEBAB</div>
+          <div className="relative w-10 h-5" style={{ background: '#3a3530', border: '1px solid #5a5550' }}>
+            <div className="absolute top-0.5 left-1 w-2 h-1.5 rounded" style={{ background: '#ffaa4466' }} />
+            <div className="text-[3px] absolute bottom-0.5 left-1" style={{ color: '#aa8866' }}>KEBAB</div>
+            {isNight && <div className="absolute top-0 left-0 right-0 h-1" style={{ background: '#ffaa4444' }} />}
+            {/* Wheels */}
+            <div className="absolute -bottom-1 left-1 w-1.5 h-1.5 rounded-full" style={{ background: '#2a2a2a' }} />
+            <div className="absolute -bottom-1 right-1 w-1.5 h-1.5 rounded-full" style={{ background: '#2a2a2a' }} />
           </div>
         );
       case 'puddles':
         return isRaining ? (
-          <div className="w-6 h-1 rounded-full opacity-40" style={{ background: 'linear-gradient(90deg, transparent, #6a8a9a, transparent)' }} />
+          <div className="w-8 h-1.5 rounded-full opacity-50" style={{ background: 'linear-gradient(90deg, transparent, #6a8a9a, #8aaaaa, #6a8a9a, transparent)' }} />
         ) : null;
       case 'steam':
         return isNight ? (
-          <div className="w-2 h-4 opacity-30 animate-pulse" style={{ background: 'linear-gradient(0deg, #ffffff33 0%, transparent 100%)' }} />
+          <div className="w-3 h-5 opacity-25 animate-pulse" style={{ background: 'linear-gradient(0deg, #ffffff44 0%, transparent 100%)' }} />
         ) : null;
       case 'lanterns':
         return isNight ? (
-          <div className="w-2 h-3 rounded" style={{ background: '#ff4422', boxShadow: '0 0 4px #ff442244' }} />
+          <div className="w-2.5 h-4 rounded" style={{ background: '#ff4422', boxShadow: '0 0 6px #ff442266' }}>
+            <div className="w-0.5 h-2 mx-auto" style={{ background: '#3a2a1a' }} />
+          </div>
+        ) : (
+          <div className="w-2.5 h-4 rounded" style={{ background: '#aa3322' }} />
+        );
+      case 'dumpster':
+        return (
+          <div className="w-6 h-4 rounded-t relative" style={{ background: '#3a5a3a', border: '1px solid #4a6a4a' }}>
+            <div className="absolute -top-0.5 left-0 right-0 h-1" style={{ background: '#4a6a4a' }} />
+            {/* Trash peeking out */}
+            <div className="absolute -top-1 left-1 w-2 h-2 rounded" style={{ background: '#2a2a2a' }} />
+          </div>
+        );
+      case 'cone':
+        return (
+          <div className="w-2 h-3" style={{ 
+            background: 'linear-gradient(180deg, #ff6633 0%, #ff6633 33%, #ffffff 33%, #ffffff 50%, #ff6633 50%)',
+            clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)'
+          }} />
+        );
+      case 'smoke':
+        return isNight ? (
+          <div className="w-1 h-4 opacity-20 animate-pulse" style={{ background: 'linear-gradient(0deg, #888888 0%, transparent 100%)' }} />
         ) : null;
       default:
         return null;

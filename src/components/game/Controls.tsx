@@ -74,6 +74,22 @@ export function Controls({
     return button;
   };
 
+  // Get action text hints for display
+  const getActionHints = (): string[] => {
+    const hints: string[] = [];
+    if (pedestrianActions.length > 0) {
+      if (pedestrianActions.includes('steal')) hints.push('A:STEAL');
+      if (pedestrianActions.includes('pitch')) hints.push('B:PITCH');
+      if (pedestrianActions.includes('trade')) hints.push('C:TRADE');
+      else if (pedestrianActions.includes('hit')) hints.push('C:HIT');
+    }
+    desperationActions.forEach((action, i) => {
+      const btn = ['A', 'B', 'C'][i];
+      if (action === 'buy-coke') hints.push(`${btn}:COKE`);
+    });
+    return hints;
+  };
+
   return (
     <div className="bg-gb-darkest border-t-2 border-gb-dark px-3 sm:px-4 py-4 sm:py-3 flex justify-between items-center min-h-[140px] sm:min-h-[120px]">
       {/* D-Pad - Much bigger for mobile */}
