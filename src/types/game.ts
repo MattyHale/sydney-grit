@@ -98,6 +98,9 @@ export interface GameState {
   lsdTripTimeRemaining: number;
   // Pedestrian action window
   pedestrianActionAvailable: PedestrianAction[];
+  // Action locking - prevents button swapping during press
+  lockedButtons: ResolvedButtons | null;
+  buttonLockTime: number;
 }
 
 export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley';
@@ -231,4 +234,6 @@ export const INITIAL_STATE: GameState = {
   lsdTripActive: false,
   lsdTripTimeRemaining: 0,
   pedestrianActionAvailable: [],
+  lockedButtons: null,
+  buttonLockTime: 0,
 };

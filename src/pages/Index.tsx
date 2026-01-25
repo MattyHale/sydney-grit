@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useMemo } from 'react';
+import { useEffect, useCallback, useState, useMemo, useRef } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useControls } from '@/hooks/useControls';
 import { useAmbientAudio } from '@/hooks/useAmbientAudio';
@@ -7,9 +7,16 @@ import { GameCanvas } from '@/components/game/GameCanvas';
 import { Controls } from '@/components/game/Controls';
 import { TitleScreen } from '@/components/game/TitleScreen';
 import { resolveButtonActions } from '@/utils/resolveButtonActions';
+import { ResolvedButtons } from '@/types/game';
+
+// Lock duration in ms - buttons stay stable for this long after appearing
+const BUTTON_LOCK_DURATION = 500;
 
 const Index = () => {
   const [isMuted, setIsMuted] = useState(false);
+  const [lockedButtons, setLockedButtons] = useState<ResolvedButtons | null>(null);
+  const lockTimeoutRef = useRef<number | null>(null);
+  const lastButtonsRef = useRef<string>('');
   
   const {
     state,
@@ -30,9 +37,39 @@ const Index = () => {
     tick,
   } = useGameState();
 
-  // Resolve button actions ONCE based on current state
-  // This is the single source of truth for what each button does
-  const resolvedButtons = useMemo(() => resolveButtonActions(state), [state]);
+  // Resolve button actions based on current state
+  const freshButtons = useMemo(() => resolveButtonActions(state), [state]);
+  
+  // Button locking: when buttons change significantly, lock them for a brief period
+  // This prevents mid-press swaps where you see one action but execute another
+  useEffect(() => {
+    const currentKey = `${freshButtons.A.type}:${freshButtons.A.action}|${freshButtons.B.type}:${freshButtons.B.action}|${freshButtons.C.type}:${freshButtons.C.action}`;
+    
+    // If buttons changed, update lock
+    if (currentKey !== lastButtonsRef.current) {
+      lastButtonsRef.current = currentKey;
+      setLockedButtons(freshButtons);
+      
+      // Clear existing timeout
+      if (lockTimeoutRef.current) {
+        clearTimeout(lockTimeoutRef.current);
+      }
+      
+      // Set new timeout to unlock
+      lockTimeoutRef.current = window.setTimeout(() => {
+        setLockedButtons(null);
+      }, BUTTON_LOCK_DURATION);
+    }
+    
+    return () => {
+      if (lockTimeoutRef.current) {
+        clearTimeout(lockTimeoutRef.current);
+      }
+    };
+  }, [freshButtons]);
+
+  // Use locked buttons if available, otherwise fresh
+  const resolvedButtons = lockedButtons || freshButtons;
 
   // Ambient audio per district
   useAmbientAudio(
