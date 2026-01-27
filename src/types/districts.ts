@@ -593,24 +593,38 @@ export function blockTypeToHotspotZone(blockType: BlockSignage['type']): import(
 }
 
 // Get the building/venue at a specific world position
-export function getVenueAtPosition(worldOffset: number, playerX: number): { venue: BlockSignage; hotspotZone: import('./game').HotspotZone | null } {
+// This matches the exact rendering logic in Street.tsx
+export function getVenueAtPosition(worldOffset: number, playerX: number): { venue: BlockSignage; hotspotZone: import('./game').HotspotZone | null; venueName: string } {
   const district = getDistrictFromOffset(worldOffset);
   const venues = DISTRICT_VENUES[district];
   
-  const blockWidth = 100;
+  const blockWidth = 100;  // Must match Street.tsx
   const totalWidth = blockWidth * venues.length;
   
+  // This matches the parallax calculation in Street.tsx
   const parallaxOffset = worldOffset * 0.3;
   const normalizedOffset = ((parallaxOffset % totalWidth) + totalWidth) % totalWidth;
   
-  const screenWidth = blockWidth * 10;
-  const playerScreenPos = (playerX / 100) * screenWidth;
+  // Player is at playerX% of screen width
+  // Screen width is approximately 400px (game canvas)
+  const screenWidth = 400;
+  const playerScreenPixelPos = (playerX / 100) * screenWidth;
   
-  const absolutePos = normalizedOffset + playerScreenPos;
-  const blockIndex = Math.floor((absolutePos % totalWidth + totalWidth) % totalWidth / blockWidth);
+  // Find which building is at the player's screen position
+  // Buildings are rendered at: xPos = (i * blockWidth) - normalizedOffset
+  // So building i is visible when: (i * blockWidth) - normalizedOffset ≈ playerScreenPixelPos
+  // Solving for i: i = (playerScreenPixelPos + normalizedOffset) / blockWidth
   
-  const venue = venues[blockIndex % venues.length];
+  let targetPos = playerScreenPixelPos + normalizedOffset;
+  
+  // Handle wrapping - buildings wrap around totalWidth
+  targetPos = ((targetPos % totalWidth) + totalWidth) % totalWidth;
+  
+  const blockIndex = Math.floor(targetPos / blockWidth);
+  const safeIndex = ((blockIndex % venues.length) + venues.length) % venues.length;
+  
+  const venue = venues[safeIndex];
   const hotspotZone = blockTypeToHotspotZone(venue.type);
   
-  return { venue, hotspotZone };
+  return { venue, hotspotZone, venueName: venue.name };
 }

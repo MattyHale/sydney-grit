@@ -59,7 +59,7 @@ export function useGameState() {
       const newDistrict = getDistrictFromOffset(newWorldOffset);
       
       // Get the actual building at the player's position
-      const { venue, hotspotZone } = getVenueAtPosition(newWorldOffset, newX);
+      const { venue, hotspotZone, venueName } = getVenueAtPosition(newWorldOffset, newX);
       
       // Use the building-based zone instead of fixed hotspots
       const currentZone = hotspotZone;
@@ -79,6 +79,8 @@ export function useGameState() {
         currentDistrict: newDistrict,
         inAlley,
         dealerNearby,
+        currentVenueName: venueName,
+        currentVenueType: venue.type,
       };
     });
   }, []);
