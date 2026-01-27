@@ -192,29 +192,98 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
     });
   };
 
+  // ============================================
+  // CLEAR BUILDING SIGNAGE SYSTEM
+  // Each building type has a distinct color + emoji + label
+  // ============================================
+  
+  // Type-specific styling configs for maximum clarity
+  const BUILDING_STYLES: Record<string, { 
+    emoji: string; 
+    label: string;
+    bgColor: string; 
+    textColor: string; 
+    glowColor: string;
+  }> = {
+    hub: { emoji: '🚀', label: 'STARTUP HUB', bgColor: '#082010', textColor: '#22ff88', glowColor: '#22ff88' },
+    vc: { emoji: '💼', label: 'VC OFFICE', bgColor: '#081020', textColor: '#4499ff', glowColor: '#4499ff' },
+    shelter: { emoji: '🏠', label: 'SHELTER', bgColor: '#102010', textColor: '#88cc66', glowColor: '#88cc66' },
+    club: { emoji: '💃', label: 'CLUB', bgColor: '#200818', textColor: '#ff44aa', glowColor: '#ff44aa' },
+    bar: { emoji: '🍺', label: 'BAR', bgColor: '#201808', textColor: '#ffaa44', glowColor: '#ffaa44' },
+    food: { emoji: '🍴', label: 'RESTAURANT', bgColor: '#201008', textColor: '#ff8844', glowColor: '#ff8844' },
+    cafe: { emoji: '☕', label: 'CAFE', bgColor: '#181510', textColor: '#cc9966', glowColor: '#aa7744' },
+    hostel: { emoji: '🛏️', label: 'HOSTEL', bgColor: '#101810', textColor: '#88aa66', glowColor: '#88aa66' },
+    pawn: { emoji: '💰', label: 'PAWN', bgColor: '#181508', textColor: '#ffcc44', glowColor: '#ddaa22' },
+    alley: { emoji: '🚬', label: 'ALLEY', bgColor: '#080808', textColor: '#555555', glowColor: '#333333' },
+    derelict: { emoji: '🏚️', label: 'EMPTY', bgColor: '#101010', textColor: '#555544', glowColor: '#333322' },
+    shop: { emoji: '🏪', label: 'SHOP', bgColor: '#151515', textColor: '#9bbc0f', glowColor: '#9bbc0f' },
+    servo: { emoji: '⛽', label: 'SERVO', bgColor: '#101520', textColor: '#ff4444', glowColor: '#ff4444' },
+    rsl: { emoji: '🎰', label: 'RSL/POKIES', bgColor: '#180808', textColor: '#ff6644', glowColor: '#ff4422' },
+    station: { emoji: '🚂', label: 'STATION', bgColor: '#101520', textColor: '#aaaaff', glowColor: '#8888ff' },
+    arcade: { emoji: '🎮', label: 'ARCADE', bgColor: '#100820', textColor: '#ff44ff', glowColor: '#ff44ff' },
+  };
+  
   const renderBlock = (type: string, index: number, pal: ReturnType<typeof getPalette>, venueName: string) => {
     const isEven = index % 2 === 0;
     const buildingColor = isEven ? pal.building : pal.buildingAlt;
     const signageClass = isTripping ? 'signage-glitch' : '';
     
-    // BIG SIGNAGE helper - prominent, readable signs at TOP of buildings
-    const renderBigSign = (bgColor: string, textColor: string, glowColor?: string, emoji?: string) => (
+    // Get styling for this building type
+    const style = BUILDING_STYLES[type] || BUILDING_STYLES.shop;
+    
+    // MEGA SIGN RENDERING - Clear 2-line sign with type label + venue name
+    const renderMegaSign = () => (
       <div 
-        className={`absolute top-0 left-0 right-0 h-16 flex items-center justify-center px-1 font-bold ${signageClass}`}
+        className={`absolute top-0 left-0 right-0 h-20 flex flex-col items-center justify-center px-1 ${signageClass}`}
         style={{ 
-          background: bgColor,
-          color: textColor,
-          border: `3px solid ${textColor}88`,
-          textShadow: isNight && glowColor ? `0 0 12px ${glowColor}, 0 0 24px ${glowColor}` : 'none',
-          boxShadow: isNight && glowColor ? `0 0 20px ${glowColor}66, inset 0 0 10px ${glowColor}22` : 'none',
-          fontSize: '11px',
-          letterSpacing: '1px',
-          lineHeight: '1.1',
-          textAlign: 'center',
+          background: style.bgColor,
+          border: `3px solid ${style.textColor}`,
+          boxShadow: isNight ? `0 0 25px ${style.glowColor}88, inset 0 0 15px ${style.glowColor}22` : `0 2px 4px rgba(0,0,0,0.5)`,
         }}
       >
-        {emoji && <span className="mr-1">{emoji}</span>}
-        {scrambleText(venueName)}
+        {/* TYPE LABEL - Always visible, consistent */}
+        <div 
+          className="flex items-center gap-1 font-bold"
+          style={{ 
+            color: style.textColor,
+            fontSize: '10px',
+            letterSpacing: '2px',
+            textShadow: isNight ? `0 0 10px ${style.glowColor}, 0 0 20px ${style.glowColor}` : '1px 1px 0 #000',
+          }}
+        >
+          <span className="text-[14px]">{style.emoji}</span>
+          <span>{style.label}</span>
+        </div>
+        
+        {/* VENUE NAME - The specific place */}
+        <div 
+          className="font-bold mt-1 text-center leading-tight"
+          style={{ 
+            color: style.textColor,
+            fontSize: '9px',
+            letterSpacing: '1px',
+            opacity: 0.85,
+            textShadow: isNight ? `0 0 8px ${style.glowColor}` : '1px 1px 0 #000',
+            maxWidth: '95%',
+            overflow: 'hidden',
+          }}
+        >
+          {scrambleText(venueName)}
+        </div>
+      </div>
+    );
+    
+    // BUILDING BODY rendering (below the sign)
+    const renderBuildingBody = (bodyBg: string, features?: React.ReactNode) => (
+      <div className="flex-1 relative" style={{ background: bodyBg }}>
+        {/* Windows */}
+        <div className="absolute top-2 left-2 w-5 h-5" style={{ background: isNight ? `${style.glowColor}33` : '#0a0a0a', border: '1px solid #333' }} />
+        <div className="absolute top-2 right-2 w-5 h-5" style={{ background: isNight ? `${style.glowColor}22` : '#080808', border: '1px solid #333' }} />
+        {/* Door */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-8" style={{ background: '#0a0a0a', border: '2px solid #333' }}>
+          <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full" style={{ background: '#555' }} />
+        </div>
+        {features}
       </div>
     );
     
@@ -222,14 +291,15 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       case 'hub':
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#0a1a12', '#44ff88', '#44ff88', '🚀')}
-            <div className="flex-1 relative" style={{ background: '#1a1e22' }}>
-              <div className="absolute top-2 left-2 right-2 bottom-10" style={{ background: '#0c1015', border: '2px solid #2a3545' }}>
-                <div className="absolute top-2 left-2 w-4 h-3" style={{ background: '#88cc8833' }} />
-                <div className="absolute top-2 right-2 w-4 h-3" style={{ background: '#88cc8844' }} />
-                <div className="absolute bottom-2 left-3 w-2 h-3 rounded-t" style={{ background: '#3a4a4a' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#0c1015' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-8" style={{ background: '#0a0e12', border: '2px solid #1a2a35' }}>
+                <div className="absolute top-1 left-1 w-4 h-3" style={{ background: '#22ff8833' }} />
+                <div className="absolute top-1 right-1 w-4 h-3" style={{ background: '#22ff8844' }} />
+                <div className="absolute top-5 left-1 w-4 h-3" style={{ background: '#22ff8822' }} />
+                <div className="absolute top-5 right-1 w-4 h-3" style={{ background: '#22ff8855' }} />
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-9" style={{ background: '#0a0f12', border: '3px solid #3a4a5a' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-7" style={{ background: '#060a0c', border: '2px solid #2a3a4a' }} />
             </div>
           </div>
         );
@@ -237,16 +307,16 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       case 'vc':
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#0a1420', '#66aaff', '#4488ff', '💼')}
-            <div className="flex-1 relative" style={{ background: '#141820' }}>
-              <div className="absolute top-2 left-2 right-2 bottom-8" style={{ background: '#0a0e14', border: '2px solid #2a3a50' }}>
-                <div className="absolute top-2 left-1 w-4 h-3" style={{ background: '#4488cc33' }} />
-                <div className="absolute top-2 right-1 w-4 h-3" style={{ background: '#4488cc44' }} />
-                <div className="absolute top-6 left-1 w-4 h-3" style={{ background: '#4488cc22' }} />
-                <div className="absolute top-6 right-1 w-4 h-3" style={{ background: '#4488cc55' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#0a0e14' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-8" style={{ background: '#080c10', border: '2px solid #1a2a40' }}>
+                <div className="absolute top-1 left-1 w-4 h-3" style={{ background: '#4499ff33' }} />
+                <div className="absolute top-1 right-1 w-4 h-3" style={{ background: '#4499ff44' }} />
+                <div className="absolute top-5 left-1 w-4 h-3" style={{ background: '#4499ff22' }} />
+                <div className="absolute top-5 right-1 w-4 h-3" style={{ background: '#4499ff55' }} />
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-7" style={{ background: '#0a0f15', border: '3px solid #3a4a5a' }}>
-                <div className="absolute inset-2 rounded-full border-2" style={{ borderColor: '#4a5a6a' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-6" style={{ background: '#060810', border: '2px solid #2a3a50' }}>
+                <div className="absolute inset-1 rounded-full border" style={{ borderColor: '#3a4a5a' }} />
               </div>
             </div>
           </div>
@@ -255,14 +325,14 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       case 'shelter':
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#0a1a10', '#88cc66', shelterOpen ? '#88cc66' : undefined, '🏠')}
-            <div className="flex-1 relative" style={{ background: '#1a1f1a' }}>
-              <div className="absolute top-2 left-2 right-2 bottom-8" style={{ background: '#151a15', border: '2px solid #2a352a' }}>
-                <div className="absolute top-2 left-2 w-4 h-4" style={{ background: shelterOpen ? '#9bbc0f44' : '#0a0f0a' }} />
-                <div className="absolute top-2 right-2 w-4 h-4" style={{ background: shelterOpen ? '#9bbc0f33' : '#0a0f0a' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#101510' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-6" style={{ background: '#0c100c', border: '2px solid #1a251a' }}>
+                <div className="absolute top-1 left-1 w-4 h-4" style={{ background: shelterOpen ? '#88cc6644' : '#080808' }} />
+                <div className="absolute top-1 right-1 w-4 h-4" style={{ background: shelterOpen ? '#88cc6633' : '#080808' }} />
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-7 border-3" style={{ background: shelterOpen ? '#9bbc0f22' : '#0f1a0f', borderColor: '#4a6a4a' }}>
-                {shelterOpen && <div className="absolute inset-1 animate-pulse" style={{ background: '#9bbc0f', opacity: 0.4 }} />}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-6" style={{ background: shelterOpen ? '#88cc6622' : '#080c08', border: '2px solid #3a5a3a' }}>
+                {shelterOpen && <div className="absolute inset-1 animate-pulse" style={{ background: '#88cc66', opacity: 0.4 }} />}
               </div>
             </div>
           </div>
@@ -272,30 +342,47 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         return (
           <div className="relative w-full h-full flex flex-col">
             <div 
-              className={`absolute top-0 left-0 right-0 h-16 flex items-center justify-center px-1 font-bold ${isNight ? 'neon-buzz' : ''} ${signageClass}`}
+              className={`absolute top-0 left-0 right-0 h-20 flex flex-col items-center justify-center px-1 ${isNight ? 'neon-buzz' : ''} ${signageClass}`}
               style={{ 
-                background: '#1a0515',
-                color: '#ff66cc',
-                border: '3px solid #ff66aa88',
-                textShadow: isNight ? '0 0 12px #ff66aa, 0 0 24px #ff66aa' : 'none',
-                boxShadow: isNight ? '0 0 20px #ff66aa66' : 'none',
-                fontSize: '11px',
-                letterSpacing: '2px',
+                background: style.bgColor,
+                border: `3px solid ${style.textColor}`,
+                boxShadow: isNight ? `0 0 30px ${style.glowColor}aa, inset 0 0 20px ${style.glowColor}33` : 'none',
               }}
             >
-              💃 {scrambleText(venueName)}
+              <div 
+                className="flex items-center gap-1 font-bold"
+                style={{ 
+                  color: style.textColor,
+                  fontSize: '10px',
+                  letterSpacing: '2px',
+                  textShadow: isNight ? `0 0 12px ${style.glowColor}, 0 0 25px ${style.glowColor}` : 'none',
+                }}
+              >
+                <span className="text-[14px]">{style.emoji}</span>
+                <span>{style.label}</span>
+              </div>
+              <div 
+                className="font-bold mt-1"
+                style={{ 
+                  color: style.textColor,
+                  fontSize: '9px',
+                  opacity: 0.85,
+                  textShadow: isNight ? `0 0 10px ${style.glowColor}` : 'none',
+                }}
+              >
+                {scrambleText(venueName)}
+              </div>
             </div>
-            <div className="flex-1 relative mt-16" style={{ background: '#120810' }}>
-              <div className="absolute top-2 left-2 right-2 bottom-8" style={{ background: '#0a0508', border: isNight ? '2px solid #ff66aa44' : '2px solid #2a1a2a' }}>
+            <div className="flex-1 relative mt-20" style={{ background: '#0a0508' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-6" style={{ background: '#060304', border: isNight ? '2px solid #ff44aa44' : '2px solid #1a0a1a' }}>
                 {isNight && (
                   <>
-                    <div className="absolute top-0 left-0 w-1 h-full neon-flicker-fast" style={{ background: '#ff66aa', boxShadow: '0 0 10px #ff66aa' }} />
-                    <div className="absolute top-0 right-0 w-1 h-full neon-buzz" style={{ background: '#ff66aa', boxShadow: '0 0 10px #ff66aa' }} />
+                    <div className="absolute top-0 left-0 w-1 h-full neon-flicker-fast" style={{ background: '#ff44aa', boxShadow: '0 0 10px #ff44aa' }} />
+                    <div className="absolute top-0 right-0 w-1 h-full neon-buzz" style={{ background: '#ff44aa', boxShadow: '0 0 10px #ff44aa' }} />
                   </>
                 )}
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-7" style={{ background: '#0f0508', border: '3px solid #3a1a2a' }} />
-              <div className="absolute bottom-1 right-2 w-4 h-6 rounded-t" style={{ background: '#0a0505' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-6" style={{ background: '#060304', border: '2px solid #2a1020' }} />
             </div>
           </div>
         );
@@ -303,37 +390,34 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       case 'bar':
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#1a1008', '#ffcc66', isNight ? '#ffaa44' : undefined, '🍺')}
-            <div className="flex-1 relative" style={{ background: '#1a1510' }}>
-              <div className="absolute top-2 left-2 w-5 h-6" style={{ background: '#0a0805', border: '2px solid #3a2a1a' }}>
-                <div className="absolute inset-1" style={{ background: isNight ? '#ffaa4433' : '#ffaa4411' }} />
-                <div className="absolute bottom-1 left-1 w-2 h-3 rounded-t" style={{ background: '#151010' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#141008' }}>
+              <div className="absolute top-1 left-2 w-4 h-5" style={{ background: '#0a0805', border: '1px solid #2a1a0a' }}>
+                <div className="absolute inset-0" style={{ background: isNight ? '#ffaa4433' : '#ffaa4411' }} />
               </div>
-              <div className="absolute top-2 right-2 w-5 h-6" style={{ background: '#0a0805', border: '2px solid #3a2a1a' }}>
-                <div className="absolute inset-1" style={{ background: isNight ? '#ffaa4422' : '#ffaa4411' }} />
+              <div className="absolute top-1 right-2 w-4 h-5" style={{ background: '#0a0805', border: '1px solid #2a1a0a' }}>
+                <div className="absolute inset-0" style={{ background: isNight ? '#ffaa4422' : '#ffaa4411' }} />
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-10" style={{ background: '#0f0a05', border: '3px solid #4a3a2a' }}>
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-5 h-4" style={{ background: isNight ? '#ffaa4433' : '#ffaa4411' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-9 h-7" style={{ background: '#0a0805', border: '2px solid #3a2a15' }}>
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-4 h-3" style={{ background: isNight ? '#ffaa4433' : '#ffaa4411' }} />
               </div>
             </div>
-            {isNight && <div className="absolute bottom-0 left-0 right-0 h-4 opacity-20" style={{ background: 'linear-gradient(0deg, #ffaa44 0%, transparent 100%)' }} />}
+            {isNight && <div className="absolute bottom-0 left-0 right-0 h-3 opacity-20" style={{ background: 'linear-gradient(0deg, #ffaa44 0%, transparent 100%)' }} />}
           </div>
         );
       
       case 'food':
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#1a1008', '#ffaa66', isNight ? '#ff8844' : undefined, '🍴')}
-            <div className="flex-1 relative" style={{ background: '#1a1512' }}>
-              <div className="absolute top-2 left-2 right-2 bottom-8" style={{ background: '#0a0805', border: '2px solid #3a2a18' }}>
-                <div className="absolute inset-1" style={{ background: isNight ? '#ff884433' : '#ff884411' }} />
-                <div className="absolute bottom-2 left-2 w-2 h-3 rounded-t" style={{ background: '#2a2015' }} />
-                <div className="absolute bottom-2 right-2 w-2 h-3 rounded-t" style={{ background: '#2a2015' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#14100a' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-6" style={{ background: '#0a0805', border: '1px solid #2a1a10' }}>
+                <div className="absolute inset-0" style={{ background: isNight ? '#ff884433' : '#ff884411' }} />
               </div>
               {isNight && (
-                <div className="absolute top-2 right-3 w-4 h-5 opacity-25 animate-pulse" style={{ background: 'linear-gradient(0deg, #aaaaaa 0%, transparent 100%)' }} />
+                <div className="absolute top-2 right-3 w-3 h-4 opacity-30 animate-pulse" style={{ background: 'linear-gradient(0deg, #aaaaaa 0%, transparent 100%)' }} />
               )}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-7" style={{ background: '#1a1008', border: '3px solid #4a3520' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-6" style={{ background: '#100a05', border: '2px solid #3a2510' }} />
             </div>
           </div>
         );
@@ -341,13 +425,12 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       case 'cafe':
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#1a1510', '#cc9966', isNight ? '#aa8844' : undefined, '☕')}
-            <div className="flex-1 relative" style={{ background: '#1a1815' }}>
-              <div className="absolute top-2 left-2 right-2 bottom-6" style={{ background: '#0a0908', border: '2px solid #3a3025' }}>
-                <div className="absolute inset-1" style={{ background: '#aa886622' }} />
-                <div className="absolute bottom-2 right-2 w-3 h-4" style={{ background: '#3a3530' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#14120f' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-5" style={{ background: '#0a0908', border: '1px solid #2a2520' }}>
+                <div className="absolute inset-0" style={{ background: '#aa886622' }} />
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5" style={{ background: '#151210', border: '3px solid #4a3a30' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-9 h-5" style={{ background: '#0f0d0a', border: '2px solid #3a3025' }} />
             </div>
           </div>
         );
@@ -355,13 +438,13 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       case 'hostel':
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#0a1a10', '#88aa66', isNight ? '#88aa66' : undefined, '🛏️')}
-            <div className="flex-1 relative" style={{ background: '#181a18' }}>
-              <div className="absolute top-2 left-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.25 }} />
-              <div className="absolute top-2 right-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.15 }} />
-              <div className="absolute top-7 left-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.35 }} />
-              <div className="absolute top-7 right-1 w-4 h-4" style={{ background: '#0a0a08' }} />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-6" style={{ background: '#2a3a2a', border: '2px solid #4a5a4a' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#101410' }}>
+              <div className="absolute top-1 left-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.25 }} />
+              <div className="absolute top-1 right-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.15 }} />
+              <div className="absolute top-6 left-1 w-4 h-4" style={{ background: pal.windowGlow, opacity: 0.35 }} />
+              <div className="absolute top-6 right-1 w-4 h-4" style={{ background: '#080808' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-9 h-5" style={{ background: '#1a2a1a', border: '2px solid #3a4a3a' }} />
             </div>
           </div>
         );
@@ -369,35 +452,36 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       case 'pawn':
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#1a1508', '#ffcc44', isNight ? '#ddaa22' : undefined, '💰')}
-            <div className="flex-1 relative" style={{ background: '#1a1815' }}>
-              <div className="absolute top-2 left-2 right-2 bottom-6" style={{ background: '#0a0a05', border: '2px solid #4a4020' }}>
-                <div className="absolute top-2 left-2 w-3 h-3 rounded-sm" style={{ background: '#aa8822' }} />
-                <div className="absolute top-2 right-2 w-2 h-4" style={{ background: '#888866' }} />
-                <div className="absolute bottom-2 left-3 w-5 h-2 rounded-sm" style={{ background: '#997722' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#141210' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-5" style={{ background: '#0a0a05', border: '1px solid #3a3018' }}>
+                <div className="absolute top-1 left-1 w-2 h-2 rounded-sm" style={{ background: '#aa8822' }} />
+                <div className="absolute top-1 right-1 w-1.5 h-3" style={{ background: '#888866' }} />
+                <div className="absolute bottom-1 left-2 w-4 h-1.5 rounded-sm" style={{ background: '#997722' }} />
               </div>
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
-                <div className="w-3 h-3 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 6px #ddaa22' : 'none' }} />
-                <div className="w-3 h-3 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 6px #ddaa22' : 'none' }} />
-                <div className="w-3 h-3 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 6px #ddaa22' : 'none' }} />
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-0.5">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 4px #ddaa22' : 'none' }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 4px #ddaa22' : 'none' }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#ddaa22', boxShadow: isNight ? '0 0 4px #ddaa22' : 'none' }} />
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5" style={{ background: '#151510', border: '3px solid #4a4025' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-9 h-4" style={{ background: '#10100a', border: '2px solid #3a3018' }} />
             </div>
           </div>
         );
       
       case 'alley':
         return (
-          <div className="relative w-full h-full" style={{ background: '#050505' }}>
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, #101010 0%, #030303 50%, #101010 100%)' }}>
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 h-12 flex items-center justify-center text-[10px] font-bold" style={{ color: '#333333' }}>
-                ALLEY
+          <div className="relative w-full h-full" style={{ background: '#040404' }}>
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, #0a0a0a 0%, #020202 50%, #0a0a0a 100%)' }}>
+              {/* Alley has minimal signage - just dark space */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2 py-1 rounded" style={{ background: '#0a0a0a', border: '1px solid #222' }}>
+                <span className="text-[8px] font-bold" style={{ color: '#444' }}>🚬 ALLEY</span>
               </div>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-10 h-6" style={{ background: '#1a2a1a', border: '2px solid #0a1a0a' }} />
-              {isNight && <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-3 h-8 opacity-15 animate-pulse" style={{ background: 'linear-gradient(0deg, #666666 0%, transparent 100%)' }} />}
+              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-5" style={{ background: '#0a100a', border: '1px solid #0a1a0a' }} />
+              {isNight && <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-2 h-6 opacity-15 animate-pulse" style={{ background: 'linear-gradient(0deg, #555 0%, transparent 100%)' }} />}
               {isNight && (
-                <div className="absolute bottom-2 right-4 w-3 h-6 rounded-t" style={{ background: '#080808' }}>
-                  <div className="absolute top-2 left-0 w-1 h-1 rounded-full ember-glow" style={{ background: '#ff4400' }} />
+                <div className="absolute bottom-1 right-3 w-2 h-4 rounded-t" style={{ background: '#050505' }}>
+                  <div className="absolute top-1 left-0 w-1 h-1 rounded-full ember-glow" style={{ background: '#ff4400' }} />
                 </div>
               )}
             </div>
@@ -408,45 +492,112 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         return (
           <div className="relative w-full h-full flex flex-col">
             <div 
-              className={`absolute top-0 left-0 right-0 h-16 flex items-center justify-center px-1 font-bold opacity-50 ${signageClass}`}
+              className={`absolute top-0 left-0 right-0 h-20 flex flex-col items-center justify-center px-1 opacity-60 ${signageClass}`}
               style={{ 
-                background: '#1a1815',
-                color: '#4a4a40',
-                border: '3px solid #2a2a2a',
-                fontSize: '10px',
+                background: '#0c0c0a',
+                border: '2px solid #222',
               }}
             >
-              {scrambleText(venueName)}
+              <div className="flex items-center gap-1 font-bold" style={{ color: '#444', fontSize: '9px' }}>
+                <span className="text-[12px]">🏚️</span>
+                <span>EMPTY</span>
+              </div>
+              <div className="text-[8px] mt-1" style={{ color: '#333' }}>{scrambleText(venueName)}</div>
             </div>
-            <div className="flex-1 relative mt-16" style={{ background: '#121210' }}>
-              <div className="absolute top-2 left-2 w-5 h-6" style={{ background: '#3a3020', border: '2px solid #2a2015' }}>
-                <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(45deg, #4a3a20 0px, #4a3a20 3px, transparent 3px, transparent 7px)' }} />
+            <div className="flex-1 relative mt-20" style={{ background: '#0a0a08' }}>
+              <div className="absolute top-1 left-2 w-4 h-5" style={{ background: '#2a2518', border: '1px solid #1a1510' }}>
+                <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(45deg, #3a2a18 0px, #3a2a18 2px, transparent 2px, transparent 5px)' }} />
               </div>
-              <div className="absolute top-2 right-2 w-5 h-6" style={{ background: '#3a3020', border: '2px solid #2a2015' }}>
-                <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(-45deg, #4a3a20 0px, #4a3a20 3px, transparent 3px, transparent 7px)' }} />
+              <div className="absolute top-1 right-2 w-4 h-5" style={{ background: '#2a2518', border: '1px solid #1a1510' }}>
+                <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(-45deg, #3a2a18 0px, #3a2a18 2px, transparent 2px, transparent 5px)' }} />
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8" style={{ background: '#1a1510', border: '2px solid #2a2520' }}>
-                <div className="absolute top-3 left-0 w-full h-1 rotate-6" style={{ background: '#3a3020' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-6" style={{ background: '#101008', border: '1px solid #1a1a15' }}>
+                <div className="absolute top-2 left-0 w-full h-0.5 rotate-3" style={{ background: '#2a2518' }} />
               </div>
-              <div className="absolute bottom-10 left-2 text-[6px] rotate-3" style={{ color: '#5a4a3a', opacity: 0.6 }}>NME</div>
+            </div>
+          </div>
+        );
+      
+      case 'servo':
+        return (
+          <div className="relative w-full h-full flex flex-col">
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#0c1015' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-6" style={{ background: '#0a0c10', border: '2px solid #1a2530' }}>
+                <div className="absolute top-1 left-1 w-3 h-4" style={{ background: isNight ? '#ff444444' : '#ff444422', border: '1px solid #aa2222' }} />
+                <div className="absolute top-1 right-1 w-3 h-4" style={{ background: isNight ? '#44ff4444' : '#44ff4422', border: '1px solid #22aa22' }} />
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5" style={{ background: '#080a0c', border: '2px solid #1a2025' }} />
+            </div>
+          </div>
+        );
+      
+      case 'rsl':
+        return (
+          <div className="relative w-full h-full flex flex-col">
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#100808' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-6" style={{ background: '#0a0505', border: '2px solid #2a1515' }}>
+                {isNight && (
+                  <>
+                    <div className="absolute top-1 left-1 w-2 h-2 animate-pulse" style={{ background: '#ff4422', boxShadow: '0 0 4px #ff4422' }} />
+                    <div className="absolute top-1 right-1 w-2 h-2 animate-pulse" style={{ background: '#ffaa22', boxShadow: '0 0 4px #ffaa22', animationDelay: '0.3s' }} />
+                    <div className="absolute top-4 left-2 w-2 h-2 animate-pulse" style={{ background: '#22ff44', boxShadow: '0 0 4px #22ff44', animationDelay: '0.6s' }} />
+                  </>
+                )}
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5" style={{ background: '#080505', border: '2px solid #2a1010' }} />
+            </div>
+          </div>
+        );
+      
+      case 'station':
+        return (
+          <div className="relative w-full h-full flex flex-col">
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#0c0c12' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-6" style={{ background: '#08080c', border: '2px solid #1a1a30' }}>
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 text-[6px] font-bold" style={{ color: '#6666aa' }}>PLATFORM</div>
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-6" style={{ background: '#060608', border: '2px solid #2a2a40' }}>
+                <div className="absolute inset-1 flex items-center justify-center text-[5px]" style={{ color: '#4444aa' }}>▶</div>
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'arcade':
+        return (
+          <div className="relative w-full h-full flex flex-col">
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: '#0a0610' }}>
+              <div className="absolute top-1 left-2 right-2 bottom-6" style={{ background: '#060408', border: '2px solid #201030' }}>
+                {isNight && (
+                  <>
+                    <div className="absolute top-1 left-1 w-2 h-3 animate-pulse" style={{ background: '#ff44ff55' }} />
+                    <div className="absolute top-1 right-1 w-2 h-3 animate-pulse" style={{ background: '#44ffff55', animationDelay: '0.2s' }} />
+                    <div className="absolute top-5 left-1 w-2 h-3 animate-pulse" style={{ background: '#ffff4455', animationDelay: '0.4s' }} />
+                  </>
+                )}
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5" style={{ background: '#050308', border: '2px solid #1a1020' }} />
             </div>
           </div>
         );
 
       case 'shop':
       default:
-        const awningColors = ['#8a4a4a', '#4a8a4a', '#4a4a8a', '#8a7a4a'];
+        const awningColors = ['#6a3535', '#356a35', '#35356a', '#6a5a35'];
         const awningColor = awningColors[index % awningColors.length];
         return (
           <div className="relative w-full h-full flex flex-col">
-            {renderBigSign('#1a1a1a', '#9bbc0f', isNight ? '#9bbc0f' : undefined, '🏪')}
-            <div className="flex-1 relative" style={{ background: buildingColor }}>
-              <div className="absolute top-0 left-0 right-0 h-4" style={{ background: awningColor, borderBottom: `2px solid ${awningColor}88` }} />
-              <div className="absolute top-5 left-2 right-2 bottom-6" style={{ background: '#1a2020', border: '2px solid #3a4040' }}>
-                <div className="absolute inset-2" style={{ background: pal.windowGlow, opacity: 0.1 }} />
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-5 rounded-t" style={{ background: '#3a3a3a' }} />
+            {renderMegaSign()}
+            <div className="flex-1 relative mt-20" style={{ background: buildingColor }}>
+              <div className="absolute top-0 left-0 right-0 h-3" style={{ background: awningColor, borderBottom: `1px solid ${awningColor}88` }} />
+              <div className="absolute top-4 left-2 right-2 bottom-5" style={{ background: '#101515', border: '1px solid #2a3030' }}>
+                <div className="absolute inset-1" style={{ background: pal.windowGlow, opacity: 0.1 }} />
               </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-5 border-3" style={{ background: '#151a1a', borderColor: '#3a4545' }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-9 h-4" style={{ background: '#0a1010', border: '2px solid #2a3535' }} />
             </div>
           </div>
         );
