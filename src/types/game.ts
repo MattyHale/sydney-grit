@@ -134,6 +134,9 @@ export interface GameState {
   // Shop interior state
   inShop: boolean;
   currentShop: HotspotZone | null;
+  // Current building info for UI indicator
+  currentVenueName: string | null;
+  currentVenueType: string | null;
 }
 
 export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley' | 'food-vendor' | 'vc-firm' | 'strip-club' | 'bar' | 'pawn' | 'cafe';
@@ -313,4 +316,6 @@ export const INITIAL_STATE: GameState = {
   lastTransaction: null,
   inShop: false,
   currentShop: null,
+  currentVenueName: null,
+  currentVenueType: null,
 };

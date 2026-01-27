@@ -14,6 +14,26 @@ import { VictoryOverlay } from './VictoryOverlay';
 import { TransactionIndicator } from './TransactionIndicator';
 import { ShopInterior } from './ShopInterior';
 
+// Building type to emoji/label mapping for the entry indicator
+const BUILDING_INFO: Record<string, { emoji: string; label: string }> = {
+  hub: { emoji: '🚀', label: 'STARTUP HUB' },
+  vc: { emoji: '💼', label: 'VC OFFICE' },
+  shelter: { emoji: '🏠', label: 'SHELTER' },
+  club: { emoji: '💃', label: 'CLUB' },
+  bar: { emoji: '🍺', label: 'BAR' },
+  food: { emoji: '🍴', label: 'RESTAURANT' },
+  cafe: { emoji: '☕', label: 'CAFE' },
+  hostel: { emoji: '🛏️', label: 'HOSTEL' },
+  pawn: { emoji: '💰', label: 'PAWN' },
+  alley: { emoji: '🚬', label: 'ALLEY' },
+  derelict: { emoji: '🏚️', label: 'EMPTY' },
+  shop: { emoji: '🏪', label: 'SHOP' },
+  servo: { emoji: '⛽', label: 'SERVO' },
+  rsl: { emoji: '🎰', label: 'RSL/POKIES' },
+  station: { emoji: '🚂', label: 'STATION' },
+  arcade: { emoji: '🎮', label: 'ARCADE' },
+};
+
 interface GameCanvasProps {
   state: GameState;
   onPause: () => void;
@@ -215,6 +235,24 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
           {state.stealTarget.archetype === 'vc' ? '📊 Pitch to VC' : 
            state.stealTarget.archetype === 'founder' ? '🤝 Network with Founder' :
            `Target: ${state.stealTarget.archetype}`}
+        </div>
+      )}
+      
+      {/* Building entry indicator - shows what you'll enter when pressing UP */}
+      {state.currentVenueName && state.currentVenueType && !state.stealWindowActive && (
+        <div 
+          className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded border-2 text-center"
+          style={{ 
+            background: '#000000ee',
+            borderColor: BUILDING_INFO[state.currentVenueType]?.emoji ? '#ffffff44' : '#333',
+          }}
+        >
+          <div className="text-[10px] font-bold text-white flex items-center gap-1 justify-center">
+            <span>{BUILDING_INFO[state.currentVenueType]?.emoji || '🏢'}</span>
+            <span>{BUILDING_INFO[state.currentVenueType]?.label || 'BUILDING'}</span>
+          </div>
+          <div className="text-[8px] text-gray-300 mt-0.5">{state.currentVenueName}</div>
+          <div className="text-[7px] text-gray-500 mt-0.5">↑ ENTER</div>
         </div>
       )}
       
