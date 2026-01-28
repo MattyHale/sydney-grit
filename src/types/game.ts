@@ -137,6 +137,12 @@ export interface GameState {
   // Current building info for UI indicator
   currentVenueName: string | null;
   currentVenueType: string | null;
+  // Fentanyl overdose state
+  fentanylActive: boolean;
+  fentanylTimeRemaining: number;
+  // VC pitch tracking for IPO (need multiple successful pitches)
+  vcPitchesThisRound: number;
+  vcPitchesRequired: number;
 }
 
 export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley' | 'food-vendor' | 'vc-firm' | 'strip-club' | 'bar' | 'pawn' | 'cafe';
@@ -318,4 +324,8 @@ export const INITIAL_STATE: GameState = {
   currentShop: null,
   currentVenueName: null,
   currentVenueType: null,
+  fentanylActive: false,
+  fentanylTimeRemaining: 0,
+  vcPitchesThisRound: 0,
+  vcPitchesRequired: 1,
 };

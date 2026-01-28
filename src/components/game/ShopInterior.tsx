@@ -30,14 +30,29 @@ const getNextStage = (current: FundingStage): FundingStage | null => {
   return idx < STAGE_ORDER.length - 1 ? STAGE_ORDER[idx + 1] : null;
 };
 
-const STAGE_CONFIG: Record<FundingStage, { label: string; amount: string; successRate: number; energyCost: number; hopeLoss: number }> = {
-  'bootstrap': { label: 'Seed Round', amount: '$500K', successRate: 0.5, energyCost: 20, hopeLoss: 15 },
-  'seed': { label: 'Series A', amount: '$2M', successRate: 0.4, energyCost: 25, hopeLoss: 25 },
-  'series-a': { label: 'Series B', amount: '$10M', successRate: 0.35, energyCost: 30, hopeLoss: 30 },
-  'series-b': { label: 'Series C', amount: '$30M', successRate: 0.3, energyCost: 35, hopeLoss: 35 },
-  'series-c': { label: 'Series D', amount: '$80M', successRate: 0.25, energyCost: 40, hopeLoss: 40 },
-  'series-d': { label: 'IPO', amount: '$500M', successRate: 0.15, energyCost: 50, hopeLoss: 50 },
-  'ipo': { label: 'Victory!', amount: '∞', successRate: 1, energyCost: 0, hopeLoss: 0 },
+// Cost multiplier based on funding stage - things get more expensive as you raise more
+const getCostMultiplier = (stage: FundingStage): number => {
+  const multipliers: Record<FundingStage, number> = {
+    'bootstrap': 1.0,
+    'seed': 1.5,
+    'series-a': 2.0,
+    'series-b': 3.0,
+    'series-c': 4.0,
+    'series-d': 5.0,
+    'ipo': 6.0,
+  };
+  return multipliers[stage];
+};
+
+// Success rates decrease each round, energy costs increase
+const STAGE_CONFIG: Record<FundingStage, { label: string; amount: string; successRate: number; energyCost: number; hopeLoss: number; pitchesRequired: number }> = {
+  'bootstrap': { label: 'Seed Round', amount: '$500K', successRate: 0.45, energyCost: 20, hopeLoss: 20, pitchesRequired: 1 },
+  'seed': { label: 'Series A', amount: '$2M', successRate: 0.35, energyCost: 30, hopeLoss: 30, pitchesRequired: 2 },
+  'series-a': { label: 'Series B', amount: '$10M', successRate: 0.28, energyCost: 35, hopeLoss: 35, pitchesRequired: 2 },
+  'series-b': { label: 'Series C', amount: '$30M', successRate: 0.22, energyCost: 40, hopeLoss: 40, pitchesRequired: 3 },
+  'series-c': { label: 'Series D', amount: '$80M', successRate: 0.18, energyCost: 50, hopeLoss: 45, pitchesRequired: 3 },
+  'series-d': { label: 'IPO', amount: '$500M', successRate: 0.12, energyCost: 60, hopeLoss: 50, pitchesRequired: 4 },
+  'ipo': { label: 'Victory!', amount: '∞', successRate: 1, energyCost: 0, hopeLoss: 0, pitchesRequired: 0 },
 };
 
 // Australian VC firm names by stage
@@ -65,7 +80,7 @@ const getVCOptions = (stage: FundingStage): ShopOption[] => {
       label: config.label, 
       icon: stage === 'series-d' ? '🔔' : '🚀', 
       energyCost: config.energyCost,
-      description: `Pitch to ${AU_VC_NAMES[stage]}. ${Math.round(config.successRate * 100)}% chance for ${config.amount}.`
+      description: `Pitch to ${AU_VC_NAMES[stage]}. ${Math.round(config.successRate * 100)}% chance for ${config.amount}. Need ${config.pitchesRequired} pitches.`
     });
   }
   
@@ -74,103 +89,108 @@ const getVCOptions = (stage: FundingStage): ShopOption[] => {
   return options;
 };
 
-const SHOP_CONFIGS: Record<string, {
-  title: string;
-  subtitle: string;
-  options: ShopOption[];
-  bgColor: string;
-  accentColor: string;
-}> = {
-  'strip-club': {
-    title: 'GENTLEMAN\'S CLUB',
-    subtitle: 'The Cross • Private Booths Available',
-    bgColor: '#2a1a2a',
-    accentColor: '#ff4488',
-    options: [
-      { id: 'drinks', label: 'Champagne', icon: '🍾', cost: 100, description: 'Impress clients, boost confidence' },
-      { id: 'massage', label: 'VIP Massage', icon: '💆', cost: 200, description: 'Relax, reduce stress, restore hope' },
-      { id: 'private', label: 'Private Room', icon: '🚪', cost: 500, description: 'Full relaxation package' },
-    ],
-  },
-  'bar': {
-    title: 'THE BOURBON',
-    subtitle: 'Est. 1986 • Kings Cross',
-    bgColor: '#2a2a1a',
-    accentColor: '#ffaa44',
-    options: [
-      { id: 'beer', label: 'Schooner', icon: '🍺', cost: 12, description: 'Cheap, takes the edge off' },
-      { id: 'whiskey', label: 'Whiskey', icon: '🥃', cost: 25, description: 'Liquid courage for pitching' },
-      { id: 'round', label: 'Buy a Round', icon: '🍻', cost: 80, description: 'Network with strangers' },
-    ],
-  },
-  'pawn': {
-    title: 'CASH CONVERTERS',
-    subtitle: 'We Buy Everything',
-    bgColor: '#1a2a1a',
-    accentColor: '#44ff88',
-    options: [
-      { id: 'sell-watch', label: 'Sell Watch', icon: '⌚', cost: 0, description: 'Get $300, lose an asset' },
-      { id: 'sell-laptop', label: 'Sell MacBook', icon: '💻', cost: 0, description: 'Get $800, can\'t work for a day' },
-      { id: 'sell-phone', label: 'Sell iPhone', icon: '📱', cost: 0, description: 'Get $400, miss calls' },
-    ],
-  },
-  'cafe': {
-    title: 'SINGLE ORIGIN',
-    subtitle: 'Specialty Coffee • Coworking',
-    bgColor: '#2a1a1a',
-    accentColor: '#aa6633',
-    options: [
-      { id: 'coffee', label: 'Flat White', icon: '☕', cost: 6, description: 'Energy boost (+15 energy)' },
-      { id: 'meeting', label: 'Coffee Meeting', icon: '💼', cost: 15, energyCost: 10, description: 'Pitch a contact' },
-      { id: 'cowork', label: 'Day Pass', icon: '🏢', cost: 35, description: 'Work, restore hope' },
-    ],
-  },
-  'services': {
-    title: 'STONE & CHALK',
-    subtitle: 'Fishburners • Startmate • Sydney Startup Hub',
-    bgColor: '#1a1a2a',
-    accentColor: '#8844ff',
-    options: [
-      { id: 'mentor', label: 'See Mentor', icon: '👨‍🏫', cost: 0, energyCost: 5, description: 'Free advice from a Startmate mentor' },
-      { id: 'workshop', label: 'Pitch Practice', icon: '📊', cost: 50, energyCost: 15, description: 'Practice at Fishburners demo night' },
-      { id: 'apply', label: 'Apply to Startmate', icon: '📝', cost: 0, energyCost: 20, description: 'Long shot at $120K + mentorship' },
-    ],
-  },
-  'alley': {
-    title: 'BACK ALLEY',
-    subtitle: 'Dark • Quiet • Private',
-    bgColor: '#0a0a0a',
-    accentColor: '#44ff44',
-    options: [
-      { id: 'buy-coke', label: 'Buy Coke', icon: '❄️', cost: 150, description: 'High-grade Colombian (5x speed!)' },
-      { id: 'buy-party', label: 'Party Pack', icon: '🎉', cost: 400, description: 'Coke + pills for client entertainment' },
-      { id: 'deal', label: 'Make a Deal', icon: '🤫', cost: 0, description: 'Risky business opportunity' },
-    ],
-  },
-  'food-vendor': {
-    title: 'FINE DINING',
-    subtitle: 'Quay • Rockpool • Tetsuya\'s',
-    bgColor: '#1a1a1a',
-    accentColor: '#ffcc00',
-    options: [
-      { id: 'lunch', label: 'Business Lunch', icon: '🍽️', cost: 85, description: 'Impress a client (+energy)' },
-      { id: 'dinner', label: 'Client Dinner', icon: '🥂', cost: 250, description: 'Close a deal over dinner' },
-      { id: 'takeaway', label: 'UberEats', icon: '🥡', cost: 25, description: 'Quick food (+30 energy)' },
-      // eat-dog option added dynamically if hasDog
-    ],
-  },
-  'bins': {
-    title: 'DUMPSTER',
-    subtitle: 'Behind the Office • Smells Like Opportunity',
-    bgColor: '#1a1a0a',
-    accentColor: '#888844',
-    options: [
-      { id: 'dig-shallow', label: 'Quick Dig', icon: '🗑️', energyCost: 5, description: 'Fast search. Maybe find $20-50.' },
-      { id: 'dig-deep', label: 'Deep Dive', icon: '🔍', energyCost: 15, description: 'Thorough search. Find $50-150 or items.' },
-      { id: 'scavenge', label: 'Scavenge Parts', icon: '🔧', energyCost: 10, description: 'Look for tech parts to sell.' },
-      // find-tech option added dynamically if !hasValuableTech
-    ],
-  },
+// Get scaled shop options based on funding stage
+const getScaledShopOptions = (shopType: string, fundingStage: FundingStage): { title: string; subtitle: string; options: ShopOption[]; bgColor: string; accentColor: string } => {
+  const multiplier = getCostMultiplier(fundingStage);
+  
+  const baseConfigs: Record<string, {
+    title: string;
+    subtitle: string;
+    options: ShopOption[];
+    bgColor: string;
+    accentColor: string;
+  }> = {
+    'strip-club': {
+      title: 'GENTLEMAN\'S CLUB',
+      subtitle: 'The Cross • Private Booths Available',
+      bgColor: '#2a1a2a',
+      accentColor: '#ff4488',
+      options: [
+        { id: 'drinks', label: 'Champagne', icon: '🍾', cost: Math.round(100 * multiplier), description: 'Impress clients, boost confidence' },
+        { id: 'massage', label: 'VIP Massage', icon: '💆', cost: Math.round(200 * multiplier), description: 'Relax, reduce stress, restore hope' },
+        { id: 'private', label: 'Private Room', icon: '🚪', cost: Math.round(500 * multiplier), description: 'Full relaxation package' },
+      ],
+    },
+    'bar': {
+      title: 'THE BOURBON',
+      subtitle: 'Est. 1986 • Kings Cross',
+      bgColor: '#2a2a1a',
+      accentColor: '#ffaa44',
+      options: [
+        { id: 'beer', label: 'Schooner', icon: '🍺', cost: 12, description: 'Cheap, takes the edge off' },
+        { id: 'whiskey', label: 'Whiskey', icon: '🥃', cost: 25, description: 'Liquid courage for pitching' },
+        { id: 'round', label: 'Buy a Round', icon: '🍻', cost: Math.round(80 * multiplier), description: 'Network with strangers' },
+      ],
+    },
+    'pawn': {
+      title: 'CASH CONVERTERS',
+      subtitle: 'We Buy Everything',
+      bgColor: '#1a2a1a',
+      accentColor: '#44ff88',
+      options: [
+        { id: 'sell-watch', label: 'Sell Watch', icon: '⌚', cost: 0, description: 'Get $300, lose an asset' },
+        { id: 'sell-laptop', label: 'Sell MacBook', icon: '💻', cost: 0, description: 'Get $800, can\'t work for a day' },
+        { id: 'sell-phone', label: 'Sell iPhone', icon: '📱', cost: 0, description: 'Get $400, miss calls' },
+      ],
+    },
+    'cafe': {
+      title: 'SINGLE ORIGIN',
+      subtitle: 'Specialty Coffee • Coworking',
+      bgColor: '#2a1a1a',
+      accentColor: '#aa6633',
+      options: [
+        { id: 'coffee', label: 'Flat White', icon: '☕', cost: 6, description: 'Energy boost (+15 energy)' },
+        { id: 'meeting', label: 'Coffee Meeting', icon: '💼', cost: 15, energyCost: 10, description: 'Pitch a contact' },
+        { id: 'cowork', label: 'Day Pass', icon: '🏢', cost: 35, description: 'Work, restore hope' },
+      ],
+    },
+    'services': {
+      title: 'STONE & CHALK',
+      subtitle: 'Fishburners • Startmate • Sydney Startup Hub',
+      bgColor: '#1a1a2a',
+      accentColor: '#8844ff',
+      options: [
+        { id: 'mentor', label: 'See Mentor', icon: '👨‍🏫', cost: 0, energyCost: 5, description: 'Free advice from a Startmate mentor' },
+        { id: 'workshop', label: 'Pitch Practice', icon: '📊', cost: 50, energyCost: 15, description: 'Practice at Fishburners demo night' },
+        { id: 'apply', label: 'Apply to Startmate', icon: '📝', cost: 0, energyCost: 20, description: 'Long shot at $120K + mentorship' },
+      ],
+    },
+    'alley': {
+      title: 'BACK ALLEY',
+      subtitle: 'Dark • Quiet • Private',
+      bgColor: '#0a0a0a',
+      accentColor: '#44ff44',
+      options: [
+        { id: 'buy-coke', label: 'Buy Coke', icon: '❄️', cost: 150, description: '50% chance of bad gear (fentanyl!)' },
+        { id: 'buy-party', label: 'Party Pack', icon: '🎉', cost: 400, description: 'Coke + pills for client entertainment' },
+        { id: 'deal', label: 'Make a Deal', icon: '🤫', cost: 0, description: 'Risky business opportunity' },
+      ],
+    },
+    'food-vendor': {
+      title: 'FINE DINING',
+      subtitle: 'Quay • Rockpool • Tetsuya\'s',
+      bgColor: '#1a1a1a',
+      accentColor: '#ffcc00',
+      options: [
+        { id: 'lunch', label: 'Business Lunch', icon: '🍽️', cost: 85, description: 'Impress a client (+energy)' },
+        { id: 'dinner', label: 'Client Dinner', icon: '🥂', cost: Math.round(250 * multiplier), description: 'Close a deal over dinner' },
+        { id: 'takeaway', label: 'UberEats', icon: '🥡', cost: 25, description: 'Quick food (+30 energy)' },
+      ],
+    },
+    'bins': {
+      title: 'DUMPSTER',
+      subtitle: 'Behind the Office • Smells Like Opportunity',
+      bgColor: '#1a1a0a',
+      accentColor: '#888844',
+      options: [
+        { id: 'dig-shallow', label: 'Quick Dig', icon: '🗑️', energyCost: 5, description: 'Fast search. Maybe find $20-50.' },
+        { id: 'dig-deep', label: 'Deep Dive', icon: '🔍', energyCost: 15, description: 'Thorough search. Find $50-150 or items.' },
+        { id: 'scavenge', label: 'Scavenge Parts', icon: '🔧', energyCost: 10, description: 'Look for tech parts to sell.' },
+      ],
+    },
+  };
+  
+  return baseConfigs[shopType] || baseConfigs['bar'];
 };
 
 export function ShopInterior({ shopType, money, energy, fundingStage, hasDog, hasValuableTech, onAction, onExit }: ShopInteriorProps) {
@@ -180,9 +200,9 @@ export function ShopInterior({ shopType, money, energy, fundingStage, hasDog, ha
   const isVCFirm = shopType === 'vc-firm';
   const vcOptions = isVCFirm ? getVCOptions(fundingStage) : [];
   
-  // Build dynamic options for certain shops
+  // Build dynamic options for certain shops with scaled costs
   const getDynamicOptions = () => {
-    const baseConfig = SHOP_CONFIGS[shopType] || SHOP_CONFIGS['bar'];
+    const baseConfig = getScaledShopOptions(shopType, fundingStage);
     let options = [...baseConfig.options];
     
     // Add eat-dog option to food vendors if player has dog
@@ -210,13 +230,15 @@ export function ShopInterior({ shopType, money, energy, fundingStage, hasDog, ha
     return options;
   };
   
+  const scaledConfig = getScaledShopOptions(shopType, fundingStage);
+  
   const config = isVCFirm ? {
     title: AU_VC_NAMES[fundingStage].toUpperCase(),
     subtitle: fundingStage === 'ipo' ? 'Australian Stock Exchange' : `Pitch for ${fundingStage.toUpperCase()} Round`,
     bgColor: '#1a1a2a',
     accentColor: '#4488ff',
     options: vcOptions,
-  } : { ...(SHOP_CONFIGS[shopType] || SHOP_CONFIGS['bar']), options: getDynamicOptions() };
+  } : { ...scaledConfig, options: getDynamicOptions() };
   
   const handleSelect = (option: ShopOption) => {
     const canAffordMoney = !option.cost || option.cost <= money;

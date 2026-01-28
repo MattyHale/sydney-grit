@@ -46,6 +46,32 @@ export function useGameState() {
     setState(s => {
       if (s.isGameOver || s.isPaused || s.playerState === 'collapsed') return s;
       
+      // Fentanyl slows you down massively
+      if (s.fentanylActive) {
+        const slowDelta = delta * 0.2; // 80% slower
+        const newX = Math.max(5, Math.min(90, s.playerX + slowDelta));
+        const direction = delta > 0 ? 'right' : 'left';
+        const newWorldOffset = s.worldOffset + (slowDelta * 2.5);
+        const newDistrict = getDistrictFromOffset(newWorldOffset);
+        const { venue, hotspotZone, venueName } = getVenueAtPosition(newWorldOffset, newX);
+        const inAlley = venue.type === 'alley';
+        const dealerNearby = inAlley ? s.dealerNearby : false;
+        
+        return {
+          ...s,
+          playerX: newX,
+          playerDirection: direction,
+          playerState: 'walking',
+          currentZone: hotspotZone,
+          worldOffset: newWorldOffset,
+          currentDistrict: newDistrict,
+          inAlley,
+          dealerNearby,
+          currentVenueName: venueName,
+          currentVenueType: venue.type,
+        };
+      }
+      
       // 5x speed when high on drugs (cocaine > 30 or LSD active)
       const isHigh = s.stats.cocaine > 30 || s.lsdTripActive;
       const speedMultiplier = isHigh ? 5 : 1;
@@ -141,17 +167,37 @@ export function useGameState() {
     setState(s => ({ ...s, inShop: false, currentShop: null }));
   }, []);
 
-  // Funding stage progression
+  // Funding stage progression - harder success rates, more pitches required for later rounds
   const STAGE_ORDER: import('@/types/game').FundingStage[] = ['bootstrap', 'seed', 'series-a', 'series-b', 'series-c', 'series-d', 'ipo'];
-  const STAGE_CONFIG: Record<import('@/types/game').FundingStage, { amount: number; successRate: number; energyCost: number; hopeLoss: number }> = {
-    'bootstrap': { amount: 500000, successRate: 0.5, energyCost: 20, hopeLoss: 15 },
-    'seed': { amount: 2000000, successRate: 0.4, energyCost: 25, hopeLoss: 25 },
-    'series-a': { amount: 10000000, successRate: 0.35, energyCost: 30, hopeLoss: 30 },
-    'series-b': { amount: 30000000, successRate: 0.3, energyCost: 35, hopeLoss: 35 },
-    'series-c': { amount: 80000000, successRate: 0.25, energyCost: 40, hopeLoss: 40 },
-    'series-d': { amount: 500000000, successRate: 0.15, energyCost: 50, hopeLoss: 50 },
-    'ipo': { amount: 0, successRate: 1, energyCost: 0, hopeLoss: 0 },
+  const STAGE_CONFIG: Record<import('@/types/game').FundingStage, { amount: number; successRate: number; energyCost: number; hopeLoss: number; pitchesRequired: number }> = {
+    'bootstrap': { amount: 500000, successRate: 0.45, energyCost: 20, hopeLoss: 20, pitchesRequired: 1 },
+    'seed': { amount: 2000000, successRate: 0.35, energyCost: 30, hopeLoss: 30, pitchesRequired: 2 },
+    'series-a': { amount: 10000000, successRate: 0.28, energyCost: 35, hopeLoss: 35, pitchesRequired: 2 },
+    'series-b': { amount: 30000000, successRate: 0.22, energyCost: 40, hopeLoss: 40, pitchesRequired: 3 },
+    'series-c': { amount: 80000000, successRate: 0.18, energyCost: 50, hopeLoss: 45, pitchesRequired: 3 },
+    'series-d': { amount: 500000000, successRate: 0.12, energyCost: 60, hopeLoss: 50, pitchesRequired: 4 },
+    'ipo': { amount: 0, successRate: 1, energyCost: 0, hopeLoss: 0, pitchesRequired: 0 },
   };
+  
+  // Cost multiplier for scaling shop prices based on funding stage
+  const getCostMultiplier = (stage: import('@/types/game').FundingStage): number => {
+    const multipliers: Record<import('@/types/game').FundingStage, number> = {
+      'bootstrap': 1.0, 'seed': 1.5, 'series-a': 2.0, 'series-b': 3.0, 'series-c': 4.0, 'series-d': 5.0, 'ipo': 6.0,
+    };
+    return multipliers[stage];
+  };
+  
+  // VC rejection messages
+  const REJECTION_MESSAGES = [
+    '"REJECTED. Try someone else."',
+    '"Not a fit for our portfolio."',
+    '"We\'ll pass. Come back with more traction."',
+    '"Interesting, but no. Try another VC."',
+    '"The market isn\'t ready. Rejected."',
+    '"We don\'t see the vision. Next!"',
+    '"Too early for us. Rejected."',
+    '"Not enough growth. Try again."',
+  ];
 
   // Handle shop action
   const handleShopAction = useCallback((shopType: HotspotZone, actionId: string) => {
@@ -159,8 +205,9 @@ export function useGameState() {
       if (s.isGameOver) return s;
       
       const newState = { ...s, stats: { ...s.stats }, inShop: false, currentShop: null };
+      const costMultiplier = getCostMultiplier(s.stats.fundingStage);
       
-      // VC Firm actions - progressive funding rounds
+      // VC Firm actions - progressive funding rounds with multiple pitches required
       if (shopType === 'vc-firm') {
         if (actionId === 'pitch-next') {
           const currentStage = s.stats.fundingStage;
@@ -180,26 +227,41 @@ export function useGameState() {
           
           // Valuable tech boosts success rate by 15%
           const techBonus = s.stats.hasValuableTech ? 0.15 : 0;
-          const effectiveSuccessRate = Math.min(0.9, config.successRate + techBonus);
+          const effectiveSuccessRate = Math.min(0.85, config.successRate + techBonus);
           
           if (Math.random() < effectiveSuccessRate && nextStage) {
-            newState.stats.money += config.amount;
-            newState.stats.fundingStage = nextStage;
-            newState.stats.hope = Math.min(100, newState.stats.hope + 25);
-            const formatted = config.amount >= 1000000 ? `$${config.amount / 1000000}M` : `$${config.amount / 1000}K`;
-            showEvent(`${nextStage.toUpperCase()} CLOSED! ${formatted} in the bank!`);
-            showTransaction('money', `+${formatted}`);
+            // Successful pitch - but might need more pitches to close the round
+            const currentPitches = s.vcPitchesThisRound + 1;
             
-            // Victory condition - reached IPO!
-            if (nextStage === 'ipo') {
-              newState.isVictory = true;
-              newState.isPaused = true;
-              showEvent('🔔 YOU RANG THE BELL! IPO COMPLETE!');
+            if (currentPitches >= config.pitchesRequired) {
+              // Round closed!
+              newState.stats.money += config.amount;
+              newState.stats.fundingStage = nextStage;
+              newState.stats.hope = Math.min(100, newState.stats.hope + 25);
+              newState.vcPitchesThisRound = 0;
+              newState.vcPitchesRequired = STAGE_CONFIG[nextStage]?.pitchesRequired || 1;
+              const formatted = config.amount >= 1000000 ? `$${config.amount / 1000000}M` : `$${config.amount / 1000}K`;
+              showEvent(`${nextStage.toUpperCase()} CLOSED! ${formatted} in the bank!`);
+              showTransaction('money', `+${formatted}`);
+              
+              // Victory condition - reached IPO!
+              if (nextStage === 'ipo') {
+                newState.isVictory = true;
+                newState.isPaused = true;
+                showEvent('🔔 YOU RANG THE BELL! IPO COMPLETE!');
+              }
+            } else {
+              // Got interest but need more VCs
+              newState.vcPitchesThisRound = currentPitches;
+              newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+              showEvent(`VC interested! ${currentPitches}/${config.pitchesRequired} needed. Find another VC!`);
+              showTransaction('hope', '+10');
             }
           } else {
             newState.stats.hope = Math.max(0, newState.stats.hope - config.hopeLoss);
-            showEvent('"We\'ll pass. Not a fit for our portfolio."');
-            showTransaction('fail', 'Rejected');
+            const rejection = REJECTION_MESSAGES[Math.floor(Math.random() * REJECTION_MESSAGES.length)];
+            showEvent(rejection);
+            showTransaction('fail', 'REJECTED');
           }
         } else if (actionId === 'ring-bell') {
           // This is the IPO action - ring the bell for victory!
@@ -217,23 +279,27 @@ export function useGameState() {
         }
       }
       
-      // Strip club actions
+      // Strip club actions - scaled costs
       if (shopType === 'strip-club') {
-        if (actionId === 'drinks' && s.stats.money >= 100) {
-          newState.stats.money -= 100;
+        const drinksCost = Math.round(100 * costMultiplier);
+        const massageCost = Math.round(200 * costMultiplier);
+        const privateCost = Math.round(500 * costMultiplier);
+        
+        if (actionId === 'drinks' && s.stats.money >= drinksCost) {
+          newState.stats.money -= drinksCost;
           newState.stats.warmth = Math.min(100, newState.stats.warmth + 15);
           newState.stats.hope = Math.min(100, newState.stats.hope + 8);
           showEvent('Champagne with clients. Looking like a baller.');
-          showTransaction('money', '-$100');
-        } else if (actionId === 'massage' && s.stats.money >= 200) {
-          newState.stats.money -= 200;
+          showTransaction('money', `-$${drinksCost}`);
+        } else if (actionId === 'massage' && s.stats.money >= massageCost) {
+          newState.stats.money -= massageCost;
           newState.stats.warmth = Math.min(100, newState.stats.warmth + 30);
           newState.stats.hope = Math.min(100, newState.stats.hope + 20);
           newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
           showEvent('VIP massage. Stress melting away...');
           showTransaction('hope', '+20');
-        } else if (actionId === 'private' && s.stats.money >= 500) {
-          newState.stats.money -= 500;
+        } else if (actionId === 'private' && s.stats.money >= privateCost) {
+          newState.stats.money -= privateCost;
           newState.stats.warmth = 100;
           newState.stats.hope = Math.min(100, newState.stats.hope + 30);
           showEvent('Private room. Complete relaxation. Ready to hustle again.');
@@ -316,19 +382,38 @@ export function useGameState() {
         }
       }
       
-      // Alley (dealer) actions
+      // Alley (dealer) actions - FENTANYL RISK
       if (shopType === 'alley') {
         if (actionId === 'buy-coke' && s.stats.money >= 150) {
           newState.stats.money -= 150;
-          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 50);
-          showEvent('High-grade. Feels like you can do anything.');
-          showTransaction('drugs', '+50 COC');
+          
+          // 50% chance of fentanyl-laced drugs
+          if (Math.random() < 0.5) {
+            // Bad drugs - fentanyl!
+            newState.fentanylActive = true;
+            newState.fentanylTimeRemaining = 15; // 15 seconds of slow + paused bars
+            showEvent('BAD DRUGS - FENTANYL! Everything slowing down...');
+            showTransaction('danger', 'FENTANYL');
+          } else {
+            newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 50);
+            showEvent('High-grade. Feels like you can do anything.');
+            showTransaction('drugs', '+50 COC');
+          }
         } else if (actionId === 'buy-party' && s.stats.money >= 400) {
           newState.stats.money -= 400;
-          newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 80);
-          newState.stats.lsd = Math.min(5, newState.stats.lsd + 2);
-          showEvent('Party pack acquired. Client entertainment sorted.');
-          showTransaction('drugs', '+PARTY');
+          
+          // Party pack also has fentanyl risk
+          if (Math.random() < 0.3) {
+            newState.fentanylActive = true;
+            newState.fentanylTimeRemaining = 20;
+            showEvent('BAD DRUGS - FENTANYL! Party pack was laced...');
+            showTransaction('danger', 'FENTANYL');
+          } else {
+            newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 80);
+            newState.stats.lsd = Math.min(5, newState.stats.lsd + 2);
+            showEvent('Party pack acquired. Client entertainment sorted.');
+            showTransaction('drugs', '+PARTY');
+          }
         } else if (actionId === 'deal') {
           // Risky business deal
           if (Math.random() < 0.4) {
@@ -345,8 +430,10 @@ export function useGameState() {
         }
       }
       
-      // Food/dining actions
+      // Food/dining actions - client dinner scales with funding stage
       if (shopType === 'food-vendor') {
+        const dinnerCost = Math.round(250 * costMultiplier);
+        
         if (actionId === 'takeaway' && s.stats.money >= 25) {
           newState.stats.money -= 25;
           newState.stats.hunger = Math.min(100, newState.stats.hunger + 30);
@@ -363,8 +450,8 @@ export function useGameState() {
           } else {
             showEvent('Business lunch at Rockpool. Feeling successful.');
           }
-        } else if (actionId === 'dinner' && s.stats.money >= 250) {
-          newState.stats.money -= 250;
+        } else if (actionId === 'dinner' && s.stats.money >= dinnerCost) {
+          newState.stats.money -= dinnerCost;
           newState.stats.hunger = 100;
           newState.stats.hope = Math.min(100, newState.stats.hope + 20);
           if (Math.random() < 0.5) {
@@ -818,7 +905,7 @@ export function useGameState() {
       
       switch (action) {
         case 'steal': {
-          // Reuse existing purse steal logic
+          // Stealing can now yield: money, drugs, or nothing
           const roll = Math.random();
           if (roll < stealBias.kindnessChance) {
             const amount = Math.floor(Math.random() * 3) + 1;
@@ -831,7 +918,26 @@ export function useGameState() {
             newState.recentTheft = true;
             showEvent('They shouted. People are staring.');
             showTransaction('danger', 'BUSTED');
+          } else if (roll < stealBias.kindnessChance + stealBias.shoutChance + 0.15) {
+            // Got nothing!
+            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
+            showEvent('Empty pockets. Got nothing.');
+            showTransaction('fail', 'NOTHING');
+          } else if (roll < stealBias.kindnessChance + stealBias.shoutChance + 0.25) {
+            // Stole drugs!
+            const drugRoll = Math.random();
+            if (drugRoll < 0.7) {
+              newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 25);
+              showEvent('Found drugs in their pocket! Score!');
+              showTransaction('drugs', '+COC');
+            } else {
+              newState.stats.lsd = Math.min(5, newState.stats.lsd + 1);
+              showEvent('Found some tabs! LSD acquired.');
+              showTransaction('drugs', '+LSD');
+            }
+            newState.recentTheft = true;
           } else {
+            // Normal money steal
             const [minMoney, maxMoney] = stealBias.moneyRange;
             const stolen = Math.floor(Math.random() * (maxMoney - minMoney + 1)) + minMoney;
             newState.stats.money += stolen;
@@ -843,7 +949,8 @@ export function useGameState() {
           break;
         }
         case 'pitch': {
-          // Sales pitch - founder arc
+          // Pitching now always affects confidence (hope) - up or down
+          // And the pedestrian ALWAYS disappears after
           const successChance = actionBias.pitchSuccess * districtConfig.pitchMultiplier;
           const roll = Math.random();
           
@@ -851,30 +958,41 @@ export function useGameState() {
             // LSD makes pitches weird
             if (roll < 0.3) {
               newState.stats.money += Math.floor(Math.random() * 8) + 2;
-              newState.stats.hope = Math.min(100, newState.stats.hope + 5);
-              showEvent('Your pitch was... transcendent? They bought it.');
+              newState.stats.hope = Math.min(100, newState.stats.hope + 12); // Confidence boost
+              showEvent('Your pitch was... transcendent? They bought it!');
+              showTransaction('hope', '+12');
             } else {
-              newState.stats.hope = Math.max(0, newState.stats.hope - 8);
-              showEvent('You pitched. The words came out wrong. They walked away.');
+              newState.stats.hope = Math.max(0, newState.stats.hope - 15); // Confidence drop
+              showEvent('You pitched. The words came out wrong. Confidence shattered.');
+              showTransaction('fail', '-CONF');
             }
           } else if (roll < successChance) {
-            const earnings = Math.floor(Math.random() * 10) + 3;
+            // Success - money AND confidence boost
+            const earnings = Math.floor(Math.random() * 15) + 5;
             newState.stats.money += earnings;
-            newState.stats.hope = Math.min(100, newState.stats.hope + 6);
-            showEvent(`They listened. You earned $${earnings}.`);
-          } else if (roll < successChance + 0.3) {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 5);
-            showEvent('They ignored you completely.');
-          } else if (roll < successChance + 0.5) {
-            newState.stats.hope = Math.max(0, newState.stats.hope - 10);
-            showEvent('"Get a job." They laughed.');
+            newState.stats.hope = Math.min(100, newState.stats.hope + 15);
+            showEvent(`They loved it! +$${earnings} and feeling great!`);
+            showTransaction('hope', '+15');
+          } else if (roll < successChance + 0.25) {
+            // Polite rejection - small confidence loss
+            newState.stats.hope = Math.max(0, newState.stats.hope - 8);
+            showEvent('"Not interested." Confidence dipped.');
+            showTransaction('fail', '-CONF');
+          } else if (roll < successChance + 0.45) {
+            // Harsh rejection - big confidence loss
+            newState.stats.hope = Math.max(0, newState.stats.hope - 18);
+            showEvent('"Get a real job." Ouch. Confidence crushed.');
+            showTransaction('danger', 'CRUSHED');
           } else {
-            // Police interest
-            if (Math.random() < 0.15 * districtConfig.policeFrequency) {
-              newState.recentTheft = true; // Triggers police attention
-              showEvent('Someone called security. Move.');
+            // Very harsh - possible police/security
+            newState.stats.hope = Math.max(0, newState.stats.hope - 12);
+            if (Math.random() < 0.2 * districtConfig.policeFrequency) {
+              newState.recentTheft = true;
+              showEvent('"Security!" They called the cops. Confidence gone.');
+              showTransaction('danger', 'COPS');
             } else {
-              showEvent('No takers.');
+              showEvent('They laughed at you. Confidence tanking.');
+              showTransaction('fail', '-CONF');
             }
           }
           break;
@@ -1151,6 +1269,39 @@ export function useGameState() {
       
       const newState = { ...s, stats: { ...s.stats } };
       newState.stats.survivalTime += 1;
+      
+      // === FENTANYL OVERDOSE STATE ===
+      if (s.fentanylActive) {
+        newState.fentanylTimeRemaining = Math.max(0, s.fentanylTimeRemaining - 1);
+        
+        // Stats are PAUSED during fentanyl - no decay, no regeneration
+        // Only the timer counts down
+        
+        // Random fentanyl events
+        if (Math.random() < 0.15) {
+          const fentEvent = Math.random();
+          if (fentEvent < 0.3) {
+            showEvent('BAD DRUGS - FENTANYL. Can\'t... move...');
+          } else if (fentEvent < 0.5) {
+            showEvent('Everything\'s... so... slow...');
+          } else if (fentEvent < 0.7) {
+            showEvent('Your vision blurs. Bad drugs. Fentanyl.');
+          } else {
+            showEvent('Just need to... ride this out...');
+          }
+        }
+        
+        // Fentanyl wears off
+        if (newState.fentanylTimeRemaining <= 0) {
+          newState.fentanylActive = false;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+          newState.stats.hunger = Math.max(0, newState.stats.hunger - 15);
+          showEvent('The fentanyl wore off. You survived. Barely.');
+        }
+        
+        // Skip all other processing while on fentanyl
+        return newState;
+      }
       
       // Base stat decay - tuned for 45-90 second runs
       // Hunger: 55 start, 1.0/sec decay = ~55 sec without food
