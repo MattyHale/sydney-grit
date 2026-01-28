@@ -175,28 +175,52 @@
     animation: chromatic-shift 2s ease-in-out infinite;
   }
 
-  /* Signage text scramble pulse */
-  @keyframes signage-glitch {
-    0%, 90%, 100% {
-      opacity: 1;
-      transform: translateX(0);
+  /* Golden age scroll for signage and trip lanes */
+  @keyframes golden-scroll {
+    0% {
+      background-position: 0 0;
     }
-    92% {
-      opacity: 0.8;
-      transform: translateX(-1px);
-    }
-    94% {
-      opacity: 0.9;
-      transform: translateX(1px);
-    }
-    96% {
-      opacity: 0.7;
-      transform: translateX(0);
+    100% {
+      background-position: 0 80px;
     }
   }
 
-  .signage-glitch {
-    animation: signage-glitch 1.5s ease-in-out infinite;
+  .signage-scroll {
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 230, 160, 0.15) 0%,
+      rgba(255, 200, 120, 0.35) 50%,
+      rgba(255, 230, 160, 0.15) 100%
+    );
+    background-size: 100% 60px;
+    background-blend-mode: screen;
+    animation: golden-scroll 4s linear infinite;
+  }
+
+  .golden-scroll-lanes {
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(255, 215, 140, 0.18) 0%,
+        rgba(255, 215, 140, 0.18) 32%,
+        transparent 32%,
+        transparent 34%,
+        rgba(255, 200, 120, 0.15) 34%,
+        rgba(255, 200, 120, 0.15) 66%,
+        transparent 66%,
+        transparent 68%,
+        rgba(255, 220, 150, 0.16) 68%,
+        rgba(255, 220, 150, 0.16) 100%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 220, 160, 0.15) 0%,
+        rgba(255, 180, 90, 0.25) 50%,
+        rgba(255, 220, 160, 0.15) 100%
+      );
+    background-size: 100% 80px;
+    animation: golden-scroll 6s linear infinite;
+    mix-blend-mode: screen;
   }
 
   /* Hue rotation cycle for trip */

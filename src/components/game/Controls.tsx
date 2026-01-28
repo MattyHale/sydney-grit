@@ -67,12 +67,15 @@ export function Controls({
       'shelter': 'Enter',
       'sleep': 'Rest',
       'alley': 'Enter',
-      'food-vendor': 'Enter',
-      'shop': 'Enter',
-      'bar': 'Enter',
+      'food-vendor': 'Dine',
+      'vc-firm': 'Pitch',
+      'strip-club': 'Enter',
+      'cafe': 'Order',
+      'bar': 'Drink',
+      'pawn': 'Trade',
+      'shop': 'Browse',
       'club': 'Enter',
-      'arcade': 'Enter',
-      'pawn': 'Enter',
+      'arcade': 'Play',
     };
     return labels[currentZone] || 'Enter';
   };
