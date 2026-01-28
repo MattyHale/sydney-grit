@@ -272,7 +272,9 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
             <span>{BUILDING_INFO[state.currentVenueType]?.label || 'BUILDING'}</span>
           </div>
           <div className="text-[8px] text-gray-300 mt-0.5">{state.currentVenueName}</div>
-          <div className="text-[7px] text-gray-500 mt-0.5">↑ ENTER</div>
+          {state.currentZone && (
+            <div className="text-[7px] text-gray-500 mt-0.5">↑ ENTER</div>
+          )}
         </div>
       )}
       

@@ -14,6 +14,7 @@ interface ControlsProps {
   canPitch: boolean;
   canBuyDrugs: boolean;
   canSellDrugs: boolean;
+  canInteract: boolean;
   // Zone info
   currentZone: string | null;
   // Dog state for eat dog action
@@ -34,6 +35,7 @@ export function Controls({
   canPitch,
   canBuyDrugs,
   canSellDrugs,
+  canInteract,
   currentZone,
   hasDog,
 }: ControlsProps) {
@@ -89,13 +91,20 @@ export function Controls({
         {/* Up - Shows zone hint when available */}
         <button
           className={`absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-9 sm:h-9 rounded-t-lg flex flex-col items-center justify-center touch-none select-none shadow-lg ${
-            zoneHint ? 'bg-gb-light' : 'bg-gb-dark'
+            canInteract ? 'bg-gb-light' : 'bg-gb-dark opacity-60'
           } active:bg-gb-light`}
-          onTouchStart={(e) => { e.preventDefault(); onUp(); }}
-          onMouseDown={onUp}
+          onTouchStart={(e) => {
+            if (!canInteract) return;
+            e.preventDefault();
+            onUp();
+          }}
+          onMouseDown={() => {
+            if (canInteract) onUp();
+          }}
+          disabled={!canInteract}
         >
           <span className="text-gb-lightest text-sm sm:text-xs">▲</span>
-          {zoneHint && (
+          {zoneHint && canInteract && (
             <span className="text-[6px] text-gb-darkest font-bold -mt-0.5">{zoneHint}</span>
           )}
         </button>

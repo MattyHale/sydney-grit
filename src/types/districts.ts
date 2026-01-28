@@ -54,10 +54,12 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'club', name: 'CAROUSEL' },
     { type: 'bar', name: 'TEXAS TAVERN' },
     { type: 'vc', name: 'KINGS SEED' },
+    { type: 'vc', name: 'CROSS ANGELS' },
     { type: 'alley', name: 'ALLEY' },
     { type: 'club', name: 'KINSELAS' },
     { type: 'hostel', name: 'JOLLY SWAGMAN' },
     { type: 'pawn', name: 'CROSS PAWN' },
+    { type: 'vc', name: 'NEON CAPITAL' },
   ],
   oxford: [
     // Pubs, rainbow clubs, kebab vans, charity shops
@@ -73,6 +75,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'cafe', name: 'TROPICANA' },
     { type: 'alley', name: 'ALLEY' },
     { type: 'bar', name: 'FLINDERS' },
+    { type: 'vc', name: 'PRIDE CAPITAL' },
   ],
   cbd: [
     // Sandstone facades, milk bars, TAB/pubs, pawn shops
@@ -92,6 +95,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'shelter', name: 'QVB' },
     { type: 'vc', name: 'SQUARE PEG' },
     { type: 'vc', name: 'AIR TREE' },
+    { type: 'vc', name: 'HARBOUR PARTNERS' },
   ],
   chinatown: [
     // BBQ duck windows, noodle shops, arcades, lanterns
@@ -107,6 +111,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'cafe', name: 'EMPEROR' },
     { type: 'alley', name: 'ALLEY' },
     { type: 'pawn', name: 'GOLD SHOP' },
+    { type: 'vc', name: 'LANTERN CAPITAL' },
   ],
   central: [
     // Station entrance, underpass, bus stands, fast-food
@@ -123,6 +128,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'cafe', name: 'CENTRAL CAFE' },
     { type: 'alley', name: 'ALLEY' },
     { type: 'bar', name: 'TERMINUS' },
+    { type: 'vc', name: 'RED LINE VENTURES' },
   ],
   surryHills: [
     // Terraces, indie cafes, vintage stores, small bars, bookshops
@@ -138,6 +144,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'bar', name: 'SHAKESPEARE' },
     { type: 'alley', name: 'ALLEY' },
     { type: 'shop', name: 'RECORD STORE' },
+    { type: 'vc', name: 'BOURKE CAPITAL' },
   ],
   cabramatta: [
     // Pho shops, butchers, fruit stalls, night-market tarps
@@ -153,6 +160,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'food', name: 'BANH MI' },
     { type: 'alley', name: 'ALLEY' },
     { type: 'pawn', name: 'VANG 24K' },
+    { type: 'vc', name: 'PHO VENTURES' },
   ],
   parramatta: [
     // Strip pubs with TAB, strip mall, kebab shops, mall entrance
@@ -169,6 +177,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'pawn', name: 'CASH CONVERTERS' },
     { type: 'alley', name: 'ALLEY' },
     { type: 'rsl', name: 'LEAGUES CLUB' },
+    { type: 'vc', name: 'RIVER CITY VC' },
   ],
   mountDruitt: [
     // Servo, carpark, Centrelink, pokies pub, bottle shop
@@ -184,6 +193,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'alley', name: 'ALLEY' },
     { type: 'pawn', name: 'CASH CONVERTERS' },
     { type: 'derelict', name: 'WASTELAND' },
+    { type: 'vc', name: 'OUTER WEST ANGELS' },
   ],
 };
 
