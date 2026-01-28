@@ -195,6 +195,11 @@ export function useGameState() {
     };
     return multipliers[stage];
   };
+
+  const getDinnerCostMultiplier = (stage: import('@/types/game').FundingStage): number => {
+    const stageIndex = STAGE_ORDER.indexOf(stage);
+    return 1 + stageIndex * 0.35;
+  };
   
   const VC_FUNNEL_CONFIG: Record<GameState['vcFunnelStage'], { next?: GameState['vcFunnelStage']; hopeCost: number; timeCost: number; ghostChance: number; message: string }> = {
     coffee: { next: 'deck', hopeCost: 4, timeCost: 2, ghostChance: 0.25, message: 'Coffee chat booked. They want the deck.' },
@@ -211,6 +216,15 @@ export function useGameState() {
       
       const newState = { ...s, stats: { ...s.stats }, inShop: false, currentShop: null };
       const costMultiplier = getCostMultiplier(s.stats.fundingStage);
+      const followerCount = s.pitchFollowers > 0 && s.pitchFollowerTimeRemaining > 0 ? s.pitchFollowers : 0;
+      const followerBonus = Math.min(followerCount, 3);
+      const spendFollowerTime = (amount: number) => {
+        if (followerBonus <= 0) return;
+        newState.pitchFollowerTimeRemaining = Math.max(0, s.pitchFollowerTimeRemaining - amount);
+        if (newState.pitchFollowerTimeRemaining === 0) {
+          newState.pitchFollowers = 0;
+        }
+      };
       
       // VC Firm actions - progressive funding rounds with multiple pitches required
       if (shopType === 'vc-firm') {
@@ -329,6 +343,11 @@ export function useGameState() {
           newState.stats.warmth = Math.min(100, newState.stats.warmth + 30);
           newState.stats.hope = Math.min(100, newState.stats.hope + 20);
           newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
+          if (followerBonus > 0) {
+            newState.stats.hope = Math.min(100, newState.stats.hope + followerBonus * 4);
+            newState.stats.warmth = Math.min(100, newState.stats.warmth + followerBonus * 2);
+            spendFollowerTime(2);
+          }
           showEvent('VIP massage. Stress melting away...');
           showTransaction('hope', '+20');
         } else if (actionId === 'private' && s.stats.money >= privateCost) {
@@ -395,10 +414,15 @@ export function useGameState() {
           newState.stats.money -= 6;
           newState.stats.hunger = Math.min(100, newState.stats.hunger + 10);
           newState.stats.warmth = Math.min(100, newState.stats.warmth + 5);
+          if (followerBonus > 0) {
+            newState.stats.hope = Math.min(100, newState.stats.hope + followerBonus * 3);
+            spendFollowerTime(1);
+          }
           showEvent('Flat white. The fuel of founders.');
         } else if (actionId === 'meeting' && s.stats.money >= 15) {
           newState.stats.money -= 15;
-          if (Math.random() < 0.4) {
+          const meetingChance = clamp(0.4 + followerBonus * 0.05, 0.2, 0.75);
+          if (Math.random() < meetingChance) {
             const lead = Math.floor(Math.random() * 100) + 20;
             newState.stats.money += lead;
             showEvent(`Coffee meeting went well. Got a $${lead} intro.`);
@@ -407,6 +431,7 @@ export function useGameState() {
             newState.stats.hope = Math.min(100, newState.stats.hope + 5);
             showEvent('Coffee meeting. Good chat, no deal. Yet.');
           }
+          spendFollowerTime(1);
         } else if (actionId === 'cowork' && s.stats.money >= 35) {
           newState.stats.money -= 35;
           newState.stats.hope = Math.min(100, newState.stats.hope + 15);
@@ -421,8 +446,9 @@ export function useGameState() {
         if (actionId === 'buy-coke' && s.stats.money >= 150) {
           newState.stats.money -= 150;
           
+          const fentanylChance = clamp(0.5 + repPenalty * 0.5 - followerBonus * 0.08, 0.1, 0.9);
           // 50% chance of fentanyl-laced drugs
-          if (Math.random() < 0.5 + repPenalty * 0.5) {
+          if (Math.random() < fentanylChance) {
             // Bad drugs - fentanyl!
             newState.fentanylActive = true;
             newState.fentanylTimeRemaining = 15; // 15 seconds of slow + paused bars
@@ -433,11 +459,13 @@ export function useGameState() {
             showEvent('High-grade. Feels like you can do anything.');
             showTransaction('drugs', '+50 COC');
           }
+          spendFollowerTime(2);
         } else if (actionId === 'buy-party' && s.stats.money >= 400) {
           newState.stats.money -= 400;
           
           // Party pack also has fentanyl risk
-          if (Math.random() < 0.3 + repPenalty * 0.4) {
+          const partyFentChance = clamp(0.3 + repPenalty * 0.4 - followerBonus * 0.06, 0.05, 0.8);
+          if (Math.random() < partyFentChance) {
             newState.fentanylActive = true;
             newState.fentanylTimeRemaining = 20;
             showEvent('BAD DRUGS - FENTANYL! Party pack was laced...');
@@ -448,6 +476,7 @@ export function useGameState() {
             showEvent('Party pack acquired. Client entertainment sorted.');
             showTransaction('drugs', '+PARTY');
           }
+          spendFollowerTime(2);
         } else if (actionId === 'deal') {
           // Risky business deal
           if (Math.random() < 0.4) {
@@ -466,7 +495,7 @@ export function useGameState() {
       
       // Food/dining actions - client dinner scales with funding stage
       if (shopType === 'food-vendor') {
-        const dinnerCost = Math.round(250 * costMultiplier);
+        const dinnerCost = Math.round(250 * costMultiplier * getDinnerCostMultiplier(s.stats.fundingStage));
         
         if (actionId === 'takeaway' && s.stats.money >= 25) {
           newState.stats.money -= 25;
@@ -488,14 +517,16 @@ export function useGameState() {
           newState.stats.money -= dinnerCost;
           newState.stats.hunger = 100;
           newState.stats.hope = Math.min(100, newState.stats.hope + 20);
-          if (Math.random() < 0.5) {
-            const deal = Math.floor(Math.random() * 1000) + 500;
+          const dinnerSuccessChance = clamp(0.5 + followerBonus * 0.08, 0.3, 0.85);
+          if (Math.random() < dinnerSuccessChance) {
+            const deal = Math.floor(Math.random() * 1000) + 500 + followerBonus * 150;
             newState.stats.money += deal;
             showEvent(`Client dinner at Tetsuya's. Closed a $${deal} deal!`);
             showTransaction('money', `+$${deal}`);
           } else {
             showEvent('Fancy dinner. Great for relationships. No deal yet.');
           }
+          spendFollowerTime(2);
         } else if (actionId === 'eat-dog' && s.hasDog) {
           // Desperate move: sell dog to kitchen
           newState.hasDog = false;
@@ -955,6 +986,8 @@ export function useGameState() {
       const isTripping = s.lsdTripActive;
       const repModifier = getReputationModifier(s.streetReputation);
       const copNearby = s.police.isActive && s.police.mode === 'sweep' && Math.abs(s.police.x - s.playerX) < 20;
+      let pitchFollowers = 0;
+      let pitchRepel = false;
       
       switch (action) {
         case 'steal': {
@@ -1012,7 +1045,15 @@ export function useGameState() {
         case 'pitch': {
           // Pitching now always affects confidence (hope) - up or down
           // And the pedestrian ALWAYS disappears after
-          const successChance = clamp(actionBias.pitchSuccess * districtConfig.pitchMultiplier + repModifier, 0.05, 0.9);
+          const wellFedBonus = s.stats.hunger >= 80 ? 0.06 : 0;
+          const cokeBonus = s.stats.cocaine >= 60 ? 0.08 : 0;
+          const alcoholBonus = s.stats.warmth >= 70 ? 0.05 : 0;
+          const fullStackBonus = wellFedBonus && cokeBonus && alcoholBonus ? 0.05 : 0;
+          const successChance = clamp(
+            actionBias.pitchSuccess * districtConfig.pitchMultiplier + repModifier + wellFedBonus + cokeBonus + alcoholBonus + fullStackBonus,
+            0.05,
+            0.9
+          );
           const roll = Math.random();
           
           if (isTripping) {
@@ -1022,10 +1063,12 @@ export function useGameState() {
               newState.stats.hope = Math.min(100, newState.stats.hope + 12); // Confidence boost
               showEvent('Your pitch was... transcendent? They bought it!');
               showTransaction('hope', '+12');
+              pitchFollowers = 1;
             } else {
               newState.stats.hope = Math.max(0, newState.stats.hope - 15); // Confidence drop
               showEvent('You pitched. The words came out wrong. Confidence shattered.');
               showTransaction('fail', '-CONF');
+              pitchRepel = true;
             }
           } else if (roll < successChance) {
             // Success - money AND confidence boost
@@ -1035,6 +1078,7 @@ export function useGameState() {
             showEvent(`They loved it! +$${earnings} and feeling great!`);
             showTransaction('hope', '+15');
             newState.streetReputation = clampReputation(s.streetReputation + 1);
+            pitchFollowers = 1;
           } else if (roll < successChance + 0.25) {
             // Polite rejection - small confidence loss
             newState.stats.hope = Math.max(0, newState.stats.hope - 8);
@@ -1045,6 +1089,7 @@ export function useGameState() {
             newState.stats.hope = Math.max(0, newState.stats.hope - 18);
             showEvent('"Get a real job." Ouch. Confidence crushed.');
             showTransaction('danger', 'CRUSHED');
+            pitchRepel = true;
           } else {
             // Very harsh - possible police/security
             newState.stats.hope = Math.max(0, newState.stats.hope - 12);
@@ -1056,6 +1101,7 @@ export function useGameState() {
               showEvent('They laughed at you. Confidence tanking.');
               showTransaction('fail', '-CONF');
             }
+            pitchRepel = true;
           }
           break;
         }
@@ -1132,7 +1178,15 @@ export function useGameState() {
       }
       
       // Remove the target pedestrian
-      newState.pedestrians = s.pedestrians.filter(p => p.id !== target.id);
+      let updatedPedestrians = s.pedestrians.filter(p => p.id !== target.id);
+      if (pitchRepel) {
+        updatedPedestrians = updatedPedestrians.filter(p => Math.abs(p.x - s.playerX) > 6);
+      }
+      if (pitchFollowers > 0) {
+        newState.pitchFollowers = Math.min(3, s.pitchFollowers + pitchFollowers);
+        newState.pitchFollowerTimeRemaining = Math.max(s.pitchFollowerTimeRemaining, 6);
+      }
+      newState.pedestrians = updatedPedestrians;
       newState.stealWindowActive = false;
       newState.stealTarget = null;
       
@@ -1343,6 +1397,14 @@ export function useGameState() {
       
       const newState = { ...s, stats: { ...s.stats } };
       newState.stats.survivalTime += 1;
+
+      if (s.pitchFollowerTimeRemaining > 0) {
+        newState.pitchFollowerTimeRemaining = Math.max(0, s.pitchFollowerTimeRemaining - 1);
+        if (newState.pitchFollowerTimeRemaining === 0) {
+          newState.pitchFollowers = 0;
+          showEvent('Your street fans peeled off into the crowd.');
+        }
+      }
       
       // === FENTANYL OVERDOSE STATE ===
       if (s.fentanylActive) {
