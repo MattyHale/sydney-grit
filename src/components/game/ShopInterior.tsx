@@ -47,6 +47,11 @@ const getCostMultiplier = (stage: FundingStage): number => {
   return multipliers[stage];
 };
 
+const getDinnerCostMultiplier = (stage: FundingStage): number => {
+  const stageIndex = STAGE_ORDER.indexOf(stage);
+  return 1 + stageIndex * 0.35;
+};
+
 // Success rates decrease each round, energy costs increase
 const STAGE_CONFIG: Record<FundingStage, { label: string; amount: string; successRate: number; energyCost: number; hopeLoss: number; pitchesRequired: number }> = {
   'bootstrap': { label: 'Seed Round', amount: '$500K', successRate: 0.45, energyCost: 20, hopeLoss: 20, pitchesRequired: 1 },
@@ -189,7 +194,7 @@ const getScaledShopOptions = (shopType: string, fundingStage: FundingStage): { t
       accentColor: '#ffcc00',
       options: [
         { id: 'lunch', label: 'Business Lunch', icon: '🍽️', cost: 85, description: 'Impress a client (+energy)' },
-        { id: 'dinner', label: 'Client Dinner', icon: '🥂', cost: Math.round(250 * multiplier), description: 'Close a deal over dinner' },
+        { id: 'dinner', label: 'Client Dinner', icon: '🥂', cost: Math.round(250 * multiplier * getDinnerCostMultiplier(fundingStage)), description: 'Close a deal over dinner' },
         { id: 'takeaway', label: 'UberEats', icon: '🥡', cost: 25, description: 'Quick food (+30 energy)' },
       ],
     },

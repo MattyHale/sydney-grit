@@ -133,6 +133,8 @@ export interface GameState {
   lsdTripTimeRemaining: number;
   // Pedestrian action window
   pedestrianActionAvailable: PedestrianAction[];
+  pitchFollowers: number;
+  pitchFollowerTimeRemaining: number;
   // Action locking - prevents button swapping during press
   lockedButtons: ResolvedButtons | null;
   buttonLockTime: number;
@@ -333,6 +335,8 @@ export const INITIAL_STATE: GameState = {
   lsdTripActive: false,
   lsdTripTimeRemaining: 0,
   pedestrianActionAvailable: [],
+  pitchFollowers: 0,
+  pitchFollowerTimeRemaining: 0,
   lockedButtons: null,
   buttonLockTime: 0,
   inAlley: false,
