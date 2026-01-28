@@ -83,37 +83,14 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
       {/* CRT Scanlines overlay */}
       <div className="absolute inset-0 pointer-events-none z-10 scanlines opacity-20" />
       
-      {/* LSD trip overlay - enhanced chromatic aberration and color shift */}
+      {/* LSD trip overlay - golden age scroll lanes */}
       {isTripping && (
         <>
-          {/* Chromatic aberration layer */}
+          <div className="absolute inset-0 pointer-events-none z-20 golden-scroll-lanes" />
           <div 
-            className="absolute inset-0 pointer-events-none z-25 chromatic-aberration"
+            className="absolute inset-0 pointer-events-none z-21"
             style={{ 
-              background: 'transparent',
-              mixBlendMode: 'screen',
-            }}
-          />
-          {/* Pulsing color gradient */}
-          <div 
-            className="absolute inset-0 pointer-events-none z-20 hue-cycle"
-            style={{ 
-              background: `radial-gradient(ellipse at center, transparent 10%, rgba(150, 100, 255, 0.12) 40%, rgba(100, 200, 255, 0.08) 70%, rgba(255, 150, 200, 0.1) 100%)`,
-              mixBlendMode: 'overlay',
-            }}
-          />
-          {/* Vignette with color bleeding */}
-          <div 
-            className="absolute inset-0 pointer-events-none z-20"
-            style={{ 
-              boxShadow: 'inset 0 0 80px rgba(150, 100, 255, 0.35), inset 0 0 150px rgba(100, 200, 150, 0.2), inset 0 0 40px rgba(255, 100, 200, 0.15)',
-            }}
-          />
-          {/* RGB split ghost layers */}
-          <div 
-            className="absolute inset-0 pointer-events-none z-19"
-            style={{ 
-              background: 'linear-gradient(90deg, rgba(255, 0, 100, 0.03) 0%, transparent 3%, transparent 97%, rgba(0, 255, 200, 0.03) 100%)',
+              boxShadow: 'inset 0 0 90px rgba(255, 210, 120, 0.35), inset 0 0 160px rgba(120, 80, 20, 0.25)',
             }}
           />
         </>

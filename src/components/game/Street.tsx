@@ -1,4 +1,3 @@
-import { HOTSPOTS } from '@/types/game';
 import { getDistrictBlend, DISTRICT_CONFIGS, DISTRICT_VENUES, getVenueForBlock, District, BlockSignage } from '@/types/districts';
 import { SkylineBackground } from './SkylineBackground';
 
@@ -32,47 +31,6 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
   const { current, next, blend } = getDistrictBlend(worldOffset);
   const currentConfig = DISTRICT_CONFIGS[current];
   const nextConfig = DISTRICT_CONFIGS[next];
-  
-  // LSD signage scrambling - replaces letters with similar-looking symbols
-  const scrambleText = (text: string): string => {
-    if (!isTripping) return text;
-    const scrambleMap: Record<string, string[]> = {
-      'A': ['∆', 'Λ', '4', 'A'],
-      'B': ['ß', '8', 'B', '฿'],
-      'C': ['(', '©', 'C', '<'],
-      'D': ['Ð', 'D', 'Ɖ'],
-      'E': ['3', 'Ξ', 'E', '€'],
-      'F': ['F', 'Ƒ'],
-      'G': ['G', '6', 'Ǥ'],
-      'H': ['#', 'H', 'Ħ'],
-      'I': ['1', '!', 'I', '|'],
-      'K': ['K', 'ĸ'],
-      'L': ['L', '1', '|'],
-      'M': ['M', 'Ɯ'],
-      'N': ['И', 'N', 'Ñ'],
-      'O': ['0', 'Ø', 'O', '◊'],
-      'P': ['P', 'Þ'],
-      'R': ['R', 'Я'],
-      'S': ['$', '5', 'S', '§'],
-      'T': ['†', 'T', '7'],
-      'U': ['U', 'Ü', 'µ'],
-      'V': ['V', '√'],
-      'W': ['W', 'Ψ'],
-      'X': ['X', '×', '✕'],
-      'Y': ['Y', '¥'],
-      'Z': ['Z', '2'],
-    };
-    
-    // Only scramble ~40% of the time per character for "glitchy" effect
-    return text.split('').map(char => {
-      const upper = char.toUpperCase();
-      if (scrambleMap[upper] && Math.random() < 0.4) {
-        const options = scrambleMap[upper];
-        return options[Math.floor(Math.random() * options.length)];
-      }
-      return char;
-    }).join('');
-  };
   
   // Blended values
   const neonIntensity = lerp(currentConfig.neonIntensity, nextConfig.neonIntensity, blend);
@@ -226,7 +184,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
   const renderBlock = (type: string, index: number, pal: ReturnType<typeof getPalette>, venueName: string) => {
     const isEven = index % 2 === 0;
     const buildingColor = isEven ? pal.building : pal.buildingAlt;
-    const signageClass = isTripping ? 'signage-glitch' : '';
+    const signageClass = isTripping ? 'signage-scroll' : '';
     
     // Get styling for this building type
     const style = BUILDING_STYLES[type] || BUILDING_STYLES.shop;
@@ -236,7 +194,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
       <div 
         className={`absolute top-0 left-0 right-0 h-20 flex flex-col items-center justify-center px-1 ${signageClass}`}
         style={{ 
-          background: style.bgColor,
+          backgroundColor: style.bgColor,
           border: `3px solid ${style.textColor}`,
           boxShadow: isNight ? `0 0 25px ${style.glowColor}88, inset 0 0 15px ${style.glowColor}22` : `0 2px 4px rgba(0,0,0,0.5)`,
         }}
@@ -268,7 +226,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             overflow: 'hidden',
           }}
         >
-          {scrambleText(venueName)}
+          {venueName}
         </div>
       </div>
     );
@@ -344,7 +302,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
             <div 
               className={`absolute top-0 left-0 right-0 h-20 flex flex-col items-center justify-center px-1 ${isNight ? 'neon-buzz' : ''} ${signageClass}`}
               style={{ 
-                background: style.bgColor,
+                backgroundColor: style.bgColor,
                 border: `3px solid ${style.textColor}`,
                 boxShadow: isNight ? `0 0 30px ${style.glowColor}aa, inset 0 0 20px ${style.glowColor}33` : 'none',
               }}
@@ -370,7 +328,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
                   textShadow: isNight ? `0 0 10px ${style.glowColor}` : 'none',
                 }}
               >
-                {scrambleText(venueName)}
+                {venueName}
               </div>
             </div>
             <div className="flex-1 relative mt-20" style={{ background: '#0a0508' }}>
@@ -502,7 +460,7 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
                 <span className="text-[12px]">🏚️</span>
                 <span>EMPTY</span>
               </div>
-              <div className="text-[8px] mt-1" style={{ color: '#333' }}>{scrambleText(venueName)}</div>
+              <div className="text-[8px] mt-1" style={{ color: '#333' }}>{venueName}</div>
             </div>
             <div className="flex-1 relative mt-20" style={{ background: '#0a0a08' }}>
               <div className="absolute top-1 left-2 w-4 h-5" style={{ background: '#2a2518', border: '1px solid #1a1510' }}>
