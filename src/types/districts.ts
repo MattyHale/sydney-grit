@@ -81,6 +81,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'bar', name: 'MARBLE BAR' },
     { type: 'shop', name: 'DAVID JONES' },
     { type: 'vc', name: 'PLATINUM VENTURES' },
+    { type: 'vc', name: 'BLACKBIRD CAPITAL' },
     { type: 'cafe', name: 'LINDT' },
     { type: 'hub', name: 'AGSM' },
     { type: 'bar', name: 'REGENT' },
@@ -89,6 +90,8 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'pawn', name: 'CASH CONVERTERS' },
     { type: 'station', name: 'TOWN HALL' },
     { type: 'shelter', name: 'QVB' },
+    { type: 'vc', name: 'SQUARE PEG' },
+    { type: 'vc', name: 'AIR TREE' },
   ],
   chinatown: [
     // BBQ duck windows, noodle shops, arcades, lanterns
@@ -111,6 +114,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'bar', name: 'RAILWAY HOTEL' },
     { type: 'food', name: 'RED ROOSTER' },
     { type: 'shelter', name: 'SALVATION ARMY' },
+    { type: 'vc', name: 'CENTRAL SEED' },
     { type: 'bar', name: 'CLOCK HOTEL' },
     { type: 'derelict', name: 'EDDY AVE' },
     { type: 'food', name: 'RAILWAY BUFFET' },
@@ -156,6 +160,7 @@ export const DISTRICT_VENUES: Record<District, BlockSignage[]> = {
     { type: 'bar', name: 'ALBION HOTEL' },
     { type: 'shop', name: 'WESTFIELD' },
     { type: 'food', name: 'KEBAB KING' },
+    { type: 'vc', name: 'WESTERN VENTURES' },
     { type: 'bar', name: 'COMMERCIAL' },
     { type: 'pawn', name: 'TAB' },
     { type: 'food', name: 'RED ROOSTER' },
