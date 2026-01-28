@@ -22,6 +22,11 @@ export function useGameState() {
   const carIdRef = useRef(0);
   const pedIdRef = useRef(0);
   const dogLowHungerTimeRef = useRef(0);
+  const CROWD_SURGE_DISTRICTS = useRef(new Set(['cross', 'oxford', 'cbd', 'chinatown', 'central']));
+
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+  const clampReputation = (rep: number) => clamp(rep, -10, 10);
+  const getReputationModifier = (rep: number) => clampReputation(rep) * 0.01;
 
   const showEvent = useCallback((text: string) => {
     if (eventTimeoutRef.current) {
@@ -56,6 +61,7 @@ export function useGameState() {
         const { venue, hotspotZone, venueName } = getVenueAtPosition(newWorldOffset, newX);
         const inAlley = venue.type === 'alley';
         const dealerNearby = inAlley ? s.dealerNearby : false;
+        const nextHeat = newDistrict !== s.currentDistrict ? Math.max(0, s.heat - 1) : s.heat;
         
         return {
           ...s,
@@ -69,6 +75,7 @@ export function useGameState() {
           dealerNearby,
           currentVenueName: venueName,
           currentVenueType: venue.type,
+          heat: nextHeat,
         };
       }
       
@@ -94,6 +101,7 @@ export function useGameState() {
       const inAlley = venue.type === 'alley';
       // Keep dealer nearby if we're still in alley, otherwise clear
       const dealerNearby = inAlley ? s.dealerNearby : false;
+      const nextHeat = newDistrict !== s.currentDistrict ? Math.max(0, s.heat - 1) : s.heat;
 
       return {
         ...s,
@@ -107,6 +115,7 @@ export function useGameState() {
         dealerNearby,
         currentVenueName: venueName,
         currentVenueType: venue.type,
+        heat: nextHeat,
       };
     });
   }, []);
@@ -187,17 +196,13 @@ export function useGameState() {
     return multipliers[stage];
   };
   
-  // VC rejection messages
-  const REJECTION_MESSAGES = [
-    '"REJECTED. Try someone else."',
-    '"Not a fit for our portfolio."',
-    '"We\'ll pass. Come back with more traction."',
-    '"Interesting, but no. Try another VC."',
-    '"The market isn\'t ready. Rejected."',
-    '"We don\'t see the vision. Next!"',
-    '"Too early for us. Rejected."',
-    '"Not enough growth. Try again."',
-  ];
+  const VC_FUNNEL_CONFIG: Record<GameState['vcFunnelStage'], { next?: GameState['vcFunnelStage']; hopeCost: number; timeCost: number; ghostChance: number; message: string }> = {
+    coffee: { next: 'deck', hopeCost: 4, timeCost: 2, ghostChance: 0.25, message: 'Coffee chat booked. They want the deck.' },
+    deck: { next: 'dd', hopeCost: 6, timeCost: 3, ghostChance: 0.35, message: 'Deck reviewed. "Let\'s do DD."' },
+    dd: { next: 'partner', hopeCost: 8, timeCost: 4, ghostChance: 0.45, message: 'DD call done. The questions never end.' },
+    partner: { next: 'term-sheet', hopeCost: 10, timeCost: 5, ghostChance: 0.6, message: 'Partner meeting. Smiles, nods, no promises.' },
+    'term-sheet': { hopeCost: 12, timeCost: 6, ghostChance: 0.7, message: 'Term sheet dance. Anything can happen.' },
+  };
 
   // Handle shop action
   const handleShopAction = useCallback((shopType: HotspotZone, actionId: string) => {
@@ -214,6 +219,8 @@ export function useGameState() {
           const config = STAGE_CONFIG[currentStage];
           const stageIdx = STAGE_ORDER.indexOf(currentStage);
           const nextStage = stageIdx < STAGE_ORDER.length - 1 ? STAGE_ORDER[stageIdx + 1] : null;
+          const repModifier = getReputationModifier(s.streetReputation);
+          const funnelConfig = VC_FUNNEL_CONFIG[s.vcFunnelStage];
           
           // Check energy cost
           if (s.stats.hunger < config.energyCost) {
@@ -221,47 +228,73 @@ export function useGameState() {
             showTransaction('fail', 'No Energy');
             return { ...s, inShop: false, currentShop: null };
           }
+
+          if (s.stats.survivalTime < s.vcGhostedUntil) {
+            showEvent('No reply. Still ghosted.');
+            showTransaction('fail', 'GHOSTED');
+            return { ...s, inShop: false, currentShop: null };
+          }
           
           // Spend energy
           newState.stats.hunger = Math.max(0, newState.stats.hunger - config.energyCost);
+          newState.stats.survivalTime += funnelConfig.timeCost;
+          newState.stats.hope = Math.max(0, newState.stats.hope - funnelConfig.hopeCost);
           
           // Valuable tech boosts success rate by 15%
           const techBonus = s.stats.hasValuableTech ? 0.15 : 0;
-          const effectiveSuccessRate = Math.min(0.85, config.successRate + techBonus);
-          
-          if (Math.random() < effectiveSuccessRate && nextStage) {
-            // Successful pitch - but might need more pitches to close the round
-            const currentPitches = s.vcPitchesThisRound + 1;
+          const ghostChance = clamp(funnelConfig.ghostChance - repModifier * 0.2, 0.1, 0.9);
+          const ghostRoll = Math.random();
+
+          if (ghostRoll < ghostChance) {
+            newState.stats.hope = Math.max(0, newState.stats.hope - 15);
+            newState.vcFunnelStage = 'coffee';
+            newState.vcGhostedUntil = newState.stats.survivalTime + 20;
+            newState.vcPitchesThisRound = 0;
+            showEvent('No reply. You\'ve been ghosted.');
+            showTransaction('fail', 'GHOSTED');
+          } else if (s.vcFunnelStage === 'term-sheet' && nextStage) {
+            const effectiveSuccessRate = clamp(config.successRate + techBonus + repModifier, 0.05, 0.85);
             
-            if (currentPitches >= config.pitchesRequired) {
-              // Round closed!
-              newState.stats.money += config.amount;
-              newState.stats.fundingStage = nextStage;
-              newState.stats.hope = Math.min(100, newState.stats.hope + 25);
-              newState.vcPitchesThisRound = 0;
-              newState.vcPitchesRequired = STAGE_CONFIG[nextStage]?.pitchesRequired || 1;
-              const formatted = config.amount >= 1000000 ? `$${config.amount / 1000000}M` : `$${config.amount / 1000}K`;
-              showEvent(`${nextStage.toUpperCase()} CLOSED! ${formatted} in the bank!`);
-              showTransaction('money', `+${formatted}`);
+            if (Math.random() < effectiveSuccessRate) {
+              // Successful pitch - but might need more pitches to close the round
+              const currentPitches = s.vcPitchesThisRound + 1;
               
-              // Victory condition - reached IPO!
-              if (nextStage === 'ipo') {
-                newState.isVictory = true;
-                newState.isPaused = true;
-                showEvent('🔔 YOU RANG THE BELL! IPO COMPLETE!');
+              if (currentPitches >= config.pitchesRequired) {
+                // Round closed!
+                newState.stats.money += config.amount;
+                newState.stats.fundingStage = nextStage;
+                newState.stats.hope = Math.min(100, newState.stats.hope + 25);
+                newState.vcPitchesThisRound = 0;
+                newState.vcPitchesRequired = STAGE_CONFIG[nextStage]?.pitchesRequired || 1;
+                newState.vcFunnelStage = 'coffee';
+                const formatted = config.amount >= 1000000 ? `$${config.amount / 1000000}M` : `$${config.amount / 1000}K`;
+                showEvent(`${nextStage.toUpperCase()} CLOSED! ${formatted} in the bank!`);
+                showTransaction('money', `+${formatted}`);
+                
+                // Victory condition - reached IPO!
+                if (nextStage === 'ipo') {
+                  newState.isVictory = true;
+                  newState.isPaused = true;
+                  showEvent('🔔 YOU RANG THE BELL! IPO COMPLETE!');
+                }
+              } else {
+                // Got interest but need more VCs
+                newState.vcPitchesThisRound = currentPitches;
+                newState.stats.hope = Math.min(100, newState.stats.hope + 10);
+                newState.vcFunnelStage = 'coffee';
+                showEvent(`Term sheet momentum. ${currentPitches}/${config.pitchesRequired} to close.`);
+                showTransaction('hope', '+10');
               }
+              newState.streetReputation = clampReputation(s.streetReputation + 1);
             } else {
-              // Got interest but need more VCs
-              newState.vcPitchesThisRound = currentPitches;
-              newState.stats.hope = Math.min(100, newState.stats.hope + 10);
-              showEvent(`VC interested! ${currentPitches}/${config.pitchesRequired} needed. Find another VC!`);
-              showTransaction('hope', '+10');
+              newState.stats.hope = Math.max(0, newState.stats.hope - config.hopeLoss);
+              newState.vcFunnelStage = 'coffee';
+              showEvent('Term sheet evaporated. "Let\'s circle back."');
+              showTransaction('fail', 'STALLED');
             }
           } else {
-            newState.stats.hope = Math.max(0, newState.stats.hope - config.hopeLoss);
-            const rejection = REJECTION_MESSAGES[Math.floor(Math.random() * REJECTION_MESSAGES.length)];
-            showEvent(rejection);
-            showTransaction('fail', 'REJECTED');
+            newState.vcFunnelStage = funnelConfig.next || 'coffee';
+            showEvent(funnelConfig.message);
           }
         } else if (actionId === 'ring-bell') {
           // This is the IPO action - ring the bell for victory!
@@ -334,25 +367,25 @@ export function useGameState() {
       
       // Pawn shop actions
       if (shopType === 'pawn') {
-        if (actionId === 'sell-watch' && s.stats.hasWatch) {
-          newState.stats.hasWatch = false;
-          newState.stats.money += 300;
-          newState.stats.hope = Math.max(0, newState.stats.hope - 10);
-          showEvent('Sold your Rolex. $300 cash. It was just a thing.');
-          showTransaction('money', '+$300');
-        } else if (actionId === 'sell-laptop' && s.stats.hasLaptop) {
+        if (actionId === 'sell-laptop' && s.stats.hasLaptop) {
           newState.stats.hasLaptop = false;
-          newState.stats.money += 800;
-          newState.stats.hope = Math.max(0, newState.stats.hope - 20);
+          newState.stats.money += 900;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 22);
           newState.stats.burnRate = Math.max(100, newState.stats.burnRate - 200);
-          showEvent('Sold your MacBook. $800. Can\'t code for a while.');
-          showTransaction('money', '+$800');
+          showEvent('Pawned your laptop. $900. No deck edits for a while.');
+          showTransaction('money', '+$900');
         } else if (actionId === 'sell-phone' && s.stats.hasPhone) {
           newState.stats.hasPhone = false;
-          newState.stats.money += 400;
-          newState.stats.hope = Math.max(0, newState.stats.hope - 15);
-          showEvent('Sold your iPhone. $400. Might miss some calls.');
-          showTransaction('money', '+$400');
+          newState.stats.money += 350;
+          newState.stats.hope = Math.max(0, newState.stats.hope - 12);
+          showEvent('Pawned your phone. $350. Silence is cheaper.');
+          showTransaction('money', '+$350');
+        } else if (actionId === 'sell-guitar' && s.stats.hasGuitar) {
+          newState.stats.hasGuitar = false;
+          newState.stats.money += 250;
+          newState.stats.hope = Math.min(100, newState.stats.hope + 8);
+          showEvent('Sold the guitar. $250. The songs stay in your head.');
+          showTransaction('money', '+$250');
         }
       }
       
@@ -384,11 +417,12 @@ export function useGameState() {
       
       // Alley (dealer) actions - FENTANYL RISK
       if (shopType === 'alley') {
+        const repPenalty = Math.max(0, -getReputationModifier(s.streetReputation));
         if (actionId === 'buy-coke' && s.stats.money >= 150) {
           newState.stats.money -= 150;
           
           // 50% chance of fentanyl-laced drugs
-          if (Math.random() < 0.5) {
+          if (Math.random() < 0.5 + repPenalty * 0.5) {
             // Bad drugs - fentanyl!
             newState.fentanylActive = true;
             newState.fentanylTimeRemaining = 15; // 15 seconds of slow + paused bars
@@ -403,7 +437,7 @@ export function useGameState() {
           newState.stats.money -= 400;
           
           // Party pack also has fentanyl risk
-          if (Math.random() < 0.3) {
+          if (Math.random() < 0.3 + repPenalty * 0.4) {
             newState.fentanylActive = true;
             newState.fentanylTimeRemaining = 20;
             showEvent('BAD DRUGS - FENTANYL! Party pack was laced...');
@@ -522,7 +556,12 @@ export function useGameState() {
             const found = Math.floor(Math.random() * 100) + 50; // $50-150
             newState.stats.money += found;
             // Chance to find something extra
-            if (Math.random() < 0.2) {
+            if (!s.stats.hasGuitar && Math.random() < 0.12) {
+              newState.stats.hasGuitar = true;
+              newState.stats.hope = Math.min(100, newState.stats.hope + 6);
+              showEvent(`Found $${found} and a battered guitar. Still plays.`);
+              showTransaction('money', `+$${found}`);
+            } else if (Math.random() < 0.2) {
               newState.stats.hope = Math.min(100, newState.stats.hope + 5);
               showEvent(`Jackpot! $${found} plus a working prototype someone tossed!`);
               showTransaction('money', `+$${found}`);
@@ -735,25 +774,35 @@ export function useGameState() {
       const newState = { ...s, stats: { ...s.stats } };
       const target = s.stealTarget;
       const bias = ARCHETYPE_STEAL_BIAS[target.archetype];
+      const repModifier = getReputationModifier(s.streetReputation);
+      const kindnessChance = clamp(bias.kindnessChance + repModifier, 0, 1);
+      const shoutChance = clamp(bias.shoutChance - repModifier, 0.05, 0.95);
+      const copNearby = s.police.isActive && s.police.mode === 'sweep' && Math.abs(s.police.x - s.playerX) < 20;
       
       const roll = Math.random();
       
+      newState.streetReputation = clampReputation(s.streetReputation - 1);
+      if (copNearby) {
+        newState.heat = Math.min(3, s.heat + 1);
+      }
+      
       // Rare kindness twist
-      if (roll < bias.kindnessChance) {
+      if (roll < kindnessChance) {
         const amount = Math.floor(Math.random() * 5) + 2;
         newState.stats.money += amount;
         newState.stats.hope = Math.min(100, newState.stats.hope + 8);
         showEvent('They stopped. They gave you money instead.');
+        newState.streetReputation = clampReputation(newState.streetReputation + 2);
       }
       // Shout - triggers police check
-      else if (roll < bias.kindnessChance + bias.shoutChance) {
+      else if (roll < kindnessChance + shoutChance) {
         newState.stats.hope = Math.max(0, newState.stats.hope - 12);
         newState.recentTheft = true;
         showEvent('They shouted. People are staring.');
         // Police check happens in tick
       }
       // Panic - no loot
-      else if (roll < bias.kindnessChance + bias.shoutChance + 0.25) {
+      else if (roll < kindnessChance + shoutChance + 0.25) {
         newState.stats.hope = Math.max(0, newState.stats.hope - 8);
         showEvent('You panicked. Got nothing.');
       }
@@ -785,6 +834,7 @@ export function useGameState() {
       switch (action) {
         case 'theft': {
           const roll = Math.random();
+          newState.streetReputation = clampReputation(s.streetReputation - 1);
           if (roll < 0.3) {
             newState.stats.money += Math.floor(Math.random() * 10) + 5;
             newState.stats.hope = Math.max(0, newState.stats.hope - 10);
@@ -792,6 +842,7 @@ export function useGameState() {
             showEvent('You stole from a shop. You got away with it.');
           } else {
             showEvent('You stole from a shop. The police caught you.');
+            newState.streetReputation = clampReputation(newState.streetReputation - 3);
             setTimeout(() => triggerGameOver('Arrested for theft.'), 1500);
           }
           break;
@@ -902,28 +953,38 @@ export function useGameState() {
       const actionBias = ARCHETYPE_ACTION_BIAS[archetype];
       const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
       const isTripping = s.lsdTripActive;
+      const repModifier = getReputationModifier(s.streetReputation);
+      const copNearby = s.police.isActive && s.police.mode === 'sweep' && Math.abs(s.police.x - s.playerX) < 20;
       
       switch (action) {
         case 'steal': {
           // Stealing can now yield: money, drugs, or nothing
           const roll = Math.random();
-          if (roll < stealBias.kindnessChance) {
+          const kindnessChance = clamp(stealBias.kindnessChance + repModifier, 0, 1);
+          const shoutChance = clamp(stealBias.shoutChance - repModifier, 0.05, 0.95);
+          newState.streetReputation = clampReputation(s.streetReputation - 1);
+          if (copNearby) {
+            newState.heat = Math.min(3, s.heat + 1);
+          }
+
+          if (roll < kindnessChance) {
             const amount = Math.floor(Math.random() * 3) + 1;
             newState.stats.money += amount;
             newState.stats.hope = Math.min(100, newState.stats.hope + 5);
             showEvent('They stopped. They gave you money instead.');
             showTransaction('money', `+$${amount}`);
-          } else if (roll < stealBias.kindnessChance + stealBias.shoutChance) {
+            newState.streetReputation = clampReputation(newState.streetReputation + 2);
+          } else if (roll < kindnessChance + shoutChance) {
             newState.stats.hope = Math.max(0, newState.stats.hope - 8);
             newState.recentTheft = true;
             showEvent('They shouted. People are staring.');
             showTransaction('danger', 'BUSTED');
-          } else if (roll < stealBias.kindnessChance + stealBias.shoutChance + 0.15) {
+          } else if (roll < kindnessChance + shoutChance + 0.15) {
             // Got nothing!
             newState.stats.hope = Math.max(0, newState.stats.hope - 5);
             showEvent('Empty pockets. Got nothing.');
             showTransaction('fail', 'NOTHING');
-          } else if (roll < stealBias.kindnessChance + stealBias.shoutChance + 0.25) {
+          } else if (roll < kindnessChance + shoutChance + 0.25) {
             // Stole drugs!
             const drugRoll = Math.random();
             if (drugRoll < 0.7) {
@@ -951,7 +1012,7 @@ export function useGameState() {
         case 'pitch': {
           // Pitching now always affects confidence (hope) - up or down
           // And the pedestrian ALWAYS disappears after
-          const successChance = actionBias.pitchSuccess * districtConfig.pitchMultiplier;
+          const successChance = clamp(actionBias.pitchSuccess * districtConfig.pitchMultiplier + repModifier, 0.05, 0.9);
           const roll = Math.random();
           
           if (isTripping) {
@@ -973,6 +1034,7 @@ export function useGameState() {
             newState.stats.hope = Math.min(100, newState.stats.hope + 15);
             showEvent(`They loved it! +$${earnings} and feeling great!`);
             showTransaction('hope', '+15');
+            newState.streetReputation = clampReputation(s.streetReputation + 1);
           } else if (roll < successChance + 0.25) {
             // Polite rejection - small confidence loss
             newState.stats.hope = Math.max(0, newState.stats.hope - 8);
@@ -1029,6 +1091,8 @@ export function useGameState() {
           // Violence - dangerous
           const fightBackChance = actionBias.fightBack * districtConfig.violenceMultiplier;
           const roll = Math.random();
+          newState.streetReputation = clampReputation(s.streetReputation - 2);
+          newState.heat = Math.min(3, s.heat + 1);
           
           if (roll < 0.25) {
             // Knockdown success
@@ -1051,6 +1115,10 @@ export function useGameState() {
                 x: Math.random() < 0.5 ? -10 : 110,
                 isActive: true,
                 direction: Math.random() < 0.5 ? 'right' : 'left',
+                mode: 'sweep',
+                chaseTicks: 0,
+                slipStage: 'none',
+                opacity: 1,
               };
             }
             showEvent('Someone screamed. Cops are coming.');
@@ -1080,18 +1148,23 @@ export function useGameState() {
       
       const newState = { ...s, stats: { ...s.stats } };
       const cost = 15 + Math.floor(Math.random() * 10); // $15-25
+      const repPenalty = Math.max(0, -getReputationModifier(s.streetReputation));
       
       if (newState.stats.money < cost) {
         showEvent('Not enough cash. The dealer waves you off.');
         showTransaction('fail', 'No $');
         return s;
       }
+
+      if (!s.inAlley) {
+        newState.heat = Math.min(3, s.heat + 1);
+      }
       
       // Random product
       const product = Math.random();
       newState.stats.money -= cost;
       
-      if (product < 0.6) {
+      if (product < 0.6 - repPenalty * 0.3) {
         // Cocaine
         newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 40);
         showEvent(`Paid $${cost}. White powder in a tiny bag.`);
@@ -1127,6 +1200,7 @@ export function useGameState() {
       if (s.inAlley && s.dealerNearby) {
         const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
         const newState = { ...s, stats: { ...s.stats } };
+        const repPenalty = Math.max(0, -getReputationModifier(s.streetReputation));
         
         // Alley prices are slightly cheaper but riskier
         const cost = 10 + Math.floor(Math.random() * 8); // $10-17
@@ -1145,19 +1219,19 @@ export function useGameState() {
         }
         
         const roll = Math.random();
-        if (roll < 0.7 * districtConfig.dealerFrequency) {
+        if (roll < (0.7 - repPenalty * 0.2) * districtConfig.dealerFrequency) {
           // Good deal
           newState.stats.money -= cost;
           newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 35);
           showEvent(`Paid $${cost}. The alley deal was clean.`);
           showTransaction('drugs', `+35 COC`);
-        } else if (roll < 0.85) {
+        } else if (roll < 0.85 + repPenalty * 0.1) {
           // Weak stuff
           newState.stats.money -= cost;
           newState.stats.cocaine = Math.min(100, newState.stats.cocaine + 20);
           showEvent('Weak gear. Better than nothing.');
           showTransaction('drugs', '+20 COC');
-        } else if (roll < 0.95) {
+        } else if (roll < 0.95 + repPenalty * 0.05) {
           // Scammed
           newState.stats.money -= cost;
           newState.stats.hope = Math.max(0, newState.stats.hope - 5);
@@ -1329,6 +1403,10 @@ export function useGameState() {
               x: Math.random() < 0.5 ? -10 : 110,
               isActive: true,
               direction: Math.random() < 0.5 ? 'right' : 'left',
+              mode: 'sweep',
+              chaseTicks: 0,
+              slipStage: 'none',
+              opacity: 1,
             };
             showEvent('You\'re acting paranoid. Someone called the cops.');
           } else if (paranoiaRoll < 0.7) {
@@ -1482,6 +1560,38 @@ export function useGameState() {
       
       // === DISTRICT-BASED SYSTEMS ===
       const districtConfig = DISTRICT_CONFIGS[s.currentDistrict];
+      const crowdDistricts = CROWD_SURGE_DISTRICTS.current;
+      const isCrowdDistrict = crowdDistricts.has(s.currentDistrict);
+
+      if (isCrowdDistrict && !s.crowdSurgeActive && newState.stats.survivalTime % 18 === 0 && Math.random() < 0.6) {
+        newState.crowdSurgeActive = true;
+        newState.crowdSurgeTimeRemaining = 12;
+        newState.crowdSurgePoliceDelay = 4;
+        showEvent('Crowd surge. Foot traffic spikes.');
+      }
+
+      if (s.crowdSurgeActive) {
+        newState.crowdSurgeTimeRemaining = Math.max(0, s.crowdSurgeTimeRemaining - 1);
+        if (s.crowdSurgePoliceDelay > 0) {
+          newState.crowdSurgePoliceDelay = Math.max(0, s.crowdSurgePoliceDelay - 1);
+          if (newState.crowdSurgePoliceDelay === 0 && !s.police.isActive) {
+            newState.police = {
+              x: Math.random() < 0.5 ? -10 : 110,
+              isActive: true,
+              direction: Math.random() < 0.5 ? 'right' : 'left',
+              mode: 'sweep',
+              chaseTicks: 0,
+              slipStage: 'none',
+              opacity: 1,
+            };
+            showEvent('Police sweep rolls in after the surge.');
+          }
+        }
+        if (newState.crowdSurgeTimeRemaining <= 0) {
+          newState.crowdSurgeActive = false;
+          showEvent('The crowd thins out.');
+        }
+      }
       
       // === IBIS SYSTEM ===
       // Ibis appears near bins - frequency varies by district
@@ -1496,7 +1606,10 @@ export function useGameState() {
       // === PEDESTRIAN SYSTEM ===
       // Move existing pedestrians
       let updatedPeds = s.pedestrians.map(ped => {
-        const dx = ped.direction === 'right' ? ped.speed : -ped.speed;
+        const repPenalty = Math.max(0, -getReputationModifier(s.streetReputation));
+        const isNearPlayer = Math.abs(ped.x - s.playerX) < 12;
+        const fleeBoost = isNearPlayer ? 1 + repPenalty * 2 : 1;
+        const dx = ped.direction === 'right' ? ped.speed * fleeBoost : -ped.speed * fleeBoost;
         return { ...ped, x: ped.x + dx };
       }).filter(ped => ped.x > -10 && ped.x < 110);
       
@@ -1504,8 +1617,9 @@ export function useGameState() {
       const baseBurstChance = newState.timeOfDay === 'day' ? 0.08 : 
                               newState.timeOfDay === 'dusk' ? 0.12 :
                               newState.timeOfDay === 'night' ? 0.05 : 0.06;
-      const burstChance = baseBurstChance * districtConfig.pedestrianDensity * 1.5;
-      const maxPeds = Math.floor(6 * districtConfig.pedestrianDensity + 4);
+      const crowdMultiplier = newState.crowdSurgeActive ? 1.6 : 1;
+      const burstChance = baseBurstChance * districtConfig.pedestrianDensity * 1.5 * crowdMultiplier;
+      const maxPeds = Math.floor((6 * districtConfig.pedestrianDensity + 4) * crowdMultiplier);
       
       if (Math.random() < burstChance && updatedPeds.length < maxPeds) {
         const burstSize = Math.floor(Math.random() * 4 * districtConfig.pedestrianDensity) + 1;
@@ -1513,7 +1627,11 @@ export function useGameState() {
         const startX = direction === 'right' ? -5 : 105;
         
         // Use district-weighted archetype selection
-        const archetypeWeights = districtConfig.archetypeWeights;
+        const archetypeWeights = { ...districtConfig.archetypeWeights };
+        if (newState.crowdSurgeActive) {
+          archetypeWeights.vc = (archetypeWeights.vc || 0) + 0.04;
+          archetypeWeights.founder = (archetypeWeights.founder || 0) + 0.03;
+        }
         const weightSum = Object.values(archetypeWeights).reduce((a, b) => a + b, 0);
         
         for (let i = 0; i < burstSize; i++) {
@@ -1563,9 +1681,10 @@ export function useGameState() {
       // Check for steal window
       let stealWindowActive = false;
       let stealTarget: PedestrianState | null = null;
+      const stealRange = newState.crowdSurgeActive ? 10 : 8;
       
       for (const ped of updatedPeds) {
-        if (Math.abs(ped.x - s.playerX) < 8 && ped.canBeStolen) {
+        if (Math.abs(ped.x - s.playerX) < stealRange && ped.canBeStolen) {
           stealWindowActive = true;
           stealTarget = ped;
           break;
@@ -1635,47 +1754,97 @@ export function useGameState() {
       const sweepInterval = Math.floor(baseSweepInterval / districtConfig.policeFrequency);
       const isSweepTime = newState.stats.survivalTime % sweepInterval === 0 && newState.stats.survivalTime > 10;
       
-      if (isSweepTime && !s.police.isActive && Math.random() < districtConfig.policeFrequency) {
+      if (newState.heat >= 3 && !s.police.isActive) {
+        newState.police = {
+          x: Math.random() < 0.5 ? -10 : 110,
+          isActive: true,
+          direction: Math.random() < 0.5 ? 'right' : 'left',
+          mode: 'chase',
+          chaseTicks: 0,
+          slipStage: 'none',
+          opacity: 1,
+        };
+        showEvent('Police chase! They\'re coming for you.');
+      } else if (isSweepTime && !s.police.isActive && Math.random() < districtConfig.policeFrequency) {
         // Start a police sweep
         newState.police = {
           x: Math.random() < 0.5 ? -10 : 110,
           isActive: true,
           direction: Math.random() < 0.5 ? 'right' : 'left',
+          mode: 'sweep',
+          chaseTicks: 0,
+          slipStage: 'none',
+          opacity: 1,
         };
       }
       
       // Move police during sweep
       if (s.police.isActive) {
-        const policeSpeed = 1.2;
-        const newPoliceX = s.police.direction === 'right' 
-          ? s.police.x + policeSpeed 
-          : s.police.x - policeSpeed;
-        
-        // Check if police catches player during sweep - danger multiplier affects arrest chance
-        if (Math.abs(newPoliceX - s.playerX) < 10) {
-          const isSleeping = s.currentZone === 'sleep';
-          const isVisible = s.currentZone === null || s.currentZone === 'ask-help';
-          const hasRecentActivity = s.recentTheft || s.recentCarEncounter;
-          const catchChance = 0.4 * districtConfig.dangerMultiplier;
+        if (s.police.mode === 'chase') {
+          const policeSpeed = 1.8;
+          const direction = s.playerX >= s.police.x ? 'right' : 'left';
+          const newPoliceX = direction === 'right' 
+            ? s.police.x + policeSpeed 
+            : s.police.x - policeSpeed;
+          const nextChaseTicks = s.police.chaseTicks + 1;
+          let slipStage = s.police.slipStage;
+          let nextOpacity = s.police.opacity;
           
-          if ((isSleeping || (isVisible && hasRecentActivity)) && Math.random() < catchChance) {
-            const arrestChance = 0.35 * districtConfig.dangerMultiplier;
-            if (hasRecentActivity && Math.random() < arrestChance) {
-              showEvent('The police arrested you.');
-              setTimeout(() => triggerGameOver('Arrested by police.'), 1500);
-            } else {
-              newState.stats.hope = Math.max(0, newState.stats.hope - 12);
-              newState.playerX = 50;
-              showEvent('Police moved you along. Keep walking.');
+          if (nextChaseTicks === 10) {
+            slipStage = 'slip';
+            showEvent('Cop\'s pants slip. Still chasing.');
+          }
+          
+          if (nextChaseTicks === 14) {
+            slipStage = 'trip';
+            showEvent('Cop trips, slides, disappears.');
+            newState.heat = 0;
+          }
+          
+          if (slipStage === 'trip') {
+            nextOpacity = Math.max(0, s.police.opacity - 0.15);
+          }
+          
+          if (nextOpacity <= 0) {
+            newState.police = { ...s.police, isActive: false, opacity: 1, slipStage: 'none', chaseTicks: 0, mode: 'sweep' };
+          } else {
+            newState.police = { ...s.police, x: newPoliceX, direction, slipStage, chaseTicks: nextChaseTicks, opacity: nextOpacity };
+          }
+        } else {
+          const policeSpeed = 1.2;
+          const newPoliceX = s.police.direction === 'right' 
+            ? s.police.x + policeSpeed 
+            : s.police.x - policeSpeed;
+          const repPenalty = Math.max(0, -getReputationModifier(s.streetReputation));
+          const detectionRadius = clamp(10 + repPenalty * 10 + s.heat * 1.5, 6, 18);
+          
+          // Check if police catches player during sweep - danger multiplier affects arrest chance
+          if (Math.abs(newPoliceX - s.playerX) < detectionRadius) {
+            const isSleeping = s.currentZone === 'sleep';
+            const isVisible = s.currentZone === null || s.currentZone === 'ask-help';
+            const hasRecentActivity = s.recentTheft || s.recentCarEncounter;
+            const catchChance = 0.4 * districtConfig.dangerMultiplier;
+            
+            if ((isSleeping || (isVisible && hasRecentActivity)) && Math.random() < catchChance) {
+              const arrestChance = 0.35 * districtConfig.dangerMultiplier;
+              if (hasRecentActivity && Math.random() < arrestChance) {
+                newState.streetReputation = clampReputation(s.streetReputation - 3);
+                showEvent('The police arrested you.');
+                setTimeout(() => triggerGameOver('Arrested by police.'), 1500);
+              } else {
+                newState.stats.hope = Math.max(0, newState.stats.hope - 12);
+                newState.playerX = 50;
+                showEvent('Police moved you along. Keep walking.');
+              }
             }
           }
-        }
-        
-        // End sweep when police leaves screen
-        if (newPoliceX < -15 || newPoliceX > 115) {
-          newState.police = { ...s.police, isActive: false };
-        } else {
-          newState.police = { ...s.police, x: newPoliceX };
+          
+          // End sweep when police leaves screen
+          if (newPoliceX < -15 || newPoliceX > 115) {
+            newState.police = { ...s.police, isActive: false, slipStage: 'none', opacity: 1, chaseTicks: 0, mode: 'sweep' };
+          } else {
+            newState.police = { ...s.police, x: newPoliceX };
+          }
         }
       }
       
@@ -1685,6 +1854,10 @@ export function useGameState() {
       }
       if (s.recentCarEncounter && newState.stats.survivalTime % 25 === 0) {
         newState.recentCarEncounter = false;
+      }
+
+      if (s.heat > 0 && newState.stats.survivalTime % 12 === 0 && !s.recentTheft && !s.recentViolence && !s.recentCarEncounter) {
+        newState.heat = Math.max(0, s.heat - 1);
       }
       
       // Random events

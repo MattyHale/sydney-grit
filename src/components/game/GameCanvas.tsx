@@ -66,8 +66,11 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
           money={state.stats.money}
           energy={state.stats.hunger}
           fundingStage={state.stats.fundingStage}
+          vcFunnelStage={state.vcFunnelStage}
+          vcGhosted={state.stats.survivalTime < state.vcGhostedUntil}
           hasDog={state.hasDog}
           hasValuableTech={state.stats.hasValuableTech}
+          hasGuitar={state.stats.hasGuitar}
           onAction={handleShopAction}
           onExit={onExitShop || (() => {})}
         />
@@ -235,6 +238,9 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
         x={state.police.x}
         isActive={state.police.isActive}
         direction={state.police.direction}
+        mode={state.police.mode}
+        slipStage={state.police.slipStage}
+        opacity={state.police.opacity}
       />
       
       {/* Dog companion */}
