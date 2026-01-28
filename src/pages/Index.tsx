@@ -96,6 +96,7 @@ const Index = () => {
   // Can buy drugs if in alley with dealer OR near a dealer pedestrian
   const canBuyDrugs = (state.inAlley && state.dealerNearby) || (state.stealWindowActive && state.stealTarget?.archetype === 'dealer');
   const canSellDrugs = state.stealWindowActive && state.stealTarget !== null && state.stats.cocaine > 0;
+  const canInteract = state.carEncounterActive || state.currentZone !== null;
 
   // Set up keyboard controls
   useControls({
@@ -165,6 +166,7 @@ const Index = () => {
         canPitch={canPitch}
         canBuyDrugs={canBuyDrugs}
         canSellDrugs={canSellDrugs}
+        canInteract={canInteract}
         currentZone={state.currentZone}
         hasDog={state.hasDog}
       />
