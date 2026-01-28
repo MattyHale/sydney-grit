@@ -48,6 +48,7 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
   const highIntensity = Math.min(1, (state.stats.cocaine - 30) / 70);
   const isTripping = state.lsdTripActive;
   const isDogSacrifice = state.isPaused && !state.hasDog && state.dogHealth === 0;
+  const isFentanyl = state.fentanylActive;
   
   // Handle shop action
   const handleShopAction = (actionId: string) => {
@@ -127,13 +128,49 @@ export function GameCanvas({ state, onPause, onRestart, onClearTransaction, onSh
       )}
       
       {/* Screen edge vignette when very high on coke */}
-      {state.stats.cocaine > 60 && !isTripping && (
+      {state.stats.cocaine > 60 && !isTripping && !isFentanyl && (
         <div 
           className="absolute inset-0 pointer-events-none z-20"
           style={{ 
             boxShadow: `inset 0 0 ${30 + highIntensity * 40}px rgba(255, 50, 100, ${highIntensity * 0.3})`,
           }}
         />
+      )}
+      
+      {/* Fentanyl overdose overlay - everything slowed, muted, warning message */}
+      {isFentanyl && (
+        <>
+          {/* Dark blur overlay */}
+          <div 
+            className="absolute inset-0 pointer-events-none z-40"
+            style={{ 
+              background: 'rgba(0, 0, 0, 0.6)',
+              filter: 'blur(1px)',
+            }}
+          />
+          {/* Pulsing red warning */}
+          <div 
+            className="absolute inset-0 pointer-events-none z-41 animate-pulse"
+            style={{ 
+              background: 'radial-gradient(ellipse at center, transparent 20%, rgba(200, 0, 0, 0.25) 100%)',
+            }}
+          />
+          {/* Warning text */}
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 text-center">
+            <div 
+              className="text-red-500 text-lg font-bold animate-pulse px-6 py-3 rounded"
+              style={{ 
+                background: 'rgba(0, 0, 0, 0.8)',
+                textShadow: '0 0 10px red, 0 0 20px red',
+              }}
+            >
+              ☠️ BAD DRUGS - FENTANYL ☠️
+            </div>
+            <div className="text-white text-xs mt-2 opacity-70">
+              {Math.ceil(state.fentanylTimeRemaining)}s remaining...
+            </div>
+          </div>
+        </>
       )}
       
       {/* Dog sacrifice overlay - dark dimming with frozen scroll effect */}
