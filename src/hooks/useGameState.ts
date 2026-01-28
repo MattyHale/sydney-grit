@@ -50,12 +50,26 @@ export function useGameState() {
       const isHigh = s.stats.cocaine > 30 || s.lsdTripActive;
       const speedMultiplier = isHigh ? 5 : 1;
       const adjustedDelta = delta * speedMultiplier;
-      
-      const newX = Math.max(5, Math.min(90, s.playerX + adjustedDelta));
+
+      const minX = 5;
+      const maxX = 90;
+      const scrollWindowLeft = 30;
+      const scrollWindowRight = 70;
+
+      let newX = Math.max(minX, Math.min(maxX, s.playerX + adjustedDelta));
       const direction = delta > 0 ? 'right' : 'left';
-      
-      // Update world offset for infinite scroll effect (also affected by speed)
-      const newWorldOffset = s.worldOffset + (adjustedDelta * 2.5); // Faster scrolling
+
+      // Golden Axe-style scroll window: only scroll when near screen edges (but allow backtracking)
+      let newWorldOffset = s.worldOffset;
+      if (adjustedDelta > 0 && newX > scrollWindowRight) {
+        const overflow = newX - scrollWindowRight;
+        newX = scrollWindowRight;
+        newWorldOffset += overflow * 2.5;
+      } else if (adjustedDelta < 0 && newX < scrollWindowLeft) {
+        const overflow = scrollWindowLeft - newX;
+        newX = scrollWindowLeft;
+        newWorldOffset -= overflow * 2.5;
+      }
       const newDistrict = getDistrictFromOffset(newWorldOffset);
       
       // Get the actual building at the player's position
