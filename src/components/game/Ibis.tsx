@@ -25,7 +25,7 @@ export function Ibis({ x, isActive }: IbisProps) {
       className="absolute z-15"
       style={{ 
         left: `${x}%`, 
-        bottom: '72%',
+        bottom: '40%',
         transform: 'translateX(-50%)',
       }}
     >

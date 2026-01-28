@@ -994,8 +994,8 @@ export function Street({ timeOfDay, isRaining, shelterOpen, servicesOpen, player
         <div className="absolute top-1 left-0 right-0 h-px" style={{ background: '#8a8a2a', opacity: 0.4 }} />
       </div>
 
-      {/* LAYER 6: Foreground clutter - 20% */}
-      <div className="absolute left-0 right-0 h-[20%] overflow-hidden pointer-events-none" style={{ top: '70%' }}>
+      {/* LAYER 6: Foreground clutter - 12% */}
+      <div className="absolute left-0 right-0 h-[12%] overflow-hidden pointer-events-none" style={{ top: '62%' }}>
         {renderClutter()}
       </div>
 
