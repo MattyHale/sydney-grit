@@ -16,8 +16,11 @@ interface ShopInteriorProps {
   money: number;
   energy: number;
   fundingStage: FundingStage;
+  vcFunnelStage: 'coffee' | 'deck' | 'dd' | 'partner' | 'term-sheet';
+  vcGhosted: boolean;
   hasDog: boolean;
   hasValuableTech: boolean;
+  hasGuitar: boolean;
   onAction: (actionId: string) => void;
   onExit: () => void;
 }
@@ -66,7 +69,18 @@ const AU_VC_NAMES: Record<FundingStage, string> = {
   'ipo': 'ASX',
 };
 
-const getVCOptions = (stage: FundingStage): ShopOption[] => {
+const getVCStageLabel = (stage: 'coffee' | 'deck' | 'dd' | 'partner' | 'term-sheet') => {
+  const labels = {
+    coffee: 'Coffee Chat',
+    deck: 'Deck Review',
+    dd: 'DD Call',
+    partner: 'Partner Meeting',
+    'term-sheet': 'Term Sheet',
+  };
+  return labels[stage];
+};
+
+const getVCOptions = (stage: FundingStage, vcFunnelStage: 'coffee' | 'deck' | 'dd' | 'partner' | 'term-sheet', vcGhosted: boolean): ShopOption[] => {
   const nextStage = getNextStage(stage);
   const config = nextStage ? STAGE_CONFIG[stage] : null;
   
@@ -77,10 +91,12 @@ const getVCOptions = (stage: FundingStage): ShopOption[] => {
   } else if (config) {
     options.push({ 
       id: 'pitch-next', 
-      label: config.label, 
+      label: vcGhosted ? 'No Response' : getVCStageLabel(vcFunnelStage), 
       icon: stage === 'series-d' ? '🔔' : '🚀', 
       energyCost: config.energyCost,
-      description: `Pitch to ${AU_VC_NAMES[stage]}. ${Math.round(config.successRate * 100)}% chance for ${config.amount}. Need ${config.pitchesRequired} pitches.`
+      description: vcGhosted 
+        ? 'Inbox empty. You\'ve been ghosted.' 
+        : `Next step at ${AU_VC_NAMES[stage]}. ${Math.round(config.successRate * 100)}% term sheet chance for ${config.amount}.`
     });
   }
   
@@ -128,9 +144,9 @@ const getScaledShopOptions = (shopType: string, fundingStage: FundingStage): { t
       bgColor: '#1a2a1a',
       accentColor: '#44ff88',
       options: [
-        { id: 'sell-watch', label: 'Sell Watch', icon: '⌚', cost: 0, description: 'Get $300, lose an asset' },
         { id: 'sell-laptop', label: 'Sell MacBook', icon: '💻', cost: 0, description: 'Get $800, can\'t work for a day' },
         { id: 'sell-phone', label: 'Sell iPhone', icon: '📱', cost: 0, description: 'Get $400, miss calls' },
+        { id: 'sell-guitar', label: 'Sell Guitar', icon: '🎸', cost: 0, description: 'Get $250, lose a song of hope' },
       ],
     },
     'cafe': {
@@ -193,12 +209,12 @@ const getScaledShopOptions = (shopType: string, fundingStage: FundingStage): { t
   return baseConfigs[shopType] || baseConfigs['bar'];
 };
 
-export function ShopInterior({ shopType, money, energy, fundingStage, hasDog, hasValuableTech, onAction, onExit }: ShopInteriorProps) {
+export function ShopInterior({ shopType, money, energy, fundingStage, vcFunnelStage, vcGhosted, hasDog, hasValuableTech, hasGuitar, onAction, onExit }: ShopInteriorProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   
   // Get config - VC firm is dynamic based on stage
   const isVCFirm = shopType === 'vc-firm';
-  const vcOptions = isVCFirm ? getVCOptions(fundingStage) : [];
+  const vcOptions = isVCFirm ? getVCOptions(fundingStage, vcFunnelStage, vcGhosted) : [];
   
   // Build dynamic options for certain shops with scaled costs
   const getDynamicOptions = () => {
@@ -225,6 +241,10 @@ export function ShopInterior({ shopType, money, energy, fundingStage, hasDog, ha
         energyCost: 20, 
         description: 'Search for discarded tech. Could help your pitch!' 
       });
+    }
+
+    if (shopType === 'pawn' && !hasGuitar) {
+      options = options.filter(option => option.id !== 'sell-guitar');
     }
     
     return options;

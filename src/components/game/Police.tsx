@@ -4,9 +4,12 @@ interface PoliceProps {
   x: number;
   isActive: boolean;
   direction: 'left' | 'right';
+  mode: 'sweep' | 'chase';
+  slipStage: 'none' | 'slip' | 'trip';
+  opacity: number;
 }
 
-export function Police({ x, isActive, direction }: PoliceProps) {
+export function Police({ x, isActive, direction, mode, slipStage, opacity }: PoliceProps) {
   const [frame, setFrame] = useState(0);
   
   useEffect(() => {
@@ -20,6 +23,10 @@ export function Police({ x, isActive, direction }: PoliceProps) {
   const legOffset = frame % 2 === 0;
   const armSwing = frame % 2 === 0 ? 20 : -20;
   const bob = frame % 2 === 0 ? 0 : -1;
+  const isChasing = mode === 'chase';
+  const pantsSlip = slipStage === 'slip';
+  const tripped = slipStage === 'trip';
+  const lean = tripped ? 18 : isChasing ? 6 : 0;
 
   return (
     <div 
@@ -27,7 +34,9 @@ export function Police({ x, isActive, direction }: PoliceProps) {
       style={{ 
         left: `${x}%`, 
         bottom: '42%',
-        transform: `translateX(-50%) scaleX(${direction === 'left' ? -1 : 1})`,
+        transform: `translateX(-50%) scaleX(${direction === 'left' ? -1 : 1}) rotate(${lean}deg)`,
+        opacity,
+        transition: tripped ? 'opacity 0.6s ease-out' : 'none',
       }}
     >
       {/* Shadow */}
@@ -113,7 +122,7 @@ export function Police({ x, isActive, direction }: PoliceProps) {
         {/* Belt */}
         <div style={{
           position: 'absolute', width: '14px', height: '2px',
-          background: '#222', left: '6px', top: '24px',
+          background: '#222', left: '6px', top: pantsSlip ? '26px' : '24px',
         }}>
           <div style={{ position: 'absolute', width: '3px', height: '2px', background: '#888844', left: '5px' }} />
         </div>
@@ -122,7 +131,7 @@ export function Police({ x, isActive, direction }: PoliceProps) {
         <div style={{
           position: 'absolute', width: '5px', height: '10px',
           background: '#1a2a3a', borderRadius: '0 0 2px 2px',
-          left: '7px', top: '25px',
+          left: '7px', top: pantsSlip ? '27px' : '25px',
           transform: `rotate(${legOffset ? 12 : -12}deg)`, transformOrigin: 'top center',
         }}>
           <div style={{ position: 'absolute', width: '6px', height: '3px', background: '#1a1a1a', borderRadius: '1px', bottom: '0', left: '-1px' }} />
@@ -130,11 +139,20 @@ export function Police({ x, isActive, direction }: PoliceProps) {
         <div style={{
           position: 'absolute', width: '5px', height: '10px',
           background: '#1a2a3a', borderRadius: '0 0 2px 2px',
-          right: '7px', top: '25px',
+          right: '7px', top: pantsSlip ? '27px' : '25px',
           transform: `rotate(${legOffset ? -12 : 12}deg)`, transformOrigin: 'top center',
         }}>
           <div style={{ position: 'absolute', width: '6px', height: '3px', background: '#1a1a1a', borderRadius: '1px', bottom: '0', left: '-1px' }} />
         </div>
+
+        {/* Underwear reveal */}
+        {pantsSlip && (
+          <div style={{
+            position: 'absolute', width: '10px', height: '4px',
+            background: '#ffffff', borderRadius: '2px',
+            left: '8px', top: '23px',
+          }} />
+        )}
         
         {/* Radio on shoulder */}
         <div style={{

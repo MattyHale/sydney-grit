@@ -14,6 +14,7 @@ export interface GameStats {
   hasWatch: boolean;
   hasLaptop: boolean;
   hasPhone: boolean;
+  hasGuitar: boolean;
   hasValuableTech: boolean;  // Found tech in bins - helps with pitches
   burnRate: number;    // Monthly burn rate
   fundingStage: FundingStage;  // Current funding stage
@@ -66,6 +67,10 @@ export interface PoliceState {
   x: number;
   isActive: boolean;
   direction: 'left' | 'right';
+  mode: 'sweep' | 'chase';
+  chaseTicks: number;
+  slipStage: 'none' | 'slip' | 'trip';
+  opacity: number;
 }
 
 export interface IbisState {
@@ -118,6 +123,11 @@ export interface GameState {
   permanentHopeLoss: number;
   worldOffset: number;
   currentDistrict: District;
+  streetReputation: number;
+  heat: number;
+  crowdSurgeActive: boolean;
+  crowdSurgeTimeRemaining: number;
+  crowdSurgePoliceDelay: number;
   // LSD state
   lsdTripActive: boolean;
   lsdTripTimeRemaining: number;
@@ -143,6 +153,8 @@ export interface GameState {
   // VC pitch tracking for IPO (need multiple successful pitches)
   vcPitchesThisRound: number;
   vcPitchesRequired: number;
+  vcFunnelStage: 'coffee' | 'deck' | 'dd' | 'partner' | 'term-sheet';
+  vcGhostedUntil: number;
 }
 
 export type HotspotZone = 'ask-help' | 'bins' | 'services' | 'shelter' | 'sleep' | 'alley' | 'food-vendor' | 'vc-firm' | 'strip-club' | 'bar' | 'pawn' | 'cafe';
@@ -228,6 +240,7 @@ export const INITIAL_STATS: GameStats = {
   hasWatch: true,
   hasLaptop: true,
   hasPhone: true,
+  hasGuitar: false,
   hasValuableTech: false,  // Must find in bins
   burnRate: 50,      // Low burn at bootstrap
   fundingStage: 'bootstrap',
@@ -307,11 +320,16 @@ export const INITIAL_STATE: GameState = {
   recentTheft: false,
   recentCarEncounter: false,
   recentViolence: false,
-  police: { x: -20, isActive: false, direction: 'right' },
+  police: { x: -20, isActive: false, direction: 'right', mode: 'sweep', chaseTicks: 0, slipStage: 'none', opacity: 1 },
   ibis: { x: 27, isActive: false, hasEaten: false },
   permanentHopeLoss: 0,
   worldOffset: 0,
   currentDistrict: 'cross',
+  streetReputation: 0,
+  heat: 0,
+  crowdSurgeActive: false,
+  crowdSurgeTimeRemaining: 0,
+  crowdSurgePoliceDelay: 0,
   lsdTripActive: false,
   lsdTripTimeRemaining: 0,
   pedestrianActionAvailable: [],
@@ -328,4 +346,6 @@ export const INITIAL_STATE: GameState = {
   fentanylTimeRemaining: 0,
   vcPitchesThisRound: 0,
   vcPitchesRequired: 1,
+  vcFunnelStage: 'coffee',
+  vcGhostedUntil: 0,
 };
