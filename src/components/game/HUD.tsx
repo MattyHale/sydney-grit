@@ -39,7 +39,7 @@ function StatBar({ label, value, max = 100, danger = false, glow = false, trippy
         {label}
       </span>
       <div 
-        className={`w-12 sm:w-16 h-2 bg-gb-darkest border border-gb-dark ${glow ? 'shadow-[0_0_8px_rgba(255,150,200,0.5)]' : ''} ${trippy ? 'shadow-[0_0_8px_rgba(150,100,255,0.6)]' : ''}`}
+        className={`w-12 sm:w-16 h-2 bg-gb-darkest border border-gb-dark pixel-panel ${glow ? 'shadow-[0_0_8px_rgba(255,150,200,0.5)]' : ''} ${trippy ? 'shadow-[0_0_8px_rgba(150,100,255,0.6)]' : ''}`}
         style={glow ? { borderColor: 'rgba(255, 150, 200, 0.6)' } : trippy ? { borderColor: 'rgba(150, 100, 255, 0.6)' } : {}}
       >
         <div 
@@ -70,11 +70,11 @@ export function HUD({ stats, timeOfDay, isRaining, lsdTripActive = false, isMute
   const districtName = DISTRICT_NAMES[currentDistrict];
   
   return (
-    <div className={`bg-gb-dark border-b-2 border-gb-darkest px-2 py-1.5 flex flex-wrap items-center justify-between gap-2 ${isHigh ? 'shadow-[inset_0_-2px_8px_rgba(255,150,200,0.2)]' : ''} ${lsdTripActive ? 'shadow-[inset_0_-2px_12px_rgba(150,100,255,0.3)]' : ''}`}>
+    <div className={`bg-gb-dark border-b-2 border-gb-darkest px-2 py-1.5 flex flex-wrap items-center justify-between gap-2 pixel-panel ${isHigh ? 'shadow-[inset_0_-2px_8px_rgba(255,150,200,0.2)]' : ''} ${lsdTripActive ? 'shadow-[inset_0_-2px_12px_rgba(150,100,255,0.3)]' : ''}`}>
       {/* Mute button */}
       <button
         onClick={onToggleMute}
-        className="p-1 text-gb-light hover:text-gb-lightest transition-colors"
+        className="p-1 text-gb-light hover:text-gb-lightest transition-colors pixel-button"
         aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
       >
         {isMuted ? (
