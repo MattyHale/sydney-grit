@@ -238,6 +238,170 @@ function loop() {
 }
 
 loop();
+
+/* ============================================================
+   PART 2/3 – WORLD SYSTEM, PARALLAX, SUBURBS, WEATHER, DAY/NIGHT
+   ============================================================ */
+
+/* ---------------------------------------
+   WORLD BACKGROUND LAYERS (PARALLAX)
+--------------------------------------- */
+
+const bgLayers = {
+    sky:    { color: "#1a1d22", speed: 0 },
+    far:    { offset: 0, speed: 10, img: null },
+    mid:    { offset: 0, speed: 40, img: null },
+    near:   { offset: 0, speed: 80, img: null },
+    street: { offset: 0, speed: 140, img: null }
+};
+
+/* Base64 simple skyline layers (abstract silhouettes) */
+bgLayers.far.img = new Image();
+bgLayers.far.img.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAYAAABZECYIAAAAOElEQVR4nO3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwJgeHAAHg0BdXAAAAAElFTkSuQmCC";
+
+bgLayers.mid.img = new Image();
+bgLayers.mid.img.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXAAAAA/CAYAAAB2k8WcAAAAN0lEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEODceQAHYrKTVAAAAAElFTkSuQmCC";
+
+bgLayers.near.img = new Image();
+bgLayers.near.img.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWAAAABUCAYAAAA1sr1FAAAAPElEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEODceQAHYrKTVAAAAAElFTkSuQmCC";
+
+bgLayers.street.img = new Image();
+bgLayers.street.img.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAABMCAYAAACvC/P8AAAAO0lEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEODceQAHYrKTVAAAAAElFTkSuQmCC";
+
+/* ---------------------------------------
+   SUBURB DEFINITIONS
+--------------------------------------- */
+const suburbs = [
+    { name: "CBD",         danger: 1, colorTint: "rgba(0,0,0,0.15)" },
+    { name: "Kings Cross", danger: 2, colorTint: "rgba(60,0,0,0.20)" },
+    { name: "Surry Hills", danger: 1.2, colorTint: "rgba(0,30,0,0.15)" },
+    { name: "Chinatown",   danger: 1.5, colorTint: "rgba(40,40,0,0.20)" },
+    { name: "Cabramatta",  danger: 1.7, colorTint: "rgba(30,0,30,0.20)" },
+    { name: "Parramatta",  danger: 1.1, colorTint: "rgba(0,0,50,0.15)" },
+    { name: "Mt Druitt",   danger: 3, colorTint: "rgba(50,0,50,0.25)" }
+];
+
+let currentSuburbIndex = 0;
+
+/* Scroll counter to trigger suburb transitions */
+let worldScroll = 0;
+const suburbLength = 6000; // pixels to scroll before shifting suburb
+
+/* ---------------------------------------
+   WEATHER SYSTEM
+--------------------------------------- */
+const weather = {
+    type: "clear",
+    timer: 0,
+    particles: []
+};
+
+function updateWeather(dt) {
+    weather.timer -= dt;
+    if (weather.timer <= 0) {
+        const roll = Math.random();
+        if (roll < 0.6) weather.type = "clear";
+        else if (roll < 0.8) weather.type = "rain";
+        else weather.type = "storm";
+
+        weather.timer = rand(20, 60); // seconds
+    }
+
+    // Rain particles
+    if (weather.type === "rain" || weather.type === "storm") {
+        for (let i = 0; i < 10; i++) {
+            weather.particles.push({
+                x: rand(0, canvas.width),
+                y: -10,
+                speed: rand(200, 400)
+            });
+        }
+    }
+
+    weather.particles.forEach(p => {
+        p.y += p.speed * dt;
+        if (p.y > canvas.height) p.dead = true;
+    });
+    weather.particles = weather.particles.filter(p => !p.dead);
+}
+
+/* ---------------------------------------
+   DAY / NIGHT CYCLE
+--------------------------------------- */
+function updateTimeOfDay(dt) {
+    state.timeOfDay += dt * 0.1; // slow cycle
+
+    if (state.timeOfDay >= 24) state.timeOfDay -= 24;
+}
+
+function applyTimeTint() {
+    // Night darkness
+    let tint = 0;
+    if (state.timeOfDay >= 20 || state.timeOfDay <= 5) tint = 0.5; // dark night
+    else if (state.timeOfDay >= 17 && state.timeOfDay < 20) tint = 0.3; // dusk
+    else if (state.timeOfDay >= 5 && state.timeOfDay < 8)  tint = 0.2; // dawn
+
+    ctx.fillStyle = `rgba(0,0,0,${tint})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+/* ---------------------------------------
+   PARALLAX RENDERING
+--------------------------------------- */
+function renderParallax(dt) {
+    // Move layers based on player movement
+    let speedFactor = (keys["ArrowLeft"] ? -1 : keys["ArrowRight"] ? 1 : 0);
+
+    for (const key in bgLayers) {
+        const layer = bgLayers[key];
+        if (layer.speed > 0) {
+            layer.offset += layer.speed * dt * speedFactor;
+            if (layer.offset < -canvas.width) layer.offset += canvas.width;
+            if (layer.offset > canvas.width) layer.offset -= canvas.width;
+
+            // Draw twice for seamless scroll
+            ctx.drawImage(layer.img, layer.offset, canvas.height - layer.img.height - 180);
+            ctx.drawImage(layer.img, layer.offset + canvas.width, canvas.height - layer.img.height - 180);
+        }
+    }
+
+    // Street layer
+    ctx.drawImage(bgLayers.street.img, 0, canvas.height - 160, canvas.width, 160);
+}
+
+/* ---------------------------------------
+   SUBURB TRANSITIONS
+--------------------------------------- */
+function updateSuburb(dt) {
+    // Scroll accumulates as player moves horizontally
+    if (keys["ArrowRight"]) worldScroll += dt * 200;
+    if (keys["ArrowLeft"]) worldScroll -= dt * 200;
+
+    if (Math.abs(worldScroll) > suburbLength) {
+        worldScroll = 0;
+        currentSuburbIndex = (currentSuburbIndex + 1) % suburbs.length;
+        state.suburb = suburbs[currentSuburbIndex].name;
+    }
+}
+
+/* ---------------------------------------
+   HUD UPDATE
+--------------------------------------- */
+function updateHUD() {
+    document.getElementById("bar-hunger").style.width = state.hunger + "%";
+    document.getElementById("bar-warmth").style.width = state.warmth + "%";
+    document.getElementById("bar-hope").style.width = state.hope + "%";
+    document.getElementById("bar-vice").style.width = state.vice + "%";
+
+    document.getElementById("cash").textContent = state.cash;
+    document.getElementById("heat").textContent = state.heat;
+    document.getElementById("timer").textContent = state.timeAlive;
+    document.getElementById("suburb").textContent = state.suburb;
+}
 </script>
 
 </body>
