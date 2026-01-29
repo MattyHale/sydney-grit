@@ -29,6 +29,14 @@
         </p>
       </main>
     </div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module">
+      const isViteRuntime =
+        typeof import.meta.env !== "undefined" &&
+        (import.meta.env.DEV || import.meta.env.PROD);
+
+      if (isViteRuntime) {
+        import("/src/main.tsx");
+      }
+    </script>
   </body>
 </html>
