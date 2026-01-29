@@ -49,6 +49,30 @@ canvas {
     transition: width 0.2s;
 }
 
+<meta charset="UTF-8">
+<title>Sydney Grit – Giantfile Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+        margin: 0;
+        background: #0f1014;
+        overflow: hidden;
+    }
+    canvas {
+        display: block;
+        margin: 0 auto;
+        background: #0a0a0a;
+    }
+    #hud {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        font-family: Arial, sans-serif;
+        color: white;
+        z-index: 10;
+        font-size: 14px;
+        user-select: none;
+    }
 </style>
 </head>
 <body>
@@ -98,6 +122,29 @@ window.onresize = resizeCanvas;
 --------------------------------------- */
 const state = {
     // Survival stats
+<canvas id="game"></canvas>
+<div id="hud">
+    <div>Hunger: <span id="hunger">100</span></div>
+    <div>Warmth: <span id="warmth">100</span></div>
+    <div>Hope: <span id="hope">100</span></div>
+    <div>Vice: <span id="vice">0</span></div>
+    <div>Cash: <span id="cash">0</span></div>
+    <div>Time Alive: <span id="timer">0</span>s</div>
+</div>
+
+<script>
+// =========================
+// CANVAS SETUP
+// =========================
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// =========================
+// GAME STATE
+// =========================
+let state = {
     hunger: 100,
     warmth: 100,
     hope: 100,
@@ -296,5 +343,189 @@ const dog = new Dog(player);
 state.entities.push(player, dog);
 
 </script>
+    cash: 0,
+    timeAlive: 0,
+    entities: [],
+    events: [],
+};
+
+// HUD UPDATE
+function updateHUD() {
+    document.getElementById("hunger").textContent = state.hunger;
+    document.getElementById("warmth").textContent = state.warmth;
+    document.getElementById("hope").textContent = state.hope;
+    document.getElementById("vice").textContent = state.vice;
+    document.getElementById("cash").textContent = state.cash;
+    document.getElementById("timer").textContent = state.timeAlive;
+}
+
+// =========================
+// PLAYER
+// =========================
+const player = {
+    x: canvas.width / 2,
+    y: canvas.height - 180,
+    w: 60,
+    h: 60,
+    speed: 4,
+    color: "#5af",
+};
+
+state.entities.push(player);
+
+// =========================
+// DOG FOLLOWER
+// =========================
+const dog = {
+    x: player.x - 100,
+    y: player.y,
+    w: 40,
+    h: 40,
+    color: "#d9a",
+    follow() {
+        this.x += (player.x - this.x) * 0.05;
+        this.y += (player.y - this.y) * 0.05;
+    }
+};
+state.entities.push(dog);
+
+// =========================
+// RANDOM NPC (street characters)
+// =========================
+function spawnNPC() {
+    const npc = {
+        x: canvas.width + 50,
+        y: canvas.height - 180,
+        w: 50,
+        h: 50,
+        speed: Math.random() * 1 + 0.5,
+        color: "#ccc",
+        update() {
+            this.x -= this.speed;
+        }
+    };
+    state.entities.push(npc);
+}
+
+setInterval(() => {
+    spawnNPC();
+}, 1800);
+
+// =========================
+// POLICE CHASE EVENT
+// =========================
+function spawnPolice() {
+    const cop = {
+        x: canvas.width + 100,
+        y: player.y,
+        w: 60,
+        h: 60,
+        speed: 6,
+        color: "#3af",
+        update() {
+            this.x -= this.speed;
+            if (Math.abs(this.x - player.x) < 50) {
+                // Player caught
+                state.hope -= 20;
+            }
+        }
+    };
+    state.entities.push(cop);
+}
+
+setInterval(() => {
+    if (Math.random() < 0.2) spawnPolice();
+}, 5000);
+
+// =========================
+// INPUT
+// =========================
+const keys = {};
+
+window.addEventListener("keydown", e => keys[e.key] = true);
+window.addEventListener("keyup", e => keys[e.key] = false);
+
+// =========================
+// RANDOM ENCOUNTERS
+// =========================
+function randomEvent() {
+    const roll = Math.random();
+
+    // Street deal (legal abstract)
+    if (roll < 0.33) {
+        state.cash += 5;
+        state.vice += 2;
+    }
+    // Helpful stranger
+    else if (roll < 0.66) {
+        state.hope += 5;
+        state.warmth += 5;
+    }
+    // Dangerous encounter
+    else {
+        state.hope -= 10;
+        state.hunger -= 5;
+    }
+}
+
+setInterval(randomEvent, 7000);
+
+// =========================
+// SURVIVAL DECAY
+// =========================
+setInterval(() => {
+    state.hunger -= 1;
+    state.warmth -= 1;
+    state.hope -= 0.5;
+    state.vice = Math.max(0, state.vice - 0.5);
+    state.timeAlive += 1;
+
+    if (state.hunger <= 0 || state.warmth <= 0 || state.hope <= 0) {
+        alert("Game Over — You survived " + state.timeAlive + " seconds.");
+        location.reload();
+    }
+
+}, 1000);
+
+// =========================
+// GAME LOOP
+// =========================
+function loop() {
+    updateHUD();
+
+    // Background
+    ctx.fillStyle = "#1a1d22";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Street
+    ctx.fillStyle = "#222";
+    ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
+
+    // Player movement
+    if (keys["ArrowLeft"]) player.x -= player.speed;
+    if (keys["ArrowRight"]) player.x += player.speed;
+    if (keys["ArrowUp"]) player.y -= player.speed;
+    if (keys["ArrowDown"]) player.y += player.speed;
+
+    // Clamp player
+    player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
+    player.y = Math.max(0, Math.min(canvas.height - 200, player.y));
+
+    // Dog follow
+    dog.follow();
+
+    // Draw all entities
+    state.entities.forEach(e => {
+        if (e.update) e.update();
+        ctx.fillStyle = e.color;
+        ctx.fillRect(e.x, e.y, e.w, e.h);
+    });
+
+    requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
 </body>
 </html>
