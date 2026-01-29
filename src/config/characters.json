@@ -1,0 +1,6 @@
+{
+  "npcTypes": [
+    { "id": "founder", "name": "Founder", "dialogue": ["Need funding?", "Pivot fast."] },
+    { "id": "dealer", "name": "Dealer", "dialogue": ["Looking for a hit?"] }
+  ]
+}

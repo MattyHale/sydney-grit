@@ -16,18 +16,25 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@SydneyGrit" />
     <meta name="twitter:image" content="%BASE_URL%og-image.png" />
+    <style>
+      body {
+        margin: 0;
+        background: #0f172a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      #game-canvas {
+        border: 2px solid #1f2937;
+        image-rendering: pixelated;
+      }
+    </style>
   </head>
 
   <body>
-    <div id="root"></div>
-    <script type="module">
-      const isViteRuntime =
-        typeof import.meta.env !== "undefined" &&
-        (import.meta.env.DEV || import.meta.env.PROD);
-
-      if (isViteRuntime) {
-        import("/src/main.tsx");
-      }
-    </script>
+    <canvas id="game-canvas"></canvas>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
