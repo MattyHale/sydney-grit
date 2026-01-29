@@ -48,31 +48,6 @@ canvas {
     background: #55ff55;
     transition: width 0.2s;
 }
-
-<meta charset="UTF-8">
-<title>Sydney Grit – Giantfile Edition</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    body {
-        margin: 0;
-        background: #0f1014;
-        overflow: hidden;
-    }
-    canvas {
-        display: block;
-        margin: 0 auto;
-        background: #0a0a0a;
-    }
-    #hud {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        font-family: Arial, sans-serif;
-        color: white;
-        z-index: 10;
-        font-size: 14px;
-        user-select: none;
-    }
 </style>
 </head>
 <body>
@@ -121,50 +96,21 @@ window.onresize = resizeCanvas;
    GAME STATE
 --------------------------------------- */
 const state = {
-    // Survival stats
-<canvas id="game"></canvas>
-<div id="hud">
-    <div>Hunger: <span id="hunger">100</span></div>
-    <div>Warmth: <span id="warmth">100</span></div>
-    <div>Hope: <span id="hope">100</span></div>
-    <div>Vice: <span id="vice">0</span></div>
-    <div>Cash: <span id="cash">0</span></div>
-    <div>Time Alive: <span id="timer">0</span>s</div>
-</div>
-
-<script>
-// =========================
-// CANVAS SETUP
-// =========================
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-// =========================
-// GAME STATE
-// =========================
-let state = {
     hunger: 100,
     warmth: 100,
     hope: 100,
     vice: 0,
 
-    // Economy & pressure
     cash: 0,
     heat: 0,
     timeAlive: 0,
 
-    // Dog state
     dogHunger: 100,
     dogLoyalty: 100,
 
-    // World
     suburb: "CBD",
-    weather: "clear",
-    timeOfDay: 12, // 0–24 hours
+    timeOfDay: 12,
 
-    // Systems
     entities: [],
     events: [],
     particles: [],
@@ -227,6 +173,7 @@ class Entity {
         this.w = w;
         this.h = h;
         this.sprite = sprite;
+        this.dead = false;
     }
     update(dt) {}
     draw(ctx) {
@@ -342,190 +289,6 @@ const player = new Player();
 const dog = new Dog(player);
 state.entities.push(player, dog);
 
-</script>
-    cash: 0,
-    timeAlive: 0,
-    entities: [],
-    events: [],
-};
-
-// HUD UPDATE
-function updateHUD() {
-    document.getElementById("hunger").textContent = state.hunger;
-    document.getElementById("warmth").textContent = state.warmth;
-    document.getElementById("hope").textContent = state.hope;
-    document.getElementById("vice").textContent = state.vice;
-    document.getElementById("cash").textContent = state.cash;
-    document.getElementById("timer").textContent = state.timeAlive;
-}
-
-// =========================
-// PLAYER
-// =========================
-const player = {
-    x: canvas.width / 2,
-    y: canvas.height - 180,
-    w: 60,
-    h: 60,
-    speed: 4,
-    color: "#5af",
-};
-
-state.entities.push(player);
-
-// =========================
-// DOG FOLLOWER
-// =========================
-const dog = {
-    x: player.x - 100,
-    y: player.y,
-    w: 40,
-    h: 40,
-    color: "#d9a",
-    follow() {
-        this.x += (player.x - this.x) * 0.05;
-        this.y += (player.y - this.y) * 0.05;
-    }
-};
-state.entities.push(dog);
-
-// =========================
-// RANDOM NPC (street characters)
-// =========================
-function spawnNPC() {
-    const npc = {
-        x: canvas.width + 50,
-        y: canvas.height - 180,
-        w: 50,
-        h: 50,
-        speed: Math.random() * 1 + 0.5,
-        color: "#ccc",
-        update() {
-            this.x -= this.speed;
-        }
-    };
-    state.entities.push(npc);
-}
-
-setInterval(() => {
-    spawnNPC();
-}, 1800);
-
-// =========================
-// POLICE CHASE EVENT
-// =========================
-function spawnPolice() {
-    const cop = {
-        x: canvas.width + 100,
-        y: player.y,
-        w: 60,
-        h: 60,
-        speed: 6,
-        color: "#3af",
-        update() {
-            this.x -= this.speed;
-            if (Math.abs(this.x - player.x) < 50) {
-                // Player caught
-                state.hope -= 20;
-            }
-        }
-    };
-    state.entities.push(cop);
-}
-
-setInterval(() => {
-    if (Math.random() < 0.2) spawnPolice();
-}, 5000);
-
-// =========================
-// INPUT
-// =========================
-const keys = {};
-
-window.addEventListener("keydown", e => keys[e.key] = true);
-window.addEventListener("keyup", e => keys[e.key] = false);
-
-// =========================
-// RANDOM ENCOUNTERS
-// =========================
-function randomEvent() {
-    const roll = Math.random();
-
-    // Street deal (legal abstract)
-    if (roll < 0.33) {
-        state.cash += 5;
-        state.vice += 2;
-    }
-    // Helpful stranger
-    else if (roll < 0.66) {
-        state.hope += 5;
-        state.warmth += 5;
-    }
-    // Dangerous encounter
-    else {
-        state.hope -= 10;
-        state.hunger -= 5;
-    }
-}
-
-setInterval(randomEvent, 7000);
-
-// =========================
-// SURVIVAL DECAY
-// =========================
-setInterval(() => {
-    state.hunger -= 1;
-    state.warmth -= 1;
-    state.hope -= 0.5;
-    state.vice = Math.max(0, state.vice - 0.5);
-    state.timeAlive += 1;
-
-    if (state.hunger <= 0 || state.warmth <= 0 || state.hope <= 0) {
-        alert("Game Over — You survived " + state.timeAlive + " seconds.");
-        location.reload();
-    }
-
-}, 1000);
-
-// =========================
-// GAME LOOP
-// =========================
-function loop() {
-    updateHUD();
-
-    // Background
-    ctx.fillStyle = "#1a1d22";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Street
-    ctx.fillStyle = "#222";
-    ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
-
-    // Player movement
-    if (keys["ArrowLeft"]) player.x -= player.speed;
-    if (keys["ArrowRight"]) player.x += player.speed;
-    if (keys["ArrowUp"]) player.y -= player.speed;
-    if (keys["ArrowDown"]) player.y += player.speed;
-
-    // Clamp player
-    player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
-    player.y = Math.max(0, Math.min(canvas.height - 200, player.y));
-
-    // Dog follow
-    dog.follow();
-
-    // Draw all entities
-    state.entities.forEach(e => {
-        if (e.update) e.update();
-        ctx.fillStyle = e.color;
-        ctx.fillRect(e.x, e.y, e.w, e.h);
-    });
-
-    requestAnimationFrame(loop);
-}
-
-loop();
-
 /* ============================================================
    PART 2/3 – WORLD SYSTEM, PARALLAX, SUBURBS, WEATHER, DAY/NIGHT
    ============================================================ */
@@ -640,6 +403,9 @@ function applyTimeTint() {
    PARALLAX RENDERING
 --------------------------------------- */
 function renderParallax(dt) {
+    ctx.fillStyle = bgLayers.sky.color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     // Move layers based on player movement
     let speedFactor = (keys["ArrowLeft"] ? -1 : keys["ArrowRight"] ? 1 : 0);
 
@@ -684,11 +450,203 @@ function updateHUD() {
     document.getElementById("bar-hope").style.width = state.hope + "%";
     document.getElementById("bar-vice").style.width = state.vice + "%";
 
-    document.getElementById("cash").textContent = state.cash;
-    document.getElementById("heat").textContent = state.heat;
-    document.getElementById("timer").textContent = state.timeAlive;
+    document.getElementById("cash").textContent = Math.floor(state.cash);
+    document.getElementById("heat").textContent = Math.floor(state.heat);
+    document.getElementById("timer").textContent = Math.floor(state.timeAlive);
     document.getElementById("suburb").textContent = state.suburb;
 }
+
+/* ============================================================
+   PART 3/3 – NPC AI, EVENTS, DOG, POLICE, SURVIVAL, LOOP
+   ============================================================ */
+
+let npcSpawnTimer = 0;
+let ibisSpawnTimer = 0;
+let copSpawnTimer = 0;
+
+function spawnNPC() {
+    state.entities.push(new NPC(
+        canvas.width + 50,
+        canvas.height - 200 - rand(0, 100)
+    ));
+}
+
+function spawnIbis() {
+    state.entities.push(new Ibis());
+}
+
+function spawnCop() {
+    if (state.heat < 20) return;
+    state.entities.push(new Cop(player));
+}
+
+function updateDog(dt) {
+    state.dogHunger -= dt * 1;
+    state.dogHunger = clamp(state.dogHunger, 0, 100);
+
+    if (state.dogHunger < 20) state.dogLoyalty -= dt * 5;
+
+    if (state.dogLoyalty <= 0) {
+        state.entities = state.entities.filter(e => !(e instanceof Dog));
+    }
+}
+
+function handleEncounter(npc) {
+    const roll = Math.random();
+
+    if (roll < 0.25) {
+        state.cash += rand(1, 5);
+        state.hope += 2;
+    } else if (roll < 0.5) {
+        state.heat += 5;
+        state.hope -= 3;
+    } else if (roll < 0.75) {
+        state.vice = clamp(state.vice - 5, 0, 100);
+        state.hope += 1;
+    } else {
+        state.hope -= 5;
+    }
+}
+
+function updatePolice(dt) {
+    state.heat -= dt * 0.5;
+    state.heat = clamp(state.heat, 0, 100);
+
+    if (state.heat > 40 && copSpawnTimer <= 0) {
+        spawnCop();
+        copSpawnTimer = rand(5, 10);
+    }
+}
+
+function updateSurvival(dt) {
+    state.hunger -= dt * 2;
+    if (state.hunger <= 0) state.hope -= dt * 15;
+
+    let warmthRate = 0.7;
+    if (weather.type === "storm") warmthRate = 2.0;
+
+    const hour = state.timeOfDay;
+    if (hour >= 20 || hour <= 6) warmthRate += 0.5;
+
+    state.warmth -= dt * warmthRate;
+
+    state.vice += dt * 0.8;
+
+    if (state.hunger < 30) state.hope -= dt * 3;
+    if (state.warmth < 30) state.hope -= dt * 3;
+    if (state.vice > 80) state.hope -= dt * 2;
+
+    state.hunger = clamp(state.hunger, 0, 100);
+    state.warmth = clamp(state.warmth, 0, 100);
+    state.hope = clamp(state.hope, 0, 100);
+    state.vice = clamp(state.vice, 0, 100);
+}
+
+function checkDeath() {
+    return (
+        state.hope <= 0 ||
+        state.warmth <= 0 ||
+        state.hunger <= 0
+    );
+}
+
+function renderDeathScreen() {
+    ctx.fillStyle = "rgba(0,0,0,0.8)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#ff4444";
+    ctx.font = "48px Arial";
+    ctx.fillText("GAME OVER", canvas.width/2 - 120, canvas.height/2 - 40);
+
+    ctx.fillStyle = "white";
+    ctx.font = "24px Arial";
+    ctx.fillText(`Time alive: ${Math.floor(state.timeAlive)}s`, canvas.width/2 - 90, canvas.height/2 + 10);
+}
+
+function updateEntities(dt) {
+    for (const e of state.entities) e.update(dt);
+
+    state.entities.forEach(e => {
+        if (e instanceof NPC) {
+            if (
+                Math.abs(e.x - player.x) < 40 &&
+                Math.abs(e.y - player.y) < 40
+            ) {
+                handleEncounter(e);
+                e.dead = true;
+            }
+        }
+    });
+
+    state.entities = state.entities.filter(e => !e.dead);
+}
+
+function updateSpawns(dt) {
+    npcSpawnTimer -= dt;
+    ibisSpawnTimer -= dt;
+    copSpawnTimer -= dt;
+
+    if (npcSpawnTimer <= 0) {
+        spawnNPC();
+        npcSpawnTimer = rand(2, 5);
+    }
+
+    if (ibisSpawnTimer <= 0) {
+        spawnIbis();
+        ibisSpawnTimer = rand(6, 12);
+    }
+}
+
+function renderEntities() {
+    for (const e of state.entities) e.draw(ctx);
+}
+
+function renderWeather() {
+    if (weather.type === "rain" || weather.type === "storm") {
+        ctx.strokeStyle = "rgba(180,180,255,0.5)";
+        ctx.lineWidth = 2;
+        weather.particles.forEach(p => {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x + 3, p.y + 10);
+            ctx.stroke();
+        });
+    }
+}
+
+function gameLoop(ts) {
+    const dt = (ts - state.lastFrame) / 1000;
+    state.lastFrame = ts;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    renderParallax(dt);
+
+    updateSpawns(dt);
+    updateEntities(dt);
+    updateWeather(dt);
+    updatePolice(dt);
+    updateDog(dt);
+    updateSurvival(dt);
+    updateSuburb(dt);
+    updateTimeOfDay(dt);
+    updateHUD();
+
+    renderEntities();
+    renderWeather();
+    applyTimeTint();
+
+    state.timeAlive += dt;
+
+    if (checkDeath()) {
+        renderDeathScreen();
+        return;
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+requestAnimationFrame(gameLoop);
 </script>
 
 </body>
