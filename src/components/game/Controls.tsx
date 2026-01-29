@@ -85,12 +85,13 @@ export function Controls({
   const zoneHint = getZoneHint();
 
   return (
-    <div className="bg-gb-darkest border-t-2 border-gb-dark px-2 sm:px-3 py-3 sm:py-2 flex justify-between items-center min-h-[130px] sm:min-h-[110px]">
+    <div className="bg-gb-darkest border-t-2 border-gb-dark px-2 sm:px-3 py-3 sm:py-2 flex justify-between items-center min-h-[130px] sm:min-h-[110px] relative overflow-hidden">
+      <div className="absolute inset-0 gb-grid pointer-events-none opacity-40" />
       {/* D-Pad */}
-      <div className="relative w-28 h-28 sm:w-24 sm:h-24">
+      <div className="relative w-28 h-28 sm:w-24 sm:h-24 pixel-panel screen-bezel p-2">
         {/* Up - Shows zone hint when available */}
         <button
-          className={`absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-9 sm:h-9 rounded-t-lg flex flex-col items-center justify-center touch-none select-none shadow-lg ${
+          className={`absolute top-2 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-9 sm:h-9 rounded-t-lg flex flex-col items-center justify-center touch-none select-none shadow-lg pixel-button ${
             canInteract ? 'bg-gb-light' : 'bg-gb-dark opacity-60'
           } active:bg-gb-light`}
           onTouchStart={(e) => {
@@ -111,7 +112,7 @@ export function Controls({
         
         {/* Down */}
         <button
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-9 sm:h-9 bg-gb-dark active:bg-gb-light rounded-b-lg flex items-center justify-center touch-none select-none shadow-lg"
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-9 sm:h-9 bg-gb-dark active:bg-gb-light rounded-b-lg flex items-center justify-center touch-none select-none shadow-lg pixel-button"
           onTouchStart={(e) => { e.preventDefault(); onDown(true); }}
           onTouchEnd={(e) => { e.preventDefault(); onDown(false); }}
           onMouseDown={() => onDown(true)}
@@ -123,7 +124,7 @@ export function Controls({
         
         {/* Left */}
         <button
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-9 sm:h-9 bg-gb-dark active:bg-gb-light rounded-l-lg flex items-center justify-center touch-none select-none shadow-lg"
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-9 sm:h-9 bg-gb-dark active:bg-gb-light rounded-l-lg flex items-center justify-center touch-none select-none shadow-lg pixel-button"
           onTouchStart={(e) => { e.preventDefault(); startMove('left'); }}
           onTouchEnd={(e) => { e.preventDefault(); stopMove(); }}
           onMouseDown={() => startMove('left')}
@@ -135,7 +136,7 @@ export function Controls({
         
         {/* Right */}
         <button
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-9 sm:h-9 bg-gb-dark active:bg-gb-light rounded-r-lg flex items-center justify-center touch-none select-none shadow-lg"
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-9 sm:h-9 bg-gb-dark active:bg-gb-light rounded-r-lg flex items-center justify-center touch-none select-none shadow-lg pixel-button"
           onTouchStart={(e) => { e.preventDefault(); startMove('right'); }}
           onTouchEnd={(e) => { e.preventDefault(); stopMove(); }}
           onMouseDown={() => startMove('right')}
@@ -146,14 +147,14 @@ export function Controls({
         </button>
         
         {/* Center */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 sm:w-7 sm:h-7 bg-gb-darkest rounded" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 sm:w-7 sm:h-7 bg-gb-darkest rounded pixel-panel" />
       </div>
 
       {/* 4 Fixed Action Buttons in 2x2 grid */}
       <div className="grid grid-cols-2 gap-2 sm:gap-1.5">
         {/* STEAL */}
         <button
-          className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all ${
+          className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all pixel-button ${
             canSteal 
               ? 'bg-gb-light border-gb-lightest animate-pulse' 
               : 'bg-gb-dark border-gb-dark opacity-50'
@@ -168,7 +169,7 @@ export function Controls({
 
         {/* PITCH */}
         <button
-          className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all ${
+          className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all pixel-button ${
             canPitch 
               ? 'bg-gb-light border-gb-lightest animate-pulse' 
               : 'bg-gb-dark border-gb-dark opacity-50'
@@ -183,7 +184,7 @@ export function Controls({
 
         {/* BUY DRUGS */}
         <button
-          className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all ${
+          className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all pixel-button ${
             canBuyDrugs 
               ? 'bg-gb-light border-gb-lightest animate-pulse' 
               : 'bg-gb-dark border-gb-dark opacity-50'
@@ -198,7 +199,7 @@ export function Controls({
 
         {/* SELL DRUGS */}
         <button
-          className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all ${
+          className={`w-16 h-12 sm:w-14 sm:h-10 rounded-lg flex flex-col items-center justify-center touch-none select-none shadow-lg border-2 transition-all pixel-button ${
             canSellDrugs 
               ? 'bg-gb-light border-gb-lightest animate-pulse' 
               : 'bg-gb-dark border-gb-dark opacity-50'

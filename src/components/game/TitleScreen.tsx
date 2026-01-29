@@ -46,16 +46,17 @@ export const TitleScreen = ({ onStart }: TitleScreenProps) => {
   return (
     <div className="h-full flex flex-col items-center justify-center bg-gb-darkest relative overflow-hidden">
       {/* Scanline overlay */}
-      <div className="absolute inset-0 scanlines pointer-events-none opacity-30" />
-      
+      <div className="absolute inset-0 scanlines pointer-events-none opacity-40" />
+      <div className="absolute inset-0 gb-grid pointer-events-none" />
+
       {/* CRT glow effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-gb-light/5 via-transparent to-transparent pointer-events-none" />
-      
+      <div className="absolute inset-0 bg-gradient-radial from-gb-light/10 via-transparent to-transparent pointer-events-none" />
+
       {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center gap-4 px-4 text-center">
+      <div className="relative z-10 flex flex-col items-center gap-4 px-4 text-center pixel-panel screen-bezel py-8 sm:py-10 w-[90%] max-w-sm">
         {/* Game title */}
         <div className="flex flex-col items-center gap-1">
-          <p className="text-gb-medium text-[8px] sm:text-[10px] tracking-widest">
+          <p className="text-gb-light text-[8px] sm:text-[10px] tracking-widest">
             SYDNEY 1991
           </p>
           <h1 className="text-gb-lightest text-3xl sm:text-4xl md:text-5xl tracking-wider gb-glow font-bold">
@@ -69,10 +70,10 @@ export const TitleScreen = ({ onStart }: TitleScreenProps) => {
         </p>
 
         {/* Decorative divider */}
-        <div className="flex items-center gap-2 my-1">
-          <div className="w-6 h-0.5 bg-gb-medium" />
+        <div className="flex items-center gap-2 my-2">
+          <div className="w-8 h-0.5 bg-gb-medium" />
           <div className="text-gb-light text-[8px]">💼</div>
-          <div className="w-6 h-0.5 bg-gb-medium" />
+          <div className="w-8 h-0.5 bg-gb-medium" />
         </div>
 
         {/* Story intro */}
@@ -104,16 +105,16 @@ export const TitleScreen = ({ onStart }: TitleScreenProps) => {
         </div>
 
         {/* Copyright/version */}
-        <p className="absolute bottom-4 text-gb-dark text-[6px] sm:text-[8px]">
-          © 1991 KINGS CROSS GAMES
+        <p className="text-gb-dark text-[6px] sm:text-[8px]">
+          © 1991 KINGS CROSS GAMES • VERSION 2.0
         </p>
       </div>
 
       {/* Corner decorations - briefcase style */}
-      <div className="absolute top-4 left-4 w-3 h-3 border-l-2 border-t-2 border-gb-medium" />
-      <div className="absolute top-4 right-4 w-3 h-3 border-r-2 border-t-2 border-gb-medium" />
-      <div className="absolute bottom-4 left-4 w-3 h-3 border-l-2 border-b-2 border-gb-medium" />
-      <div className="absolute bottom-4 right-4 w-3 h-3 border-r-2 border-b-2 border-gb-medium" />
+      <div className="absolute top-4 left-4 w-4 h-4 border-l-2 border-t-2 border-gb-medium" />
+      <div className="absolute top-4 right-4 w-4 h-4 border-r-2 border-t-2 border-gb-medium" />
+      <div className="absolute bottom-4 left-4 w-4 h-4 border-l-2 border-b-2 border-gb-medium" />
+      <div className="absolute bottom-4 right-4 w-4 h-4 border-r-2 border-b-2 border-gb-medium" />
     </div>
   );
 };
