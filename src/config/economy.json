@@ -1,0 +1,10 @@
+{
+  "hunger": { "start": 80, "decayRate": 1.6 },
+  "warmth": { "start": 70, "decayRate": 1.2 },
+  "hope": { "start": 60, "decayRate": 0.9 },
+  "money": { "start": 50 },
+  "drugEffects": {
+    "weed": { "hopeBoost": 5, "hungerDecayMultiplier": 0.8 },
+    "lsd": { "hopeBoost": 12, "visualEffect": "lsd" }
+  }
+}

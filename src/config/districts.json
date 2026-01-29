@@ -1,0 +1,20 @@
+[
+  {
+    "name": "CBD",
+    "background": "cbd.png",
+    "npcTypes": ["founder"],
+    "spawnRates": { "pedestrians": 8, "ibis": 2, "cops": 1, "cars": 4 },
+    "events": ["PITCH_TO_INVESTOR"],
+    "difficulty": 1.1,
+    "visualTint": "#1e40af"
+  },
+  {
+    "name": "Kings Cross",
+    "background": "kingscross.png",
+    "npcTypes": ["dealer"],
+    "spawnRates": { "pedestrians": 6, "ibis": 3, "cops": 2, "cars": 5 },
+    "events": ["BUY_DRUGS"],
+    "difficulty": 1.5,
+    "visualTint": "#ff7755"
+  }
+]

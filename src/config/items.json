@@ -1,0 +1,12 @@
+{
+  "drugs": [
+    { "id": "weed", "name": "Weed", "effect": "calm", "duration": 60 },
+    { "id": "lsd", "name": "LSD", "effect": "trip", "duration": 30 }
+  ],
+  "food": [
+    { "id": "meat_pie", "name": "Meat Pie", "hungerRestore": 20 }
+  ],
+  "pitches": [
+    { "id": "seed", "name": "Seed Pitch", "successChance": 0.25, "reward": 120 }
+  ]
+}
