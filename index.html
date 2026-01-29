@@ -1,6 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8" />
+<title>Sydney Grit – Full Rebuild</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+/* --- GLOBAL PAGE STYLING --- */
+body {
+    margin: 0;
+    background: #0c0f12;
+    overflow: hidden;
+    user-select: none;
+    font-family: Arial, sans-serif;
+}
+
+canvas {
+    display: block;
+    margin: 0 auto;
+    background: #050607;
+}
+
+/* --- HUD TEXT + BARS --- */
+#hud {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: white;
+    z-index: 10;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.bar {
+    width: 160px;
+    height: 10px;
+    background: #333;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #000;
+}
+
+.bar-inner {
+    height: 100%;
+    width: 100%;
+    background: #55ff55;
+    transition: width 0.2s;
+}
+
 <meta charset="UTF-8">
 <title>Sydney Grit – Giantfile Edition</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,6 +77,51 @@
 </head>
 <body>
 
+<!-- ========================= -->
+<!-- HUD SYSTEM -->
+<!-- ========================= -->
+<div id="hud">
+    <div>Hunger</div><div class="bar"><div id="bar-hunger" class="bar-inner"></div></div>
+    <div>Warmth</div><div class="bar"><div id="bar-warmth" class="bar-inner"></div></div>
+    <div>Hope</div><div class="bar"><div id="bar-hope" class="bar-inner"></div></div>
+    <div>Vice</div><div class="bar"><div id="bar-vice" class="bar-inner"></div></div>
+
+    <div style="margin-top:10px;">
+        Cash: <span id="cash">0</span><br>
+        Heat: <span id="heat">0</span><br>
+        Time Alive: <span id="timer">0</span>s<br>
+        Suburb: <span id="suburb">CBD</span>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- GAME CANVAS -->
+<!-- ========================= -->
+<canvas id="game"></canvas>
+
+<script>
+/* ============================================================
+   PART 1/3 – CORE ENGINE, STRUCTURE, RENDERER, SYSTEM SETUP
+   ============================================================ */
+
+/* ---------------------------------------
+   CANVAS + CONTEXT SETUP
+--------------------------------------- */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.onresize = resizeCanvas;
+
+/* ---------------------------------------
+   GAME STATE
+--------------------------------------- */
+const state = {
+    // Survival stats
 <canvas id="game"></canvas>
 <div id="hud">
     <div>Hunger: <span id="hunger">100</span></div>
@@ -56,6 +149,200 @@ let state = {
     warmth: 100,
     hope: 100,
     vice: 0,
+
+    // Economy & pressure
+    cash: 0,
+    heat: 0,
+    timeAlive: 0,
+
+    // Dog state
+    dogHunger: 100,
+    dogLoyalty: 100,
+
+    // World
+    suburb: "CBD",
+    weather: "clear",
+    timeOfDay: 12, // 0–24 hours
+
+    // Systems
+    entities: [],
+    events: [],
+    particles: [],
+
+    lastFrame: performance.now(),
+};
+
+/* ---------------------------------------
+   INPUT HANDLER
+--------------------------------------- */
+const keys = {};
+window.addEventListener("keydown", e => keys[e.key] = true);
+window.addEventListener("keyup", e => keys[e.key] = false);
+
+/* ---------------------------------------
+   UTILITIES
+--------------------------------------- */
+function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+}
+
+function rand(a, b) {
+    return Math.random() * (b - a) + a;
+}
+
+function chance(p) {
+    return Math.random() < p;
+}
+
+/* ---------------------------------------
+   SPRITE BASE64 (HYBRID PIXEL SILHOUETTES)
+--------------------------------------- */
+const spritePlayer = new Image();
+spritePlayer.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAP0lEQVRYhe3OQQ0AAAgDINc/9K3hCEqMwkQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4GQ+DAB4tiTmrAAAAAElFTkSuQmCC";
+
+const spriteDog = new Image();
+spriteDog.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAWCAYAAAD5nd/tAAAAPUlEQVRIie3SMQ0AIAwDwYA9/6Wn0hEIjzDk3SCe8x2VIQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8Br8NAgABNEMY0QAAAABJRU5ErkJggg==";
+
+const spriteNPC = new Image();
+spriteNPC.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAPUlEQVRIiWNgGAWjgH3g////MpwYGBiYDBgwGP5z/P///w8GhgYGBtBpgBIMGEAFBgYGhgYGBtC2ICACABmQaL5GsyhWAAAAAElFTkSuQmCC";
+
+const spriteIbis = new Image();
+spriteIbis.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAXCAYAAACh+o6PAAAAOklEQVRIie3SQQ0AIAwDsYG9/6VnEECjMCHfYyZf68hIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8G78FBAAAz5FlAQQAAAABJRU5ErkJggg==";
+
+const spriteCop = new Image();
+spriteCop.src =
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAhCAYAAADp6C6iAAAARklEQVRIiWNgGAWjgP///8M7MDDw////BwYmBiYGoQYmBgYGH7H8///BgbGBiYGoQZmBgYGLzPwP///x8GhgYGhgYGBgBjOx0lczHxLAAAAABJRU5ErkJggg==";
+
+/* ---------------------------------------
+   ENTITY SYSTEM BASE CLASS
+--------------------------------------- */
+class Entity {
+    constructor(x, y, w, h, sprite = null) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.sprite = sprite;
+    }
+    update(dt) {}
+    draw(ctx) {
+        if (this.sprite) {
+            ctx.drawImage(this.sprite, this.x, this.y, this.w, this.h);
+        } else {
+            ctx.fillStyle = "white";
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+        }
+    }
+}
+
+/* ---------------------------------------
+   PLAYER
+--------------------------------------- */
+class Player extends Entity {
+    constructor() {
+        super(canvas.width/2, canvas.height - 200, 60, 60, spritePlayer);
+        this.speed = 220;
+    }
+    update(dt) {
+        if (keys["ArrowLeft"])  this.x -= this.speed * dt;
+        if (keys["ArrowRight"]) this.x += this.speed * dt;
+        if (keys["ArrowUp"])    this.y -= this.speed * dt;
+        if (keys["ArrowDown"])  this.y += this.speed * dt;
+
+        // Boundaries
+        this.x = clamp(this.x, 0, canvas.width - this.w);
+        this.y = clamp(this.y, 0, canvas.height - 200);
+    }
+}
+
+/* ---------------------------------------
+   DOG (FOLLOWER)
+--------------------------------------- */
+class Dog extends Entity {
+    constructor(player) {
+        super(player.x - 80, player.y, 40, 40, spriteDog);
+        this.player = player;
+    }
+    update(dt) {
+        // Follow logic
+        this.x += (this.player.x - this.x) * 0.05;
+        this.y += (this.player.y - this.y) * 0.05;
+    }
+}
+
+/* ---------------------------------------
+   NPC BASE
+--------------------------------------- */
+class NPC extends Entity {
+    constructor(x, y) {
+        super(x, y, 50, 50, spriteNPC);
+        this.speed = rand(40, 70);
+    }
+    update(dt) {
+        this.x -= this.speed * dt;
+        if (this.x < -200) this.dead = true;
+    }
+}
+
+/* ---------------------------------------
+   IBIS
+--------------------------------------- */
+class Ibis extends Entity {
+    constructor() {
+        super(canvas.width + 60, canvas.height - 210, 50, 40, spriteIbis);
+        this.speed = rand(30, 60);
+    }
+    update(dt) {
+        this.x -= this.speed * dt;
+        if (this.x < -100) this.dead = true;
+    }
+}
+
+/* ---------------------------------------
+   POLICE (CHASERS)
+--------------------------------------- */
+class Cop extends Entity {
+    constructor(target) {
+        super(canvas.width + 100, target.y, 60, 60, spriteCop);
+        this.target = target;
+        this.speed = 180;
+        this.tripping = false;
+        this.tripTimer = 0;
+    }
+    update(dt) {
+        if (!this.tripping) {
+            this.x -= this.speed * dt;
+            if (chance(0.001)) {
+                this.tripping = true;
+                this.tripTimer = 0.7; // seconds
+            }
+        } else {
+            this.tripTimer -= dt;
+            if (this.tripTimer <= 0) this.dead = true;
+        }
+
+        // Collision with player → punish
+        if (Math.abs(this.x - this.target.x) < 40 &&
+            Math.abs(this.y - this.target.y) < 40) {
+            state.hope -= 8;
+            state.heat += 10;
+            this.dead = true;
+        }
+    }
+}
+
+/* ---------------------------------------
+   ADD INITIAL ENTITIES (PLAYER + DOG)
+--------------------------------------- */
+const player = new Player();
+const dog = new Dog(player);
+state.entities.push(player, dog);
+
+</script>
     cash: 0,
     timeAlive: 0,
     entities: [],
