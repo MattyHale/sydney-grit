@@ -56,10 +56,19 @@ This project is built with:
 
 ## How can I deploy this project?
 
-This app is configured to work well with GitHub Pages. After building, deploy the `dist` folder to your Pages branch or action.
+GitHub Pages can only serve static build output. Do **not** publish the raw source (`src`, `package.json`, etc.) or the site will appear blank. Instead, build the app and deploy the generated files from `dist` (or whatever folder your build produces).
 
 ```sh
 npm run build
 ```
 
-If you use a GitHub Actions workflow, ensure it publishes the `dist` output directory.
+After running the build you should have a structure like:
+
+```
+dist/
+  index.html
+  assets/
+  ...bundled files...
+```
+
+Publish the *contents* of `dist` to the branch/folder GitHub Pages serves (for example, the root of `gh-pages`), or configure your GitHub Actions workflow to publish the `dist` output directory.
