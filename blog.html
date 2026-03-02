@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EODI Blog Index</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      body {
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        color: #111;
+        background: #f6f8fb;
+      }
+
+      .site-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .site-header nav,
+      main {
+        width: min(920px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .site-header nav {
+        display: flex;
+        gap: 16px;
+        padding: 16px 0;
+      }
+
+      .site-header a {
+        color: inherit;
+        text-decoration: none;
+        opacity: 0.8;
+      }
+
+      .site-header a[aria-current="page"] {
+        opacity: 1;
+        font-weight: 600;
+      }
+
+      main {
+        padding: 28px 0 40px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.5rem, 3vw, 2.2rem);
+      }
+
+      .blog-intro {
+        max-width: 72ch;
+        margin: 10px 0 22px;
+        opacity: 0.85;
+      }
+
+      .post-card {
+        max-width: 72ch;
+        padding: 14px 16px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        margin: 12px 0;
+      }
+
+      .post-card h2 {
+        margin: 0 0 6px;
+        font-size: 18px;
+        line-height: 1.25;
+      }
+
+      .post-card h2 a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .post-meta {
+        font-size: 12px;
+        opacity: 0.65;
+        margin-bottom: 8px;
+      }
+
+      .post-excerpt {
+        margin: 0 0 10px;
+        opacity: 0.9;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .post-link {
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+      }
+
+      .post-link:hover {
+        border-bottom-color: rgba(0, 0, 0, 0.55);
+      }
+    </style>
+  </head>
+  <body data-disable-toc="true">
+    <header class="site-header">
+      <nav>
+        <a href="/">Home</a>
+        <a href="/blog.html" aria-current="page">Blog</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>EODI Blog Index</h1>
+      <p class="blog-intro">
+        Notes on Earth observation data infrastructure, automation, standards, and operating realities. Short,
+        technical, and opinionated where needed.
+      </p>
+
+      <article class="post-card">
+        <h2><a href="/blog/eo-data-infrastructure-for-isr-workflows.html">EO Data Infrastructure for ISR Workflows</a></h2>
+        <div class="post-meta">Mar 2026 · ISR</div>
+        <p class="post-excerpt">
+          ISR teams do not fail because imagery is unavailable; they fail when ingest, indexing, and handoff steps are
+          brittle under pressure. This post outlines a practical EO data architecture that keeps collections flowing,
+          preserves provenance, and shortens analyst turnaround during surge conditions.
+        </p>
+        <a class="post-link" href="/blog/eo-data-infrastructure-for-isr-workflows.html">Read</a>
+      </article>
+
+      <article class="post-card">
+        <h2><a href="/blog/stac-in-production-what-breaks-first.html">STAC in Production: What Breaks First</a></h2>
+        <div class="post-meta">Feb 2026 · Standards</div>
+        <p class="post-excerpt">
+          Adopting STAC quickly improves discovery, but production systems expose gaps in extension governance,
+          collection versioning, and operational metadata quality. This piece covers the first breakpoints teams see at
+          scale and the safeguards that keep catalogs dependable over time.
+        </p>
+        <a class="post-link" href="/blog/stac-in-production-what-breaks-first.html">Read</a>
+      </article>
+
+      <article class="post-card">
+        <h2><a href="/blog/automating-qa-for-imagery-pipelines.html">Automating QA for Imagery Pipelines</a></h2>
+        <div class="post-meta">Jan 2026 · Automation</div>
+        <p class="post-excerpt">
+          Manual spot checks cannot protect high-tempo imagery pipelines from silent regressions. We map a lightweight
+          QA automation stack using schema validation, pixel-level sanity checks, and delivery SLO alarms so defects are
+          detected early without slowing down release cadence.
+        </p>
+        <a class="post-link" href="/blog/automating-qa-for-imagery-pipelines.html">Read</a>
+      </article>
+    </main>
+
+    <script>
+      (() => {
+        if (document.body?.dataset?.disableToc === "true") return;
+        if (location.pathname.endsWith("/blog.html")) return;
+      })();
+    </script>
+  </body>
+</html>
