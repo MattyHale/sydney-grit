@@ -103,6 +103,45 @@
       .post-link:hover {
         border-bottom-color: rgba(0, 0, 0, 0.55);
       }
+
+      /* Mobile TOC + floating nav cleanup for article pages */
+      @media (max-width: 768px) {
+        .toc,
+        [data-toc] {
+          margin: 12px 16px 0;
+          padding: 0;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.75);
+        }
+
+        .toc .toc-title,
+        [data-toc] .toc-title {
+          padding: 12px 14px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+        }
+
+        .toc a,
+        [data-toc] a {
+          display: block;
+          padding: 10px 14px;
+          border: 0;
+          border-top: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 0;
+          background: transparent;
+          white-space: normal;
+          overflow: visible;
+          text-overflow: clip;
+        }
+
+        .prev-next,
+        .floating-nav,
+        .pager-float,
+        [data-floating-nav] {
+          display: none !important;
+        }
+      }
     </style>
   </head>
   <body data-disable-toc="true">
@@ -158,6 +197,62 @@
       (() => {
         if (document.body?.dataset?.disableToc === "true") return;
         if (location.pathname.endsWith("/blog.html")) return;
+
+        const toc = document.querySelector(".toc, [data-toc]");
+        if (!toc) return;
+
+        // De-dupe links by anchor href
+        const seen = new Set();
+        toc.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          const href = anchor.getAttribute("href");
+          if (!href) return;
+          if (seen.has(href)) {
+            const row = anchor.closest("li") || anchor;
+            row.remove();
+            return;
+          }
+          seen.add(href);
+        });
+
+        // Mobile accordion behavior
+        const mobileQuery = window.matchMedia("(max-width: 768px)");
+        const title = toc.querySelector(".toc-title") || toc.querySelector("[data-toc-title]");
+        const list = toc.querySelector(".toc-list") || toc.querySelector("ul, ol") || toc;
+
+        if (!title || !list || title === list) return;
+
+        title.style.cursor = "pointer";
+        title.setAttribute("role", "button");
+        title.tabIndex = 0;
+
+        const setCollapsed = (collapsed) => {
+          list.style.display = collapsed ? "none" : "";
+          title.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        };
+
+        const initializeState = () => {
+          setCollapsed(mobileQuery.matches);
+        };
+
+        const toggleList = () => {
+          const isHidden = list.style.display === "none";
+          setCollapsed(!isHidden);
+        };
+
+        title.addEventListener("click", toggleList);
+        title.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          toggleList();
+        });
+
+        if (typeof mobileQuery.addEventListener === "function") {
+          mobileQuery.addEventListener("change", initializeState);
+        } else if (typeof mobileQuery.addListener === "function") {
+          mobileQuery.addListener(initializeState);
+        }
+
+        initializeState();
       })();
     </script>
   </body>
